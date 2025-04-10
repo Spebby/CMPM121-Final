@@ -77,3 +77,29 @@ public class EnemySpawner : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
     }
 }
+
+[Serializable]
+public class Enemy{
+    public string name;
+    public int sprite;
+    public int hp;
+    public int speed;
+    public int damage;
+}
+
+[Serializable]
+public class Level{
+    public string name;
+    public string wave;
+    public List<Spawn> spawns;  
+}
+
+[Serializable]
+public class Spawn{
+    public string enemy;
+    public int count;
+    public int hp;
+    public delay;
+    public List<int> sequence;    
+    public string location;
+}
