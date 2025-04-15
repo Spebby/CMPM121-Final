@@ -1,21 +1,17 @@
 using UnityEngine;
 
-public class RelicUIManager : MonoBehaviour
-{
+
+public class RelicUIManager : MonoBehaviour {
     public GameObject relicUIPrefab;
     public PlayerController player;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
+    void Start() {
         //EventBus.Instance.OnRelicPickup += OnRelicPickup;
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    void Update() { }
 
     /*public void OnRelicPickup(Relic r)
     {
@@ -25,6 +21,6 @@ public class RelicUIManager : MonoBehaviour
         RelicUI ruic = rui.GetComponent<RelicUI>();
         ruic.player = player;
         ruic.index = player.relics.Count - 1;
-        
+
     }*/
 }

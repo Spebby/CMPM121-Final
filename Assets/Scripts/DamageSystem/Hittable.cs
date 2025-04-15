@@ -1,42 +1,41 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 
-public class Hittable
-{
 
-    public enum Team { PLAYER, MONSTERS }
+public class Hittable {
+    public enum Team {
+        PLAYER,
+        MONSTERS
+    }
+
+    // ReSharper disable once InconsistentNaming
     public Team team;
 
-    public int hp;
-    public int max_hp;
+    public int Hp;
+    public int MaxHp;
 
-    public GameObject owner;
+    public GameObject Owner;
 
-    public void Damage(Damage damage)
-    {
-        EventBus.Instance.DoDamage(owner.transform.position, damage, this);
-        hp -= damage.amount;
-        if (hp <= 0)
-        {
-            hp = 0;
-            OnDeath();
-        }
+    public void Damage(Damage damage) {
+        EventBus.Instance.DoDamage(Owner.transform.position, damage, this);
+        Hp -= damage.Amount;
+        if (Hp > 0) return;
+        Hp = 0;
+        this.OnDeath?.Invoke();
     }
 
     public event Action OnDeath;
 
-    public Hittable(int hp, Team team, GameObject owner)
-    {
-        this.hp = hp;
-        this.max_hp = hp;
+    public Hittable(int hp, Team team, GameObject owner) {
+        Hp        = hp;
+        MaxHp     = hp;
         this.team = team;
-        this.owner = owner;
+        Owner     = owner;
     }
 
-    public void SetMaxHP(int max_hp)
-    {
-        float perc = this.hp * 1.0f / this.max_hp;
-        this.max_hp = max_hp;
-        this.hp = Mathf.RoundToInt(perc * max_hp);
+    public void SetMaxHp(int maxHp) {
+        float ratio = Hp * 1.0f / MaxHp;
+        MaxHp = maxHp;
+        Hp    = Mathf.RoundToInt(ratio * maxHp);
     }
 }

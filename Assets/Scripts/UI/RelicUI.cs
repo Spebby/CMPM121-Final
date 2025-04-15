@@ -1,9 +1,9 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
-public class RelicUI : MonoBehaviour
-{
+
+public class RelicUI : MonoBehaviour {
     public PlayerController player;
     public int index;
 
@@ -12,8 +12,7 @@ public class RelicUI : MonoBehaviour
     public TextMeshProUGUI label;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
+    void Start() {
         // if a player has relics, this is how you *could* show them
         /*
         Relic r = player.relics[index];
@@ -22,8 +21,7 @@ public class RelicUI : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update() {
         // Relics could have labels and/or an active-status
         /*
         Relic r = player.relics[index];

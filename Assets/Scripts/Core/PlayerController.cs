@@ -1,17 +1,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using System.IO;
-using System.Collections.Generic;
+using UnityEngine.Serialization;
 
-public class PlayerController : MonoBehaviour
-{
-    public Hittable hp;
-    public HealthBar healthui;
-    public ManaBar manaui;
 
-    public SpellCaster spellcaster;
+public class PlayerController : MonoBehaviour {
+    public Hittable Hp;
+    [FormerlySerializedAs("healthui")] public HealthBar healthUI;
+    [FormerlySerializedAs("manaui")] public ManaBar manaUI;
+
+    public SpellCaster Spellcaster;
     public SpellUI spellui;
 
     public int speed;
@@ -19,51 +16,44 @@ public class PlayerController : MonoBehaviour
     public Unit unit;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        unit = GetComponent<Unit>();
-        GameManager.Instance.player = gameObject;
+    void Start() {
+        unit                        = this.GetComponent<Unit>();
+        GameManager.Instance.Player = gameObject;
     }
 
-    public void StartLevel()
-    {
-        spellcaster = new SpellCaster(125, 8, Hittable.Team.PLAYER);
-        StartCoroutine(spellcaster.ManaRegeneration());
-        
-        hp = new Hittable(100, Hittable.Team.PLAYER, gameObject);
-        hp.OnDeath += Die;
-        hp.team = Hittable.Team.PLAYER;
+    public void StartLevel() {
+        Spellcaster = new SpellCaster(125, 8, Hittable.Team.PLAYER);
+        this.StartCoroutine(Spellcaster.ManaRegeneration());
+
+        Hp         =  new Hittable(100, Hittable.Team.PLAYER, gameObject);
+        Hp.OnDeath += this.Die;
+        Hp.team    =  Hittable.Team.PLAYER;
 
         // tell UI elements what to show
-        healthui.SetHealth(hp);
-        manaui.SetSpellCaster(spellcaster);
-        spellui.SetSpell(spellcaster.spell);
+        healthUI.SetHealth(Hp);
+        manaUI.SetSpellCaster(Spellcaster);
+        spellui.SetSpell(Spellcaster.Spell);
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    void Update() { }
 
-    void OnAttack(InputValue value)
-    {
-        if (GameManager.Instance.state == GameManager.GameState.PREGAME || GameManager.Instance.state == GameManager.GameState.GAMEOVER) return;
+    void OnAttack(InputValue value) {
+        if (GameManager.Instance.State == GameManager.GameState.PREGAME
+         || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
         Vector2 mouseScreen = Mouse.current.position.value;
-        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(mouseScreen);
+        Vector3 mouseWorld  = Camera.main!.ScreenToWorldPoint(mouseScreen);
         mouseWorld.z = 0;
-        StartCoroutine(spellcaster.Cast(transform.position, mouseWorld));
+        this.StartCoroutine(Spellcaster.Cast(transform.position, mouseWorld));
     }
 
-    void OnMove(InputValue value)
-    {
-        if (GameManager.Instance.state == GameManager.GameState.PREGAME || GameManager.Instance.state == GameManager.GameState.GAMEOVER) return;
-        unit.movement = value.Get<Vector2>()*speed;
+    void OnMove(InputValue value) {
+        if (GameManager.Instance.State == GameManager.GameState.PREGAME
+         || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
+        unit.movement = value.Get<Vector2>() * speed;
     }
 
-    void Die()
-    {
+    void Die() {
         Debug.Log("You Lost");
     }
-
 }

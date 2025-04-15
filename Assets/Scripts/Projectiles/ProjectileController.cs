@@ -1,57 +1,45 @@
-using UnityEngine;
 using System;
 using System.Collections;
+using UnityEngine;
 
-public class ProjectileController : MonoBehaviour
-{
+
+public class ProjectileController : MonoBehaviour {
     public float lifetime;
-    public event Action<Hittable,Vector3> OnHit;
-    public ProjectileMovement movement;
-    
+    public event Action<Hittable, Vector3> OnHit;
+    public ProjectileMovement Movement;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    void Start() { }
 
     // Update is called once per frame
-    void Update()
-    {
-        movement.Movement(transform);
+    void Update() {
+        Movement.Movement(transform);
     }
 
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
+    void OnCollisionEnter2D(Collision2D collision) {
         if (collision.gameObject.CompareTag("projectile")) return;
-        if (collision.gameObject.CompareTag("unit"))
-        {
+        if (collision.gameObject.CompareTag("unit")) {
             var ec = collision.gameObject.GetComponent<EnemyController>();
-            if (ec != null)
-            {
-                OnHit(ec.hp, transform.position);
+            if (ec) {
+                this.OnHit!(ec.Hp, transform.position);
             }
-            else
-            {
+            else {
                 var pc = collision.gameObject.GetComponent<PlayerController>();
-                if (pc != null)
-                {
-                    OnHit(pc.hp, transform.position);
+                if (pc) {
+                    this.OnHit!(pc.Hp, transform.position);
                 }
             }
-
         }
+
         Destroy(gameObject);
     }
 
-    public void SetLifetime(float lifetime)
-    {
-        StartCoroutine(Expire(lifetime));
+    public void SetLifetime(float t) {
+        this.StartCoroutine(this.Expire(t));
     }
 
-    IEnumerator Expire(float lifetime)
-    {
-        yield return new WaitForSeconds(lifetime);
+    IEnumerator Expire(float t) {
+        yield return new WaitForSeconds(t);
         Destroy(gameObject);
     }
 }

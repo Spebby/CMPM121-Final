@@ -1,108 +1,103 @@
-using UnityEngine;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using System.IO;
-using System.Collections.Generic;
-using UnityEngine.UI;
+using System;
 using System.Collections;
-using System.Linq;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using UnityEngine;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
-public class EnemySpawner : MonoBehaviour
-{
-    public Image level_selector;
+
+public class EnemySpawner : MonoBehaviour {
+    [FormerlySerializedAs("level_selector")]
+    public Image levelSelector;
+
     public GameObject button;
     public GameObject enemy;
-    public SpawnPoint[] SpawnPoints;  
+    [FormerlySerializedAs("SpawnPoints")] public SpawnPoint[] spawnPoints;
 
-    public Dictionary<string, Enemy> enemy_types;
-    public List<Level> levels; 
+    public Dictionary<string, Enemy> EnemyTypes;
+    public List<Level> levels;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        GameObject selector = Instantiate(button, level_selector.transform);
-        selector.transform.localPosition = new Vector3(0, 130);
+    void Start() {
+        GameObject selector = Instantiate(button, levelSelector.transform);
+        selector.transform.localPosition                        = new Vector3(0, 130);
         selector.GetComponent<MenuSelectorController>().spawner = this;
         selector.GetComponent<MenuSelectorController>().SetLevel("Start");
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    void Update() { }
 
     //used reading JSON file example from Markus Eger's Lecture 4: Coupling
-    void LoadEnemiesJSON(){
-        enemy_types = new Dictionary<string, Enemy>();                  
-        var enemytext = Resources.Load<TextAsset>("enemies");           //variable to obtain the enemies.json
+    void LoadEnemiesJson() {
+        EnemyTypes = new Dictionary<string, Enemy>();
+        var enemyText = Resources.Load<TextAsset>("enemies"); //variable to obtain the enemies.json
 
-        JToken jo = JToken.Parse(enemytext.text);
-        foreach (var enemy in jo){
-            Enemy en = enemy.ToObject<Enemy>();                         //to read the enemies type
-            enemy_types[en.name] = en;
+        JToken jo = JToken.Parse(enemyText.text);
+        // ReSharper disable once LocalVariableHidesMember
+        foreach (JToken enemy in jo) {
+            var en = enemy.ToObject<Enemy>(); //to read the enemies type
+            EnemyTypes[en.name] = en;
         }
     }
 
     //used https://stackoverflow.com/questions/11126242/using-jsonconvert-deserializeobject-to-deserialize-json-to-a-c-sharp-poco-class to understand DeserializeObject
-    void LoadLevelsJSON(){
-
-        var leveltext = Resources.Load<TextAsset>("levels");            //to obtain the levels.json
-        levels = JsonConvert.DeserializeObject<List<Level>>(leveltext.text);
+    void LoadLevelsJson() {
+        var levelText = Resources.Load<TextAsset>("levels"); //to obtain the levels.json
+        levels = JsonConvert.DeserializeObject<List<Level>>(levelText.text);
     }
 
-    public void StartLevel(string levelname)
-    {
-        level_selector.gameObject.SetActive(false);
+    public void StartLevel(string levelName) {
+        levelSelector.gameObject.SetActive(false);
+
         // this is not nice: we should not have to be required to tell the player directly that the level is starting
-        GameManager.Instance.player.GetComponent<PlayerController>().StartLevel();
-        StartCoroutine(SpawnWave());
+        GameManager.Instance.Player.GetComponent<PlayerController>().StartLevel();
+        this.StartCoroutine(this.SpawnWave());
     }
 
-    public void NextWave()
-    {
-        StartCoroutine(SpawnWave());
+    public void NextWave() {
+        this.StartCoroutine(this.SpawnWave());
     }
-//
 
-    IEnumerator SpawnWave()
-    {
-        GameManager.Instance.state = GameManager.GameState.COUNTDOWN;
-        GameManager.Instance.countdown = 3;
-        for (int i = 3; i > 0; i--)
-        {
+    IEnumerator SpawnWave() {
+        GameManager.Instance.State     = GameManager.GameState.COUNTDOWN;
+        GameManager.Instance.Countdown = 3;
+        for (int i = 3; i > 0; i--) {
             yield return new WaitForSeconds(1);
-            GameManager.Instance.countdown--;
+            GameManager.Instance.Countdown--;
         }
-        GameManager.Instance.state = GameManager.GameState.INWAVE;
-        for (int i = 0; i < 10; ++i)
-        {
-            yield return SpawnZombie();
+
+        GameManager.Instance.State = GameManager.GameState.INWAVE;
+        for (int i = 0; i < 10; ++i) {
+            yield return this.SpawnZombie();
         }
-        yield return new WaitWhile(() => GameManager.Instance.enemy_count > 0);
-        GameManager.Instance.state = GameManager.GameState.WAVEEND;
+
+        yield return new WaitWhile(() => GameManager.Instance.EnemyCount > 0);
+        GameManager.Instance.State = GameManager.GameState.WAVEEND;
     }
 
-    IEnumerator SpawnZombie()
-    {
-        SpawnPoint spawn_point = SpawnPoints[Random.Range(0, SpawnPoints.Length)];
-        Vector2 offset = Random.insideUnitCircle * 1.8f;
-                
-        Vector3 initial_position = spawn_point.transform.position + new Vector3(offset.x, offset.y, 0);
-        GameObject new_enemy = Instantiate(enemy, initial_position, Quaternion.identity);
+    IEnumerator SpawnZombie() {
+        SpawnPoint spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+        Vector2    offset     = Random.insideUnitCircle * 1.8f;
 
-        new_enemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.enemySpriteManager.Get(0);
-        EnemyController en = new_enemy.GetComponent<EnemyController>();
-        en.hp = new Hittable(50, Hittable.Team.MONSTERS, new_enemy);
+        Vector3    initialPosition = spawnPoint.transform.position + new Vector3(offset.x, offset.y, 0);
+        GameObject newEnemy        = Instantiate(enemy, initialPosition, Quaternion.identity);
+
+        newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.EnemySpriteManager.Get(0);
+        var en = newEnemy.GetComponent<EnemyController>();
+        en.Hp    = new Hittable(50, Hittable.Team.MONSTERS, newEnemy);
         en.speed = 10;
-        GameManager.Instance.AddEnemy(new_enemy);
+        GameManager.Instance.AddEnemy(newEnemy);
         yield return new WaitForSeconds(0.5f);
     }
 }
 
 //enemy class
-[System.Serializable]
-public class Enemy{
+[Serializable]
+public class Enemy {
     public string name;
     public int sprite;
     public int hp;
@@ -111,71 +106,71 @@ public class Enemy{
 }
 
 //level class
-[System.Serializable]
-public class Level{
+[Serializable]
+public class Level {
     public string name;
     public int wave;
-    public List<Spawn> spawns;  
+    public List<Spawn> spawns;
 }
 
-[System.Serializable]
-public class Spawn{
+[Serializable]
+public class Spawn {
     public string enemy;
     public string count;
     public string hp;
     public int delay;
-    public List<int> sequence;      
+    public List<int> sequence;
     public string location;
 }
 
 //reverse polish notation class
 //this was provided by Markus Eger's Lecture 5: Design Patterns
-public class RPNEvaluator{
-    public static int Evalutate(string expression, Dictionary<string,int> variables)
-    {
-        Stack<int> stack = new Stack<int>();                 
-        foreach(string token in expression.Split(" "))  //to split the tokens 
+public class RpnEvaluator {
+    public static int Evaluate(string expression, Dictionary<string, int> variables) {
+        var stack = new Stack<int>();
+        foreach (string token in expression.Split(" ")) //to split the tokens 
         {
-            if (variables.ContainsKey(token)){                                                            //if a token is a variable name, push it to the stack
-                stack.Push(variables[token]);
+            if (variables.TryGetValue(token, out int variable)) { //if a token is a variable name, push it to the stack
+                stack.Push(variable);
             }
-            else if (token == "+" || token == "-" || token == "*" || token == "/" || token == "%"){       //checks if the token is an operator
+            else if (token is "+" or "-" or "*" or "/" or "%") {
+                //checks if the token is an operator
                 int a = stack.Pop();
                 int b = stack.Pop();
-                stack.Push(applyOperator(token, b, a));                                                  //to apply the operations using a helper function
+                stack.Push(ApplyOperator(token, b, a)); //to apply the operations using a helper function
             }
-            else{                                                                                      //checks if its an integer
+            else { //checks if it's an integer
                 stack.Push(int.Parse(token));
             }
-        }    
+        }
+
         return stack.Pop();
     }
 
     //to perform these operations
     //used http://www.math.bas.bg/bantchev/place/rpn/rpn.c%23.html to figure out creating a RPN
-    public static int applyOperator(string op, int b, int a){
-        int result = 0;                                                                               //to store the result
-        if(op == "+"){
-            result = b + a;
-        }
-        else if(op == "-"){
-            result = b - a;
-        }
-        else if(op == "*"){
-            result = b * a;
-        }
-        else if(op == "/"){
-            if(a == 0){                                                                                 //edge case to prevent dividing by zero?
+    public static int ApplyOperator(string op, int b, int a) {
+        int result = 0; //to store the result
+        switch (op) {
+            case "+":
+                result = b + a;
+                break;
+            case "-":
+                result = b - a;
+                break;
+            case "*":
+                result = b * a;
+                break;
+            case "/" when a == 0: //edge case to prevent dividing by zero?
                 return result;
-            }
-            else{
+            case "/":
                 result = b / a;
-            }
+                break;
+            case "%":
+                result = b % a;
+                break;
         }
-        else if(op == "%"){
-            result = b % a;
-        }
+
         return result;
     }
 }
-

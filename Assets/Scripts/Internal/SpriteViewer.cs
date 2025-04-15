@@ -1,90 +1,92 @@
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
-public class SpriteViewer : MonoBehaviour
-{
-    public enum Mode { SPELLICONS, ENEMIES, PROJECTILES, CLASSES }
-    public GameObject spriteView;
-    int per_row;
-    List<GameObject> views;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        per_row = (Screen.width - 40) / 80;
-        views = new List<GameObject>();
-        StartCoroutine(ShowView());
+
+public class SpriteViewer : MonoBehaviour {
+    public enum Mode {
+        SPELLICONS,
+        ENEMIES,
+        PROJECTILES,
+        CLASSES
     }
 
-    IEnumerator ShowView()
-    {
+    public GameObject spriteView;
+    int _perRow;
+
+    List<GameObject> _views;
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start() {
+        _perRow = (Screen.width - 40) / 80;
+        _views  = new List<GameObject>();
+        this.StartCoroutine(this.ShowView());
+    }
+
+    IEnumerator ShowView() {
         yield return new WaitForSeconds(0.1f);
-        ChangeMode("enemies");
+        this.ChangeMode("enemies");
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    void Update() { }
 
-    public void ChangeMode(string m)
-    {
-        foreach (var go in views)
-        {
+    public void ChangeMode(string m) {
+        foreach (GameObject go in _views) {
             Destroy(go);
         }
-        views.Clear();
-        if (m == "spellicons")
-        {
-            for (int i = 0; i < GameManager.Instance.spellIconManager.GetCount(); ++i)
-            {
-                var new_sv = Instantiate(spriteView, transform);
-                int x = i % per_row;
-                int y = i / per_row;
-                
-                new_sv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
-                new_sv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.spellIconManager.Get(i));
-                views.Add(new_sv);
+
+        _views.Clear();
+        switch (m) {
+            case "spellicons": {
+                for (int i = 0; i < GameManager.Instance.SpellIconManager.GetCount(); ++i) {
+                    GameObject newSv = Instantiate(spriteView, transform);
+                    int        x     = i % _perRow;
+                    int        y     = i / _perRow;
+
+                    newSv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
+                    newSv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.SpellIconManager.Get(i));
+                    _views.Add(newSv);
+                }
+
+                break;
             }
-        }
-        if (m == "enemies")
-        {
-            for (int i = 0; i < GameManager.Instance.enemySpriteManager.GetCount(); ++i)
-            {
-                var new_sv = Instantiate(spriteView, transform);
-                int x = i % per_row;
-                int y = i / per_row;
-                new_sv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
-                new_sv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.enemySpriteManager.Get(i));
-                views.Add(new_sv);
+            case "enemies": {
+                for (int i = 0; i < GameManager.Instance.EnemySpriteManager.GetCount(); ++i) {
+                    GameObject newSv = Instantiate(spriteView, transform);
+                    int        x     = i % _perRow;
+                    int        y     = i / _perRow;
+                    newSv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
+                    newSv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.EnemySpriteManager.Get(i));
+                    _views.Add(newSv);
+                }
+
+                break;
             }
-        }
-        if (m == "relics")
-        {
-            for (int i = 0; i < GameManager.Instance.relicIconManager.GetCount(); ++i)
-            {
-                var new_sv = Instantiate(spriteView, transform);
-                int x = i % per_row;
-                int y = i / per_row;
-                new_sv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
-                new_sv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.relicIconManager.Get(i));
-                views.Add(new_sv);
+            case "relics": {
+                for (int i = 0; i < GameManager.Instance.RelicIconManager.GetCount(); ++i) {
+                    GameObject newSv = Instantiate(spriteView, transform);
+                    int        x     = i % _perRow;
+                    int        y     = i / _perRow;
+                    newSv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
+                    newSv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.RelicIconManager.Get(i));
+                    _views.Add(newSv);
+                }
+
+                break;
             }
-        }
-        if (m == "player")
-        {
-            for (int i = 0; i < GameManager.Instance.playerSpriteManager.GetCount(); ++i)
-            {
-                var new_sv = Instantiate(spriteView, transform);
-                int x = i % per_row;
-                int y = i / per_row;
-                new_sv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
-                new_sv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.playerSpriteManager.Get(i));
-                views.Add(new_sv);
+            case "player": {
+                for (int i = 0; i < GameManager.Instance.PlayerSpriteManager.GetCount(); ++i) {
+                    GameObject newSv = Instantiate(spriteView, transform);
+                    int        x     = i % _perRow;
+                    int        y     = i / _perRow;
+                    newSv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
+                    newSv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.PlayerSpriteManager.Get(i));
+                    _views.Add(newSv);
+                }
+
+                break;
             }
         }
     }
-
-    
 }
