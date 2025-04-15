@@ -12,7 +12,10 @@ public class EnemySpawner : MonoBehaviour
     public Image level_selector;
     public GameObject button;
     public GameObject enemy;
-    public SpawnPoint[] SpawnPoints;    
+    public SpawnPoint[] SpawnPoints;  
+
+    public Dictionary<string, Enemy> enemy_types;
+    public List<Level> levels; 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -29,6 +32,25 @@ public class EnemySpawner : MonoBehaviour
         
     }
 
+    //used reading JSON file example from Markus Eger's Lecture 4: Coupling
+    void LoadEnemiesJSON(){
+        enemy_types = new Dictionary<string, Enemy>();                  
+        var enemytext = Resources.Load<TextAsset>("enemies");           //variable to obtain the enemies.json
+
+        JToken jo = JToken.Parse(enemytext.text);
+        foreach (var enemy in jo){
+            Enemy en = enemy.ToObject<Enemy>();                         //to read the enemies type
+            enemy_types[en.name] = en;
+        }
+    }
+
+    //used https://stackoverflow.com/questions/11126242/using-jsonconvert-deserializeobject-to-deserialize-json-to-a-c-sharp-poco-class to understand DeserializeObject
+    void LoadLevelsJSON(){
+
+        var leveltext = Resources.Load<TextAsset>("levels");            //to obtain the levels.json
+        levels = JsonConvert.DeserializeObject<List<Level>>(leveltext.text);
+    }
+
     public void StartLevel(string levelname)
     {
         level_selector.gameObject.SetActive(false);
@@ -41,7 +63,7 @@ public class EnemySpawner : MonoBehaviour
     {
         StartCoroutine(SpawnWave());
     }
-
+//
 
     IEnumerator SpawnWave()
     {
@@ -78,7 +100,8 @@ public class EnemySpawner : MonoBehaviour
     }
 }
 
-[Serializable]
+//enemy class
+[System.Serializable]
 public class Enemy{
     public string name;
     public int sprite;
@@ -87,19 +110,72 @@ public class Enemy{
     public int damage;
 }
 
-[Serializable]
+//level class
+[System.Serializable]
 public class Level{
     public string name;
-    public string wave;
+    public int wave;
     public List<Spawn> spawns;  
 }
 
-[Serializable]
+[System.Serializable]
 public class Spawn{
     public string enemy;
-    public int count;
-    public int hp;
-    public delay;
-    public List<int> sequence;    
+    public string count;
+    public string hp;
+    public int delay;
+    public List<int> sequence;      
     public string location;
 }
+
+//reverse polish notation class
+//this was provided by Markus Eger's Lecture 5: Design Patterns
+public class RPNEvaluator{
+    public static int Evalutate(string expression, Dictionary<string,int> variables)
+    {
+        Stack<int> stack = new Stack<int>();                 
+        foreach(string token in expression.Split(" "))  //to split the tokens 
+        {
+            if (variables.ContainsKey(token)){                                                            //if a token is a variable name, push it to the stack
+                stack.Push(variables[token]);
+            }
+            else if (token == "+" || token == "-" || token == "*" || token == "/" || token == "%"){       //checks if the token is an operator
+                int a = stack.Pop();
+                int b = stack.Pop();
+                stack.Push(applyOperator(token, b, a));                                                  //to apply the operations using a helper function
+            }
+            else{                                                                                      //checks if its an integer
+                stack.Push(int.Parse(token));
+            }
+        }    
+        return stack.Pop();
+    }
+
+    //to perform these operations
+    //used http://www.math.bas.bg/bantchev/place/rpn/rpn.c%23.html to figure out creating a RPN
+    public static int applyOperator(string op, int b, int a){
+        int result = 0;                                                                               //to store the result
+        if(op == "+"){
+            result = b + a;
+        }
+        else if(op == "-"){
+            result = b - a;
+        }
+        else if(op == "*"){
+            result = b * a;
+        }
+        else if(op == "/"){
+            if(a == 0){                                                                                 //edge case to prevent dividing by zero?
+                return result;
+            }
+            else{
+                result = b / a;
+            }
+        }
+        else if(op == "%"){
+            result = b % a;
+        }
+        return result;
+    }
+}
+
