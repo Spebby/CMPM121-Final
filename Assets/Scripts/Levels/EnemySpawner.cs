@@ -79,6 +79,28 @@ public class EnemySpawner : MonoBehaviour {
         GameManager.Instance.State = GameManager.GameState.WAVEEND;
     }
 
+    //to spawn all enemies of one type
+    IEnumerator SpawnEnemies(Spawn spawn, int wave){
+        int n = 0;
+        int count = RpnEvaluator.Evaluate(spawn.count, new Dictionary<string, int> { { "wave", wave } });   //the amount of enemies
+        int delay = spawn.delay;                                                                            //delay between consecutive spawns
+        List<int> sequence = spawn.sequence;                                                                //how many should be spawned
+        int sequenceIndex = 0;                                                                              //index to traverse the sequence list 
+
+        //this was provided by Markus Eger's Lecture 5: Design Patterns in psudocode
+        while (n < count){
+            int required = sequence[sequenceIndex];
+            for(int i = 0; i < required; i++){
+                if(n == count){
+                    break;
+                }
+                SpawnEnemy(spawn, wave);        
+                n++;
+            }
+            yield return new WaitForSeconds(delay)
+        }
+    }
+
     IEnumerator SpawnZombie() {
         SpawnPoint spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
         Vector2    offset     = Random.insideUnitCircle * 1.8f;
