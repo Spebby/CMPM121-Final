@@ -26,6 +26,9 @@ public class EnemySpawner : MonoBehaviour {
         selector.transform.localPosition                        = new Vector3(0, 130);
         selector.GetComponent<MenuSelectorController>().spawner = this;
         selector.GetComponent<MenuSelectorController>().SetLevel("Start");
+        
+        LoadEnemiesJson();
+        LoadLevelsJson();
     }
 
     // Update is called once per frame
@@ -54,15 +57,22 @@ public class EnemySpawner : MonoBehaviour {
         levelSelector.gameObject.SetActive(false);
 
         // this is not nice: we should not have to be required to tell the player directly that the level is starting
+        
+        //get the level name
+        Level currentLevel = levels.Find(level => level.name == levelName);
+        
+        
+        //to start the level
         GameManager.Instance.Player.GetComponent<PlayerController>().StartLevel();
-        this.StartCoroutine(this.SpawnWave());
+        StartCoroutine(SpawnWave(currentLevel, 1));
     }
 
-    public void NextWave() {
-        this.StartCoroutine(this.SpawnWave());
+    public void NextWave(Level currentLevel, int wave) {
+        //to move to the next wave
+        StartCoroutine(SpawnWave(currentLevel, wave));
     }
 
-    IEnumerator SpawnWave() {
+    IEnumerator SpawnWave(Level level, int wave) {
         GameManager.Instance.State     = GameManager.GameState.COUNTDOWN;
         GameManager.Instance.Countdown = 3;
         for (int i = 3; i > 0; i--) {
@@ -71,10 +81,20 @@ public class EnemySpawner : MonoBehaviour {
         }
 
         GameManager.Instance.State = GameManager.GameState.INWAVE;
+
+        //to spawn all the enemies of the wave using a start coroutine.
+        foreach (var spawn in level.spawns){
+            yield return StartCoroutine(SpawnEnemies(spawn, wave)); 
+        }
+        
+        /*
+        //this spawn only zombies
         for (int i = 0; i < 10; ++i) {
             yield return this.SpawnZombie();
         }
+        */
 
+        //this waits until all enemies are gone
         yield return new WaitWhile(() => GameManager.Instance.EnemyCount > 0);
         GameManager.Instance.State = GameManager.GameState.WAVEEND;
     }
@@ -97,10 +117,11 @@ public class EnemySpawner : MonoBehaviour {
                 SpawnEnemy(spawn, wave);        
                 n++;
             }
-            yield return new WaitForSeconds(delay)
+            yield return new WaitForSeconds(delay);
         }
     }
 
+/*
     IEnumerator SpawnZombie() {
         SpawnPoint spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
         Vector2    offset     = Random.insideUnitCircle * 1.8f;
@@ -115,6 +136,23 @@ public class EnemySpawner : MonoBehaviour {
         GameManager.Instance.AddEnemy(newEnemy);
         yield return new WaitForSeconds(0.5f);
     }
+*/
+/*
+    void SpawnEnemy(Spawn spawn, int wave) {
+        // Where? change to only spawn at eligible spawn points (e.g. only red ones)
+        SpawnPoint spawn_point = SpawnPoints[Random.Range(0, SpawnPoints.Length)];
+        Vector2 offset = Random.insideUnitCircle * 1.8f;        
+        Vector3 initial_position = spawn_point.transform.position + new Vector3(offset.x, offset.y, 0);
+        // Create Instance
+        GameObject new_enemy = Instantiate(enemy, initial_position, Quaternion.identity);
+        // Set Parameters; you will need to replace the numbers with the evaluated RPN values
+        new_enemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.enemySpriteManager.Get(0);
+        EnemyController en = new_enemy.GetComponent<EnemyController>();
+        en.hp = new Hittable(50, Hittable.Team.MONSTERS, new_enemy);
+        en.speed = 10;
+        GameManager.Instance.AddEnemy(new_enemy);
+    }
+*/
 }
 
 //enemy class
