@@ -26,9 +26,10 @@ public class EnemySpawner : MonoBehaviour {
         selector.transform.localPosition                        = new Vector3(0, 130);
         selector.GetComponent<MenuSelectorController>().spawner = this;
         selector.GetComponent<MenuSelectorController>().SetLevel("Start");
-        
-        LoadEnemiesJson();
-        LoadLevelsJson();
+    
+    
+        LoadEnemiesJson(); //to load the enemies.json
+        LoadLevelsJson();  //to load the levels.json
     }
 
     // Update is called once per frame
@@ -60,8 +61,7 @@ public class EnemySpawner : MonoBehaviour {
         
         //get the level name
         Level currentLevel = levels.Find(level => level.name == levelName);
-        
-        
+
         //to start the level
         GameManager.Instance.Player.GetComponent<PlayerController>().StartLevel();
         StartCoroutine(SpawnWave(currentLevel, 1));
@@ -82,7 +82,7 @@ public class EnemySpawner : MonoBehaviour {
 
         GameManager.Instance.State = GameManager.GameState.INWAVE;
 
-        //to spawn all the enemies of the wave using a start coroutine.
+        //to spawn enemies of the wave using start coroutine.
         foreach (var spawn in level.spawns){
             yield return StartCoroutine(SpawnEnemies(spawn, wave)); 
         }
@@ -137,6 +137,7 @@ public class EnemySpawner : MonoBehaviour {
         yield return new WaitForSeconds(0.5f);
     }
 */
+
 /*
     void SpawnEnemy(Spawn spawn, int wave) {
         // Where? change to only spawn at eligible spawn points (e.g. only red ones)
