@@ -34,6 +34,11 @@ namespace CMPM.Level {
 
         [Header("UI")]
         [SerializeField] GameObject levelSelector;
+       
+        #region Privates
+        Level _currentLevel;
+        int _currentWave;
+        #endregion
         
         void Awake() {
             LoadEnemiesJson(Resources.Load<TextAsset>("enemies"));
@@ -58,13 +63,13 @@ namespace CMPM.Level {
             }
         }
 
-        // I wrote some JsonConverters [[../Utils/.]] to make the parsing logic cleaner. I may change more but for
-        // the moment this is acceptable.
+        // I wrote some JsonConverters to make the parsing logic less cluttered.
+        // I may change more but for the moment this is acceptable.
         void LoadLevelsJson(in TextAsset levelText, in Hashtable<string, Enemy> enemies) {
             // Set up a custom JsonConverter that includes the enemies dictionary
             var settings = new JsonSerializerSettings {
                 Converters = new List<JsonConverter> {
-                    new SpawnEnemyParser(enemies) // <- pass your enemy dictionary here
+                    new SpawnEnemyParser(enemies)
                 }
             };
             
@@ -81,6 +86,7 @@ namespace CMPM.Level {
                     FormulaFallback(ref spawn.HPFormula,     fallback.baseHP);
                     FormulaFallback(ref spawn.damageFormula, fallback.damage);
                     FormulaFallback(ref spawn.speedFormula,  fallback.speed);
+                    spawn.sequence ??= new[] { 1 };
                 }
             }
         }
@@ -88,12 +94,15 @@ namespace CMPM.Level {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void FormulaFallback(ref string str, int fallback) => str = string.IsNullOrEmpty(str) ? Convert.ToString(fallback) : str;
 
+        
         public void StartLevel(string levelName) {
             levelSelector.gameObject.SetActive(false);
 
             // this is not nice: we should not have to be required to tell the player directly that the level is starting
 
             Level currentLevel = levels.Find(level => level.name == levelName);
+            GameManager.INSTANCE.totalWaves  = currentLevel.waves;
+            GameManager.INSTANCE.currentWave = 1;
 
             //to start the level
             GameManager.INSTANCE.Player.GetComponent<PlayerController>().StartLevel();
@@ -105,9 +114,17 @@ namespace CMPM.Level {
             StartCoroutine(SpawnWave(currentLevel, wave));
         }
 
+        public void NextWave() {
+            StartCoroutine(SpawnWave(_currentLevel, ++_currentWave));
+        }
+
         // It may be good to also make this async at some point. I don't see any reason *why* it has to sync w/
         // game manager, especially as this function gets more complex
         IEnumerator SpawnWave(Level level, int wave) {
+            _currentLevel = level;
+            _currentWave  = wave;
+            GameManager.INSTANCE.currentWave = _currentWave;
+            
             GameManager.INSTANCE.State     = GameManager.GameState.COUNTDOWN;
             GameManager.INSTANCE.Countdown = 3;
             for (int i = 3; i > 0; i--) {
@@ -117,16 +134,18 @@ namespace CMPM.Level {
 
             GameManager.INSTANCE.State = GameManager.GameState.INWAVE;
 
+
             // Definition of Embarrassingly Parallel
             foreach (Spawn spawn in level.spawns) {
                 _ = SpawnEnemies(spawn, wave);
             }
 
             yield return new WaitWhile(() => GameManager.INSTANCE.EnemyCount > 0);
-            GameManager.INSTANCE.State = GameManager.GameState.WAVEEND;
+            if (GameManager.INSTANCE.State != GameManager.GameState.GAMEOVER) {
+                GameManager.INSTANCE.State = GameManager.GameState.WAVEEND;
+            }
         }
 
-        //to spawn all enemies of one type
         async Task SpawnEnemies(Spawn spawn, int wave) {
             int   n             = 0;
             int   count         = RPN.Evaluate(spawn.count, new Hashtable<string, int> { { "wave", wave } });
@@ -138,7 +157,13 @@ namespace CMPM.Level {
             if (spawn.location != SpawnPoint.SpawnName.RANDOM) {
                 validSpawns = spawnPoints.Where(point => point.kind == spawn.location).ToArray();
             }
-            
+
+            EnemyPacket ep = new() {
+                HP     = RPN.Evaluate(spawn.HPFormula,     new Hashtable<string, int>() { { "wave", wave }, { "base", spawn.enemy.baseHP } }),
+                Damage = RPN.Evaluate(spawn.damageFormula, new Hashtable<string, int>() { { "wave", wave }, { "base", spawn.enemy.damage } }),
+                Speed  = RPN.Evaluate(spawn.speedFormula,  new Hashtable<string, int>() { { "wave", wave }, { "base", spawn.enemy.speed  } })
+            };
+
             //this was provided by Markus Eger's Lecture 5: Design Patterns in pseudocode
             while (n < count) {
                 int required = sequence![sequenceIndex];
@@ -148,7 +173,7 @@ namespace CMPM.Level {
                         break;
                     }
 
-                    SpawnEnemy(spawn, wave, validSpawns);
+                    SpawnEnemy(spawn, ep, validSpawns);
                     n++;
                 }
 
@@ -156,18 +181,19 @@ namespace CMPM.Level {
             }
         }
 
-        void SpawnEnemy(in Spawn spawn, in int wave, in SpawnPoint[] points) {
+        void SpawnEnemy(in Spawn spawn, in EnemyPacket packet, in SpawnPoint[] points) {
             SpawnPoint p      = points[Random.Range(0, points.Length)];
             Vector2    offset = Random.insideUnitCircle * 1.8f;
-            
+
             Vector3    initialPosition = p.transform.position + new Vector3(offset.x, offset.y, 0);
             GameObject newEnemy = Instantiate(enemy, initialPosition, Quaternion.identity);
             
-            // Set Parameters; you will need to replace the numbers with the evaluated RPN values
-            newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.INSTANCE.EnemySpriteManager.Get(0);
+            newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.INSTANCE.EnemySpriteManager.Get(spawn.enemy.sprite);
             EnemyController en = newEnemy.GetComponent<EnemyController>();
-            en.HP    = new Hittable(50, Hittable.Team.MONSTERS, newEnemy);
-            en.speed = 10;
+            en.HP    = new Hittable(packet.HP, Hittable.Team.MONSTERS, newEnemy);
+            en.speed = packet.Speed;
+            
+            // I don't have the time to refactor the enemy rn to make the damage amount be different
             GameManager.INSTANCE.AddEnemy(newEnemy);
         }
     }
@@ -206,5 +232,11 @@ namespace CMPM.Level {
         [CanBeNull] public int[] sequence;
         [JsonConverter(typeof(SpawnLocationParser))]
         public SpawnPoint.SpawnName location;
+    }
+
+    struct EnemyPacket {
+        public int HP;
+        public int Damage;
+        public int Speed;
     }
 }

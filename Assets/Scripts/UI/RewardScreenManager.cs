@@ -1,22 +1,101 @@
 using CMPM.Core;
+using CMPM.DamageSystem;
+using TMPro;
 using UnityEngine;
+using static CMPM.Core.GameManager.GameState;
 
 
 namespace CMPM.UI {
     public class RewardScreenManager : MonoBehaviour {
-        public GameObject rewardUI;
+        public GameObject endUI;
+        public GameObject nextButton;
+        public GameObject regUI;
+        public TextMeshProUGUI stats;
         GameObject _panel;
-            
+        
+        // I don't have time to give it a proper spot for now, so stat collection is going in here for the moment
+        double _timeSpent;
+        int _damageDone;
+        int _damageTaken;
+        
         void OnEnable() {
             _panel ??= GameObject.FindWithTag($"UIPanelPopup");
             if (!_panel) throw new MissingComponentException("UIPanelPopup not found");
+            EventBus.Instance.OnDamage += UpdateDamageStats;
         }
-        
+
+        void OnDisable() {
+            EventBus.Instance.OnDamage -= UpdateDamageStats;
+        }
+
         // Update is called once per frame
         void LateUpdate() {
-            if (GameManager.INSTANCE.State != GameManager.GameState.WAVEEND) return;
-            _panel.SetActive(true);
-            rewardUI.SetActive(true);
+            // this is ass
+            switch (GameManager.INSTANCE.State) {
+                case WAVEEND:
+                    SetRewardScreen();
+                    break;
+                case GAMEOVER:
+                    SetLossScreen();
+                    break;
+                case INWAVE:
+                    _timeSpent += Time.deltaTime;
+                    break;
+                case PREGAME:
+                    SetStartScreen();
+                    break;
+                case COUNTDOWN:
+                default:
+                    DisableUI();
+                    break;
+            }
         }
+
+        public void SetStartScreen() {
+            GameManager.INSTANCE.State = PREGAME;
+            _panel.SetActive(true);
+            regUI.SetActive(true);
+            endUI.SetActive(false);
+        }
+
+        void UpdateDamageStats(Vector3 target, Damage damage, Hittable hittable) {
+            if (hittable.Owner != GameManager.INSTANCE.Player) {
+                _damageDone += damage.Amount;
+                return;
+            }
+            // ^ This assumes that only the player can damage other entities.
+
+            _damageTaken += damage.Amount;
+        }
+
+        public void SetLossScreen() {
+            _panel.SetActive(true);
+            regUI.SetActive(false);
+            endUI.SetActive(true);
+            nextButton.SetActive(false);
+            
+            stats.text = $"Time Spent: {_timeSpent:F2}\tDamage Done: {_damageDone}\tDamage Taken: {_damageTaken}";
+        }
+        
+        public void SetRewardScreen() {
+            regUI.SetActive(false);
+            _panel.SetActive(true);
+            endUI.SetActive(true);
+            nextButton.SetActive(true);
+            
+            string extra    = "";
+            string waveText = $"\tWave: {GameManager.INSTANCE.currentWave}";
+            if (GameManager.INSTANCE.totalWaves > 0) {
+                waveText += $"/{GameManager.INSTANCE.totalWaves}";
+                if (GameManager.INSTANCE.currentWave == GameManager.INSTANCE.totalWaves) {
+                    extra = "\nYou Win!";
+                    nextButton.SetActive(false);
+                }
+            }
+
+            stats.text = $"Time Spent: {_timeSpent:F2}\tDamage Done: {_damageDone}\tDamage Taken: {_damageTaken}{waveText}{extra}";
+        }
+
+        public void DisableUI() => _panel.SetActive(false);
     }
 }

@@ -1,4 +1,5 @@
 using CMPM.DamageSystem;
+using CMPM.Level;
 using CMPM.Movement;
 using CMPM.Spells;
 using CMPM.UI;
@@ -55,7 +56,7 @@ namespace CMPM.Core {
         }
 
         void Die() {
-            Debug.Log("You Lost");
+            GameManager.INSTANCE.SetGameOver();
         }
     }
 }

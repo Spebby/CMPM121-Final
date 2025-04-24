@@ -12,9 +12,6 @@ namespace CMPM.UI {
             EventBus.Instance.OnDamage += OnDamage;
         }
 
-        // Update is called once per frame
-        void Update() { }
-
         void OnDamage(Vector3 where, Damage dmg, Hittable target) {
             GameObject newDmgNr = Instantiate(damageNumber, where, Quaternion.identity);
             Vector3    dmgPos   = where + new Vector3(0, 0, -2);

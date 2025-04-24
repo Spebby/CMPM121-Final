@@ -19,5 +19,12 @@
        "hp": 30,
        "speed": 7,
        "damage": 10
-   } 
+   },
+   {
+		"name": "goat",
+		"sprite": 26,
+		"hp": 40,
+		"speed": 8,
+		"damage": 0
+   }
 ]
