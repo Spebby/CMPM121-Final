@@ -9,11 +9,12 @@ namespace CMPM.UI {
         public string level;
         public EnemySpawner spawner;
 
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start() { }
-
-        // Update is called once per frame
-        void Update() { }
+        GameObject _panel;
+        
+        void OnEnable() {
+            _panel ??= GameObject.FindWithTag($"UIPanelPopup");
+            if (!_panel) throw new MissingComponentException("UIPanelPopup not found");
+        }
 
         public void SetLevel(string text) {
             level      = text;
@@ -21,6 +22,7 @@ namespace CMPM.UI {
         }
 
         public void StartLevel() {
+            _panel.SetActive(false); 
             spawner.StartLevel(level);
         }
     }

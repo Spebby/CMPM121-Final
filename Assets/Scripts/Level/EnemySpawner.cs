@@ -1,26 +1,34 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+
 using CMPM.Core;
 using CMPM.DamageSystem;
 using CMPM.Movement;
 using CMPM.Structures;
 using CMPM.UI;
 using CMPM.Utils;
+
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
 using Random = UnityEngine.Random;
+// This is the most imports I've ever had in my life.
 
 
 namespace CMPM.Level {
     public class EnemySpawner : MonoBehaviour {
         public GameObject button;
         public GameObject enemy;
-        [FormerlySerializedAs("SpawnPoints")] public SpawnPoint[] spawnPoints;
+        public SpawnPoint[] spawnPoints;
 
+        // We may be able to get away w/ making this a static member for easier usage for parser,
+        // but there's not a (ton) of reason to expose it publicly to begin with.
         public Hashtable<string, Enemy> enemyTypes;
         public List<Level> levels;
 
@@ -28,12 +36,10 @@ namespace CMPM.Level {
         [SerializeField] GameObject levelSelector;
         
         void Awake() {
-            // This is ass
-
-
             LoadEnemiesJson(Resources.Load<TextAsset>("enemies"));
             LoadLevelsJson(Resources.Load<TextAsset>("levels"), enemyTypes);
 
+            // TODO: In the future I'd like a little more artistic control
             foreach (Level level in levels) {
                 GameObject selector = Instantiate(button, levelSelector.transform);
                 selector.transform.SetParent(levelSelector.transform);
@@ -52,31 +58,35 @@ namespace CMPM.Level {
             }
         }
 
+        // I wrote some JsonConverters [[../Utils/.]] to make the parsing logic cleaner. I may change more but for
+        // the moment this is acceptable.
         void LoadLevelsJson(in TextAsset levelText, in Hashtable<string, Enemy> enemies) {
-            levels = JsonConvert.DeserializeObject<List<Level>>(levelText.text);
-            // There's a more suave way to do this w/ JsonConverters but I'd rather not get caught up in that rn.
+            // Set up a custom JsonConverter that includes the enemies dictionary
+            var settings = new JsonSerializerSettings {
+                Converters = new List<JsonConverter> {
+                    new SpawnEnemyParser(enemies) // <- pass your enemy dictionary here
+                }
+            };
+            
+            levels = JsonConvert.DeserializeObject<List<Level>>(levelText.text, settings);
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator <-- go home resharper, you're drunk
             foreach (Level level in levels) {
-                for (int i = 0; i < level.spawns.Count; i++) {
-                    Spawn spawn = level.spawns[i];
-                    
-                    spawn.HPFormula = string.IsNullOrEmpty(spawn.HPFormula)
-                        ? Convert.ToString(enemies[spawn.enemy].baseHP)
-                        : spawn.HPFormula;
-                    
-                    spawn.damageFormula = string.IsNullOrEmpty(spawn.damageFormula)
-                        ? Convert.ToString(enemies[spawn.enemy].damage)
-                        : spawn.damageFormula;
-
-                    spawn.speedFormula = string.IsNullOrEmpty(spawn.speedFormula)
-                        ? Convert.ToString(enemies[spawn.enemy].damage)
-                        : spawn.speedFormula;
-                    
-                    
-                    
-                    level.spawns[i] = spawn;
+                /* Tandy -- Spans in C# give access to the memory more directly, they're not persistent though. (Stack Allocated)
+                 * I'm doing this b/c structs are "value types" which mean they are "Pass by Value" not "Pass by Reference"
+                 * ergo, it's a copy. By using a ref here, we're telling the JIT to use the regular memory address
+                 * so we can skip making a copy, + we won't have to reassign later.
+                 */
+                foreach (ref Spawn spawn in level.spawns.AsSpan()) {
+                    ref Enemy fallback = ref spawn.enemy;
+                    FormulaFallback(ref spawn.HPFormula,     fallback.baseHP);
+                    FormulaFallback(ref spawn.damageFormula, fallback.damage);
+                    FormulaFallback(ref spawn.speedFormula,  fallback.speed);
                 }
             }
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void FormulaFallback(ref string str, int fallback) => str = string.IsNullOrEmpty(str) ? Convert.ToString(fallback) : str;
 
         public void StartLevel(string levelName) {
             levelSelector.gameObject.SetActive(false);
@@ -95,6 +105,8 @@ namespace CMPM.Level {
             StartCoroutine(SpawnWave(currentLevel, wave));
         }
 
+        // It may be good to also make this async at some point. I don't see any reason *why* it has to sync w/
+        // game manager, especially as this function gets more complex
         IEnumerator SpawnWave(Level level, int wave) {
             GameManager.INSTANCE.State     = GameManager.GameState.COUNTDOWN;
             GameManager.INSTANCE.Countdown = 3;
@@ -105,8 +117,9 @@ namespace CMPM.Level {
 
             GameManager.INSTANCE.State = GameManager.GameState.INWAVE;
 
+            // Definition of Embarrassingly Parallel
             foreach (Spawn spawn in level.spawns) {
-                yield return StartCoroutine(SpawnEnemies(spawn, wave));
+                _ = SpawnEnemies(spawn, wave);
             }
 
             yield return new WaitWhile(() => GameManager.INSTANCE.EnemyCount > 0);
@@ -114,51 +127,42 @@ namespace CMPM.Level {
         }
 
         //to spawn all enemies of one type
-        IEnumerator SpawnEnemies(Spawn spawn, int wave) {
-            int n = 0;
-            int count = RPN.Evaluate(spawn.count, new Hashtable<string, int> { { "wave", wave } }); //the amount of enemies
-            int       delay         = spawn.delay; //delay between consecutive spawns
-            List<int> sequence      = spawn.sequence; //how many should be spawned
-            int       sequenceIndex = 0; //index to traverse the sequence list 
+        async Task SpawnEnemies(Spawn spawn, int wave) {
+            int   n             = 0;
+            int   count         = RPN.Evaluate(spawn.count, new Hashtable<string, int> { { "wave", wave } });
+            int   delay         = spawn.delay;
+            int[] sequence      = spawn.sequence;
+            int   sequenceIndex = 0;
 
-            //this was provided by Markus Eger's Lecture 5: Design Patterns in psudocode
+            SpawnPoint[] validSpawns = spawnPoints;
+            if (spawn.location != SpawnPoint.SpawnName.RANDOM) {
+                validSpawns = spawnPoints.Where(point => point.kind == spawn.location).ToArray();
+            }
+            
+            //this was provided by Markus Eger's Lecture 5: Design Patterns in pseudocode
             while (n < count) {
-                int required = sequence[sequenceIndex];
+                int required = sequence![sequenceIndex];
+                sequenceIndex = ++sequenceIndex % sequence.Length;
                 for (int i = 0; i < required; i++) {
                     if (n == count) {
                         break;
                     }
 
-                    SpawnEnemy(spawn, wave);
+                    SpawnEnemy(spawn, wave, validSpawns);
                     n++;
                 }
 
-                yield return new WaitForSeconds(delay);
+                await Task.Delay(delay);
             }
         }
 
-        IEnumerator SpawnZombie() {
-            SpawnPoint spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
-            Vector2    offset     = Random.insideUnitCircle * 1.8f;
-
-            Vector3    initialPosition = spawnPoint.transform.position + new Vector3(offset.x, offset.y, 0);
-            GameObject newEnemy        = Instantiate(enemy, initialPosition, Quaternion.identity);
-
-            newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.INSTANCE.EnemySpriteManager.Get(0);
-            EnemyController en = newEnemy.GetComponent<EnemyController>();
-            en.HP    = new Hittable(50, Hittable.Team.MONSTERS, newEnemy);
-            en.speed = 10;
-            GameManager.INSTANCE.AddEnemy(newEnemy);
-            yield return new WaitForSeconds(0.5f);
-        }
-
-        void SpawnEnemy(in Spawn spawn, in int wave) {
-            // Where? change to only spawn at eligible spawn points (e.g. only red ones)
-            SpawnPoint spawnPoint      = spawnPoints[Random.Range(0, spawnPoints.Length)];
-            Vector2    offset          = Random.insideUnitCircle * 1.8f;
-            Vector3    initialPosition = spawnPoint.transform.position + new Vector3(offset.x, offset.y, 0);
-            // Create Instance
+        void SpawnEnemy(in Spawn spawn, in int wave, in SpawnPoint[] points) {
+            SpawnPoint p      = points[Random.Range(0, points.Length)];
+            Vector2    offset = Random.insideUnitCircle * 1.8f;
+            
+            Vector3    initialPosition = p.transform.position + new Vector3(offset.x, offset.y, 0);
             GameObject newEnemy = Instantiate(enemy, initialPosition, Quaternion.identity);
+            
             // Set Parameters; you will need to replace the numbers with the evaluated RPN values
             newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.INSTANCE.EnemySpriteManager.Get(0);
             EnemyController en = newEnemy.GetComponent<EnemyController>();
@@ -182,13 +186,14 @@ namespace CMPM.Level {
     public class Level {
         public string name;
         public int waves;
-        public List<Spawn> spawns;
+        public Spawn[] spawns;
     }
 
     // TODO: replace enemy ref w/ JSON Parser
     [Serializable]
     public struct Spawn {
-        public string enemy;
+        //[JsonConverter(typeof(SpawnEnemyParser))] <-- this is only valid syntax when it's a parameterless constructor
+        public Enemy enemy;
         public string count;
         [JsonProperty("hp")]
         public string HPFormula;
@@ -196,8 +201,10 @@ namespace CMPM.Level {
         public string speedFormula;
         [JsonProperty("damage")]
         public string damageFormula;
-        [Tooltip("In ms.")] public int delay;
-        public List<int> sequence;
-        public string location;
+        [JsonConverter(typeof(SpawnDelayParser)), Tooltip("In ms.")]
+        public int delay;
+        [CanBeNull] public int[] sequence;
+        [JsonConverter(typeof(SpawnLocationParser))]
+        public SpawnPoint.SpawnName location;
     }
 }

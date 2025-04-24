@@ -10,7 +10,7 @@ namespace CMPM.Utils {
         
         public static int Evaluate(in string expression, in Dictionary<string, int> vars) {
             Stack<int> stack = new();
-            foreach (string token in expression.Split(" ")) {
+            foreach (string token in expression.Split(' ')) {
                 if (SUPPORTED_TOKENS.Contains(token[0])) {
                     // I'm not being super careful w/ error handling due to scope of when we're using this & b/c majority of non-explicit errors will be caught by default case
                     if (stack.Count < 2) throw new InvalidOperationException($"RPN {expression} has insufficient operands for operator: {token}");
