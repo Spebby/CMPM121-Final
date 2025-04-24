@@ -2,40 +2,42 @@ using System;
 using UnityEngine;
 
 
-public class Hittable {
-    public enum Team {
-        PLAYER,
-        MONSTERS
-    }
+namespace CMPM.DamageSystem {
+    public class Hittable {
+        public enum Team {
+            PLAYER,
+            MONSTERS
+        }
 
-    // ReSharper disable once InconsistentNaming
-    public Team team;
+        // ReSharper disable once InconsistentNaming
+        public Team team;
 
-    public int Hp;
-    public int MaxHp;
+        public int Hp;
+        public int MaxHp;
 
-    public GameObject Owner;
+        public readonly GameObject Owner;
 
-    public void Damage(Damage damage) {
-        EventBus.Instance.DoDamage(Owner.transform.position, damage, this);
-        Hp -= damage.Amount;
-        if (Hp > 0) return;
-        Hp = 0;
-        this.OnDeath?.Invoke();
-    }
+        public void Damage(Damage damage) {
+            EventBus.Instance.DoDamage(Owner.transform.position, damage, this);
+            Hp -= damage.Amount;
+            if (Hp > 0) return;
+            Hp = 0;
+            OnDeath?.Invoke();
+        }
 
-    public event Action OnDeath;
+        public event Action OnDeath;
 
-    public Hittable(int hp, Team team, GameObject owner) {
-        Hp        = hp;
-        MaxHp     = hp;
-        this.team = team;
-        Owner     = owner;
-    }
+        public Hittable(int hp, Team team, GameObject owner) {
+            Hp        = hp;
+            MaxHp     = hp;
+            this.team = team;
+            Owner     = owner;
+        }
 
-    public void SetMaxHp(int maxHp) {
-        float ratio = Hp * 1.0f / MaxHp;
-        MaxHp = maxHp;
-        Hp    = Mathf.RoundToInt(ratio * maxHp);
+        public void SetMaxHp(int maxHp) {
+            float ratio = Hp * 1.0f / MaxHp;
+            MaxHp = maxHp;
+            Hp    = Mathf.RoundToInt(ratio * maxHp);
+        }
     }
 }

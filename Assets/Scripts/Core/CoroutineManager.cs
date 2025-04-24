@@ -1,19 +1,20 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
+namespace CMPM.Core {
+    public class CoroutineManager : MonoBehaviour {
+        public static CoroutineManager Instance;
 
-public class CoroutineManager : MonoBehaviour {
-    public static CoroutineManager Instance;
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start() {
+            Instance = this;
+        }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start() {
-        Instance = this;
-    }
+        // Update is called once per frame
+        void Update() { }
 
-    // Update is called once per frame
-    void Update() { }
-
-    public void Run(IEnumerator coroutine) {
-        StartCoroutine(coroutine);
+        public void Run(IEnumerator coroutine) {
+            StartCoroutine(coroutine);
+        }
     }
 }

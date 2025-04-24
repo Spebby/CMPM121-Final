@@ -1,19 +1,14 @@
+using CMPM.Core;
 using UnityEngine;
 
 
-public class RewardScreenManager : MonoBehaviour {
-    public GameObject rewardUI;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start() { }
-
-    // Update is called once per frame
-    void Update() {
-        if (GameManager.Instance.State == GameManager.GameState.WAVEEND) {
-            rewardUI.SetActive(true);
-        }
-        else {
-            rewardUI.SetActive(false);
+namespace CMPM.UI {
+    public class RewardScreenManager : MonoBehaviour {
+        public GameObject rewardUI;
+        
+        // Update is called once per frame
+        void LateUpdate() {
+            rewardUI.SetActive(GameManager.INSTANCE.State == GameManager.GameState.WAVEEND);
         }
     }
 }

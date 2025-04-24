@@ -1,36 +1,52 @@
 using System.Collections;
+using CMPM.Core;
+using CMPM.DamageSystem;
 using UnityEngine;
 
 
-public class Spell {
-    public float LastCast;
-    public SpellCaster Owner;
-    public Hittable.Team Team;
+namespace CMPM.Spells {
+    public class Spell {
+        public float LastCast;
+        public SpellCaster Owner;
+        public Hittable.Team Team;
 
-    public Spell(SpellCaster owner) {
-        Owner = owner;
-    }
+        public Spell(SpellCaster owner) {
+            Owner = owner;
+        }
 
-    public string GetName() => "Bolt";
+        public string GetName() {
+            return "Bolt";
+        }
 
-    public int GetManaCost() => 10;
+        public int GetManaCost() {
+            return 10;
+        }
 
-    public int GetDamage() => 100;
+        public int GetDamage() {
+            return 100;
+        }
 
-    public float GetCooldown() => 0.75f;
+        public float GetCooldown() {
+            return 0.75f;
+        }
 
-    public virtual int GetIcon() => 0;
+        public virtual int GetIcon() {
+            return 0;
+        }
 
-    public bool IsReady() => LastCast + this.GetCooldown() < Time.time;
+        public bool IsReady() {
+            return LastCast + GetCooldown() < Time.time;
+        }
 
-    public virtual IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {
-        Team = team;
-        GameManager.Instance.ProjectileManager.CreateProjectile(0, "straight", where, target - where, 15f, this.OnHit);
-        yield return new WaitForEndOfFrame();
-    }
+        public virtual IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {
+            Team = team;
+            GameManager.INSTANCE.ProjectileManager.CreateProjectile(0, "straight", where, target - where, 15f, OnHit);
+            yield return new WaitForEndOfFrame();
+        }
 
-    void OnHit(Hittable other, Vector3 impact) {
-        if (other.team == Team) return;
-        other.Damage(new Damage(this.GetDamage(), Damage.Type.ARCANE));
+        void OnHit(Hittable other, Vector3 impact) {
+            if (other.team == Team) return;
+            other.Damage(new Damage(GetDamage(), Damage.Type.ARCANE));
+        }
     }
 }

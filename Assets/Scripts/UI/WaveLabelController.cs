@@ -1,23 +1,26 @@
+using CMPM.Core;
 using TMPro;
 using UnityEngine;
 
 
-public class WaveLabelController : MonoBehaviour {
-    TextMeshProUGUI _tmp;
+namespace CMPM.UI {
+    public class WaveLabelController : MonoBehaviour {
+        TextMeshProUGUI _tmp;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start() {
-        _tmp = this.GetComponent<TextMeshProUGUI>();
-    }
-
-    // Update is called once per frame
-    void Update() {
-        if (GameManager.Instance.State == GameManager.GameState.INWAVE) {
-            _tmp.text = "Enemies left: " + GameManager.Instance.EnemyCount;
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start() {
+            _tmp = GetComponent<TextMeshProUGUI>();
         }
 
-        if (GameManager.Instance.State == GameManager.GameState.COUNTDOWN) {
-            _tmp.text = "Starting in " + GameManager.Instance.Countdown;
+        // Update is called once per frame
+        void Update() {
+            if (GameManager.INSTANCE.State == GameManager.GameState.INWAVE) {
+                _tmp.text = "Enemies left: " + GameManager.INSTANCE.EnemyCount;
+            }
+
+            if (GameManager.INSTANCE.State == GameManager.GameState.COUNTDOWN) {
+                _tmp.text = "Starting in " + GameManager.INSTANCE.Countdown;
+            }
         }
     }
 }

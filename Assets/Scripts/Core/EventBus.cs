@@ -1,4 +1,5 @@
 using System;
+using CMPM.DamageSystem;
 using UnityEngine;
 
 
@@ -12,6 +13,6 @@ public class EventBus {
     public event Action<Vector3, Damage, Hittable> OnDamage;
 
     public void DoDamage(Vector3 where, Damage dmg, Hittable target) {
-        this.OnDamage?.Invoke(where, dmg, target);
+        OnDamage?.Invoke(where, dmg, target);
     }
 }
