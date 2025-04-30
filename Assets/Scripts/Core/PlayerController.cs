@@ -26,13 +26,16 @@ namespace CMPM.Core {
             GameManager.INSTANCE.Player = gameObject;
         }
 
-        public void StartLevel() {
+        public void StartLevel(int wave) {
             Spellcaster = new SpellCaster(125, 8, Hittable.Team.PLAYER);
             StartCoroutine(Spellcaster.ManaRegeneration());
 
             Hp         =  new Hittable(100, Hittable.Team.PLAYER, gameObject);
             Hp.OnDeath += Die;
             Hp.team    =  Hittable.Team.PLAYER;
+
+            //to set the players heath, dmg, mana, power, and speed each completed wave
+            SetPlayerScale(wave);
 
             // tell UI elements what to show
             healthUI.SetHealth(Hp);
@@ -47,6 +50,14 @@ namespace CMPM.Core {
             Vector3 mouseWorld  = Camera.main!.ScreenToWorldPoint(mouseScreen);
             mouseWorld.z = 0;
             StartCoroutine(Spellcaster.Cast(transform.position, mouseWorld));
+        }
+
+        public void SetPlayerScale(int wave) {
+            Spellcaster.Hp = RPN.Evaluate("95 wave 5 * +", new Dictionary<string, int> { { "wave", wave } });
+            Spellcaster.MaxMana = RPN.Evaluate("90 wave 10 * +", new Dictionary<string, int> { { "wave", wave } });
+            Spellcaster.ManaReg = RPN.Evaluate("10 wave +", new Dictionary<string, int> { { "wave", wave } });
+            Spellcaster.SpellPower = RPN.Evaluate("wave 10 *", new Dictionary<string, int> { { "wave", wave } });
+            speed = 5;
         }
 
         void OnMove(InputValue value) {

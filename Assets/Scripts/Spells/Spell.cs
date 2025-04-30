@@ -10,28 +10,33 @@ namespace CMPM.Spells {
         public SpellCaster Owner;
         public Hittable.Team Team;
 
-        public Spell(SpellCaster owner) {
+        public Spell(SpellCaster owner, string name, int manaCost, int damage, float cooldown) {
             Owner = owner;
+            Name = name;
+            ManaCost = manaCost;
+            Damage = damage;
+            Cooldown = cooldown;
+            Icon = icon;
         }
 
         public string GetName() {
-            return "Bolt";
+            return Name;
         }
 
         public int GetManaCost() {
-            return 10;
+            return ManaCost;
         }
 
         public int GetDamage() {
-            return 100;
+            return Damage;
         }
 
         public float GetCooldown() {
-            return 0.75f;
+            return Cooldown;
         }
 
         public virtual int GetIcon() {
-            return 0;
+            return Icon;
         }
 
         public bool IsReady() {
