@@ -1,0 +1,40 @@
+{
+   "damage_amp": {
+       "name": "damage-amplified",
+       "description": "Increased damage and increased mana cost.",
+       "damage_multiplier": "1.5",
+       "mana_multiplier": "1.5"
+   },
+   "speed_amp": {
+       "name": "speed-amplified",
+       "description": "Faster projectile speed",
+       "speed_multiplier": "1.75"
+   },
+   "doubler": {
+       "name": "doubled",
+       "description": "Spell is cast a second time after a small delay; increased mana cost and cooldown.",
+       "delay": "0.5",
+       "mana_multiplier": "1.5",
+       "cooldown_multiplier": "1.5"
+   },
+   "splitter": {
+       "name": "split",
+       "description": "Spell is cast twice in slightly different directions; increased mana cost.",
+       "angle": "10",
+       "mana_multiplier": "1.5"
+   },
+   "chaos": {
+       "name": "chaotic",
+       "description": "Significantly increased damage, but projectile is spiraling.",
+       "damage_multiplier": "1.5 wave 5 / +",
+       "projectile_trajectory": "spiraling"
+   },
+   "homing": {
+       "name": "homing",
+       "description": "Homing projectile, with decreased damage and increased mana cost.",
+       "damage_multiplier": "0.75",
+       "mana_adder": "10",
+       "projectile_trajectory": "homing"
+   }
+
+}

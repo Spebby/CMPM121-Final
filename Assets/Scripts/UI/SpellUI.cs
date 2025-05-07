@@ -2,6 +2,7 @@ using CMPM.Core;
 using CMPM.Spells;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 
@@ -15,7 +16,7 @@ namespace CMPM.UI {
         public Spell Spell;
         float _lastTextUpdate;
         const float UPDATE_DELAY = 1;
-        public GameObject dropbutton;
+        [FormerlySerializedAs("dropbutton")] public GameObject dropButton;
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start() {
@@ -24,7 +25,7 @@ namespace CMPM.UI {
 
         public void SetSpell(Spell spell) {
             Spell = spell;
-            GameManager.INSTANCE.SpellIconManager.PlaceSprite(spell.GetIcon(), icon.GetComponent<Image>());
+            GameManager.Instance.SpellIconManager.PlaceSprite(spell.GetIcon(), icon.GetComponent<Image>());
         }
 
         // Update is called once per frame

@@ -38,51 +38,51 @@ namespace CMPM.Internal {
             _views.Clear();
             switch (m) {
                 case "spellicons": {
-                    for (int i = 0; i < GameManager.INSTANCE.SpellIconManager.GetCount(); ++i) {
+                    for (int i = 0; i < GameManager.Instance.SpellIconManager.GetCount(); ++i) {
                         GameObject newSv = Instantiate(spriteView, transform);
                         int        x     = i % _perRow;
                         int        y     = i / _perRow;
 
                         newSv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
-                        newSv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.INSTANCE.SpellIconManager.Get(i));
+                        newSv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.SpellIconManager.Get(i));
                         _views.Add(newSv);
                     }
 
                     break;
                 }
                 case "enemies": {
-                    for (int i = 0; i < GameManager.INSTANCE.EnemySpriteManager.GetCount(); ++i) {
+                    for (int i = 0; i < GameManager.Instance.EnemySpriteManager.GetCount(); ++i) {
                         GameObject newSv = Instantiate(spriteView, transform);
                         int        x     = i % _perRow;
                         int        y     = i / _perRow;
                         newSv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
                         newSv.GetComponent<SpriteView>()
-                             .Apply(i.ToString(), GameManager.INSTANCE.EnemySpriteManager.Get(i));
+                             .Apply(i.ToString(), GameManager.Instance.EnemySpriteManager.Get(i));
                         _views.Add(newSv);
                     }
 
                     break;
                 }
                 case "relics": {
-                    for (int i = 0; i < GameManager.INSTANCE.RelicIconManager.GetCount(); ++i) {
+                    for (int i = 0; i < GameManager.Instance.RelicIconManager.GetCount(); ++i) {
                         GameObject newSv = Instantiate(spriteView, transform);
                         int        x     = i % _perRow;
                         int        y     = i / _perRow;
                         newSv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
-                        newSv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.INSTANCE.RelicIconManager.Get(i));
+                        newSv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.RelicIconManager.Get(i));
                         _views.Add(newSv);
                     }
 
                     break;
                 }
                 case "player": {
-                    for (int i = 0; i < GameManager.INSTANCE.PlayerSpriteManager.GetCount(); ++i) {
+                    for (int i = 0; i < GameManager.Instance.PlayerSpriteManager.GetCount(); ++i) {
                         GameObject newSv = Instantiate(spriteView, transform);
                         int        x     = i % _perRow;
                         int        y     = i / _perRow;
                         newSv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
                         newSv.GetComponent<SpriteView>()
-                             .Apply(i.ToString(), GameManager.INSTANCE.PlayerSpriteManager.Get(i));
+                             .Apply(i.ToString(), GameManager.Instance.PlayerSpriteManager.Get(i));
                         _views.Add(newSv);
                     }
 

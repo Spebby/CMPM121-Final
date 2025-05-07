@@ -17,7 +17,7 @@ namespace CMPM.Movement {
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start() {
-            target     =  GameManager.INSTANCE.Player.transform;
+            target     =  GameManager.Instance.Player.transform;
             HP.OnDeath += Die;
             healthUI.SetHealth(HP);
         }
@@ -35,13 +35,13 @@ namespace CMPM.Movement {
         void DoAttack() {
             if (!(lastAttack + 2 < Time.time)) return;
             lastAttack = Time.time;
-            target.gameObject.GetComponent<PlayerController>().Hp.Damage(new Damage(5, Damage.Type.PHYSICAL));
+            target.gameObject.GetComponent<PlayerController>().HP.Damage(new Damage(5, Damage.Type.PHYSICAL));
         }
 
         void Die() {
             if (dead) return;
             dead = true;
-            GameManager.INSTANCE.RemoveEnemy(gameObject);
+            GameManager.Instance.RemoveEnemy(gameObject);
             Destroy(gameObject);
         }
     }

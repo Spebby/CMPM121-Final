@@ -10,9 +10,6 @@ namespace CMPM.Core {
             Instance = this;
         }
 
-        // Update is called once per frame
-        void Update() { }
-
         public void Run(IEnumerator coroutine) {
             StartCoroutine(coroutine);
         }

@@ -39,5 +39,9 @@ namespace CMPM.DamageSystem {
             MaxHp = maxHp;
             Hp    = Mathf.RoundToInt(ratio * maxHp);
         }
+
+        public void ResetHealth() {
+            Hp = MaxHp;
+        }
     }
 }

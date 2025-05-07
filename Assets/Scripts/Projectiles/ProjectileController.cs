@@ -29,7 +29,7 @@ namespace CMPM.Projectiles {
                 } else {
                     PlayerController pc = collision.gameObject.GetComponent<PlayerController>();
                     if (pc) {
-                        OnHit!(pc.Hp, transform.position);
+                        OnHit!(pc.HP, transform.position);
                     }
                 }
             }

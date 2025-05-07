@@ -67,20 +67,15 @@ namespace CMPM.Level {
         // I may change more but for the moment this is acceptable.
         void LoadLevelsJson(in TextAsset levelText, in Hashtable<string, Enemy> enemies) {
             // Set up a custom JsonConverter that includes the enemies dictionary
-            var settings = new JsonSerializerSettings {
+            JsonSerializerSettings settings = new() {
                 Converters = new List<JsonConverter> {
                     new SpawnEnemyParser(enemies)
                 }
             };
             
             levels = JsonConvert.DeserializeObject<List<Level>>(levelText.text, settings);
-            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator <-- go home resharper, you're drunk
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator <-- Resharper is wrong
             foreach (Level level in levels) {
-                /* Tandy -- Spans in C# give access to the memory more directly, they're not persistent though. (Stack Allocated)
-                 * I'm doing this b/c structs are "value types" which mean they are "Pass by Value" not "Pass by Reference"
-                 * ergo, it's a copy. By using a ref here, we're telling the JIT to use the regular memory address
-                 * so we can skip making a copy, + we won't have to reassign later.
-                 */
                 foreach (ref Spawn spawn in level.spawns.AsSpan()) {
                     ref Enemy fallback = ref spawn.enemy;
                     FormulaFallback(ref spawn.HPFormula,     fallback.baseHP);
@@ -101,11 +96,11 @@ namespace CMPM.Level {
             // this is not nice: we should not have to be required to tell the player directly that the level is starting
 
             Level currentLevel = levels.Find(level => level.name == levelName);
-            GameManager.INSTANCE.totalWaves  = currentLevel.waves;
-            GameManager.INSTANCE.currentWave = 1;
+            GameManager.Instance.totalWaves  = currentLevel.waves;
+            GameManager.Instance.currentWave = 1;
 
             //to start the level
-            GameManager.INSTANCE.Player.GetComponent<PlayerController>().StartLevel();
+            GameManager.Instance.Player.GetComponent<PlayerController>().StartLevel();
             StartCoroutine(SpawnWave(currentLevel, 1));
         }
 
@@ -123,16 +118,16 @@ namespace CMPM.Level {
         IEnumerator SpawnWave(Level level, int wave) {
             _currentLevel = level;
             _currentWave  = wave;
-            GameManager.INSTANCE.currentWave = _currentWave;
+            GameManager.Instance.currentWave = _currentWave;
             
-            GameManager.INSTANCE.State     = GameManager.GameState.COUNTDOWN;
-            GameManager.INSTANCE.Countdown = 3;
+            GameManager.Instance.State     = GameManager.GameState.COUNTDOWN;
+            GameManager.Instance.Countdown = 3;
             for (int i = 3; i > 0; i--) {
                 yield return new WaitForSeconds(1);
-                GameManager.INSTANCE.Countdown--;
+                GameManager.Instance.Countdown--;
             }
 
-            GameManager.INSTANCE.State = GameManager.GameState.INWAVE;
+            GameManager.Instance.State = GameManager.GameState.INWAVE;
 
 
             // Definition of Embarrassingly Parallel
@@ -140,12 +135,13 @@ namespace CMPM.Level {
                 _ = SpawnEnemies(spawn, wave);
             }
 
-            yield return new WaitWhile(() => GameManager.INSTANCE.EnemyCount > 0);
-            if (GameManager.INSTANCE.State != GameManager.GameState.GAMEOVER) {
-                GameManager.INSTANCE.State = GameManager.GameState.WAVEEND;
+            yield return new WaitWhile(() => GameManager.Instance.EnemyCount > 0);
+            if (GameManager.Instance.State != GameManager.GameState.GAMEOVER) {
+                GameManager.Instance.State = GameManager.GameState.WAVEEND;
             }
         }
 
+        // TODO: Convert to RPNStrings
         async Task SpawnEnemies(Spawn spawn, int wave) {
             int   n             = 0;
             int   count         = RPN.Evaluate(spawn.count, new Hashtable<string, int> { { "wave", wave } });
@@ -188,13 +184,13 @@ namespace CMPM.Level {
             Vector3    initialPosition = p.transform.position + new Vector3(offset.x, offset.y, 0);
             GameObject newEnemy = Instantiate(enemy, initialPosition, Quaternion.identity);
             
-            newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.INSTANCE.EnemySpriteManager.Get(spawn.enemy.sprite);
+            newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.EnemySpriteManager.Get(spawn.enemy.sprite);
             EnemyController en = newEnemy.GetComponent<EnemyController>();
             en.HP    = new Hittable(packet.HP, Hittable.Team.MONSTERS, newEnemy);
             en.speed = packet.Speed;
             
             // I don't have the time to refactor the enemy rn to make the damage amount be different
-            GameManager.INSTANCE.AddEnemy(newEnemy);
+            GameManager.Instance.AddEnemy(newEnemy);
         }
     }
 
@@ -227,7 +223,7 @@ namespace CMPM.Level {
         public string speedFormula;
         [JsonProperty("damage")]
         public string damageFormula;
-        [JsonConverter(typeof(SpawnDelayParser)), Tooltip("In ms.")]
+        [JsonConverter(typeof(SecondsParser)), Tooltip("In ms.")]
         public int delay;
         [CanBeNull] public int[] sequence;
         [JsonConverter(typeof(SpawnLocationParser))]

@@ -7,9 +7,9 @@ using Newtonsoft.Json;
 
 namespace CMPM.Utils {
     public class SpawnEnemyParser : JsonConverter<Enemy> {
-        readonly Hashtable<string, Enemy>  _enemies;
+        readonly Hashtable<string, Enemy> _enemies;
         public SpawnEnemyParser(in Hashtable<string, Enemy> enemies) {
-            this._enemies = enemies;
+            _enemies = enemies;
         }
         
         public override Enemy ReadJson(JsonReader reader, Type objectType, Enemy existingValue, bool hasExistingValue, JsonSerializer serializer) {
@@ -22,9 +22,9 @@ namespace CMPM.Utils {
             // Look up the enemy in the dictionary
             if (_enemies.TryGetValue(enemyName, out Enemy enemy)) {
                 return enemy;
-            } else {
-                throw new KeyNotFoundException($"Enemy '{enemyName}' not found in the enemies dictionary.");
             }
+
+            throw new KeyNotFoundException($"Enemy '{enemyName}' not found in the enemies dictionary.");
         }
 
         public override void WriteJson(JsonWriter writer, Enemy value, JsonSerializer serializer) {

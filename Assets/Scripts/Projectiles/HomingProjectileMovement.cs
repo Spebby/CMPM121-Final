@@ -18,7 +18,7 @@ namespace CMPM.Projectiles {
                 _angle = Mathf.Atan2(direction.y, direction.x);
             }
 
-            GameObject closest = GameManager.INSTANCE.GetClosestEnemy(transform.position);
+            GameObject closest = GameManager.Instance.GetClosestEnemy(transform.position);
             if (!closest) {
                 Vector3 direction = transform.rotation * new Vector3(1, 0, 0);
                 _angle = Mathf.Atan2(direction.y, direction.x);

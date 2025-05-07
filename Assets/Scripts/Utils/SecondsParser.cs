@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 
 namespace CMPM.Utils {
-    public class SpawnDelayParser : JsonConverter<int> {
+    public class SecondsParser : JsonConverter<int> {
         public override int ReadJson(JsonReader reader, Type objectType, int existingValue, bool hasExistingValue, JsonSerializer serializer) {
             double seconds;
             if (reader.TokenType == JsonToken.String) {

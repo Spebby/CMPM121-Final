@@ -31,7 +31,7 @@ namespace CMPM.UI {
         // Update is called once per frame
         void LateUpdate() {
             // this is ass
-            switch (GameManager.INSTANCE.State) {
+            switch (GameManager.Instance.State) {
                 case WAVEEND:
                     SetRewardScreen();
                     break;
@@ -52,14 +52,14 @@ namespace CMPM.UI {
         }
 
         public void SetStartScreen() {
-            GameManager.INSTANCE.State = PREGAME;
+            GameManager.Instance.State = PREGAME;
             _panel.SetActive(true);
             regUI.SetActive(true);
             endUI.SetActive(false);
         }
 
         void UpdateDamageStats(Vector3 target, Damage damage, Hittable hittable) {
-            if (hittable.Owner != GameManager.INSTANCE.Player) {
+            if (hittable.Owner != GameManager.Instance.Player) {
                 _damageDone += damage.Amount;
                 return;
             }
@@ -84,10 +84,10 @@ namespace CMPM.UI {
             nextButton.SetActive(true);
             
             string extra    = "";
-            string waveText = $"\tWave: {GameManager.INSTANCE.currentWave}";
-            if (GameManager.INSTANCE.totalWaves > 0) {
-                waveText += $"/{GameManager.INSTANCE.totalWaves}";
-                if (GameManager.INSTANCE.currentWave == GameManager.INSTANCE.totalWaves) {
+            string waveText = $"\tWave: {GameManager.Instance.currentWave}";
+            if (GameManager.Instance.totalWaves > 0) {
+                waveText += $"/{GameManager.Instance.totalWaves}";
+                if (GameManager.Instance.currentWave == GameManager.Instance.totalWaves) {
                     extra = "\nYou Win!";
                     nextButton.SetActive(false);
                 }

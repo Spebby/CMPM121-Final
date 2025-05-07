@@ -6,13 +6,7 @@ namespace CMPM.Sprites {
     public class IconManager : MonoBehaviour {
         [SerializeField] protected Sprite[] sprites;
 
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start() { }
-
-        // Update is called once per frame
-        void Update() { }
-
-        public void PlaceSprite(int which, Image target) {
+        public void PlaceSprite(uint which, Image target) {
             target.sprite = sprites[which];
         }
 

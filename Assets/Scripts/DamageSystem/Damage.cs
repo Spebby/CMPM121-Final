@@ -1,5 +1,5 @@
 namespace CMPM.DamageSystem {
-    public class Damage {
+    public struct Damage {
         public readonly int Amount;
 
         public enum Type {

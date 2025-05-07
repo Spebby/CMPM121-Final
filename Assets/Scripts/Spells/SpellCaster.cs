@@ -8,8 +8,9 @@ namespace CMPM.Spells {
         public int Mana;
         public int MaxMana;
         public int ManaReg;
-        public Hittable.Team Team;
-        public Spell Spell;
+        public int SpellPower;
+        public readonly Hittable.Team Team;
+        public readonly Spell Spell;
 
         public IEnumerator ManaRegeneration() {
             while (true) {
@@ -20,14 +21,16 @@ namespace CMPM.Spells {
             // ReSharper disable once IteratorNeverReturns
         }
 
-        public SpellCaster(int mana, int manaReg, Hittable.Team team) {
-            Mana    = mana;
-            MaxMana = mana;
-            ManaReg = manaReg;
-            Team    = team;
-            Spell   = new SpellBuilder().Build(this);
+        public SpellCaster(int mana, int manaReg, int spellPower, Hittable.Team team) {
+            Mana       = mana;
+            MaxMana    = mana;
+            ManaReg    = manaReg;
+            SpellPower = spellPower;
+            Team       = team;
+            Spell      = new SpellBuilder().Build(this);
         }
 
+        // 
         public IEnumerator Cast(Vector3 where, Vector3 target) {
             if (Mana < Spell.GetManaCost() || !Spell.IsReady()) yield break;
             Mana -= Spell.GetManaCost();

@@ -22,7 +22,7 @@ namespace CMPM.Core {
         public GameState State;
 
         public int Countdown;
-        public static readonly GameManager INSTANCE = new();
+        public static readonly GameManager Instance = new();
 
         public GameObject Player;
 
