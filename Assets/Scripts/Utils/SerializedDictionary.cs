@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 // Serializing Dictionary
-namespace CMPM.Structures {
+namespace CMPM.Utils {
     [System.Serializable]
-    public class Hashtable<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver {
+    public class SerializedDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver {
         [SerializeField] List<TKey> keys = new();
         [SerializeField] List<TValue> values = new();
 

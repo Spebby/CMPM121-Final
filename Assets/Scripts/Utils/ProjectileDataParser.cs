@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using CMPM.Projectiles;
 using CMPM.Spells;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -11,25 +12,18 @@ namespace CMPM.Utils {
                                                 bool hasExistingValue, JsonSerializer serializer) {
             JObject obj = JObject.Load(reader);
 
-            string trajectory  = obj["trajectory"]?.ToString();
-            string speedStr    = obj["speed"]?.ToString();
-            int    sprite      = obj["sprite"]?.ToObject<int>() ?? throw new JsonException("Missing 'sprite'");
-            string lifetimeStr = obj["lifetime"]?.ToString();
+            ProjectileType trajectory  = ProjectileManager.StringToProjectileType(obj["trajectory"]?.ToString());
+            string         speedStr    = obj["speed"]?.ToString() ?? throw new JsonException("Missing 'speed'");
+            int            sprite      = obj["sprite"]?.ToObject<int>() ?? throw new JsonException("Missing 'sprite'");
+            string         lifetimeStr = obj["lifetime"]?.ToString();
 
-            if (trajectory == null || speedStr == null) {
-                throw new JsonException("Missing 'trajectory' or 'speed'");
+            if (speedStr == null) {
+                throw new JsonException("Missing 'speed'");
             }
-
-            if (!float.TryParse(speedStr, out float speed)) {
-                throw new JsonException("Invalid 'speed' format");
-            }
-
-            uint lifetime = 0;
-            if (lifetimeStr == null) return new ProjectileData(trajectory, speed, sprite, lifetime);
-            lifetime = float.TryParse(lifetimeStr, out float parsed)
-                ? (uint)(parsed * 1000)
-                : throw new JsonException("Invalid 'lifetime' format");
-
+            
+            RPNString  speed    = new(speedStr);
+            RPNString? lifetime = string.IsNullOrEmpty(lifetimeStr) ? null : new RPNString(lifetimeStr);
+            
             return new ProjectileData(trajectory, speed, sprite, lifetime);
         }
 
@@ -38,12 +32,12 @@ namespace CMPM.Utils {
             writer.WritePropertyName("trajectory");
             writer.WriteValue(value.Trajectory);
             writer.WritePropertyName("speed");
-            writer.WriteValue(value.Speed.ToString(CultureInfo.CurrentCulture));
+            writer.WriteValue(value.Speed.String);
             writer.WritePropertyName("sprite");
             writer.WriteValue(value.Sprite);
-            if (value.Lifetime != 0) {
+            if (value.Lifetime.HasValue) {
                 writer.WritePropertyName("lifetime");
-                writer.WriteValue((value.Lifetime / 1000.0).ToString(CultureInfo.InvariantCulture));
+                writer.WriteValue(value.Lifetime.Value.String);
             }
 
             writer.WriteEndObject();

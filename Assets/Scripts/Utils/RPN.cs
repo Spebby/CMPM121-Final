@@ -11,9 +11,9 @@ namespace CMPM.Utils {
     // + reduce user error.
     public struct RPNString : IEquatable<RPNString> {
         public readonly string String;
-        [CanBeNull] public Dictionary<string, int> Variables;
+        [CanBeNull] public SerializedDictionary<string, int> Variables;
 
-        public RPNString(string str, Dictionary<string, int> vars) {
+        public RPNString(string str, SerializedDictionary<string, int> vars = null) {
             String = str;
             Variables = vars;
         }
@@ -29,8 +29,8 @@ namespace CMPM.Utils {
         public override int GetHashCode() => String.GetHashCode();
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly int Evaluate(Dictionary<string, int> variables) => RPN.Evaluate(String, variables);
-        public readonly float Evaluate(Dictionary<string, float> variables) => RPN.Evaluate(String, variables);
+        public readonly int Evaluate(SerializedDictionary<string, int> variables) => RPN.Evaluate(String, variables);
+        public readonly float Evaluate(SerializedDictionary<string, float> variables) => RPN.Evaluate(String, variables);
     }
     
     
@@ -38,7 +38,7 @@ namespace CMPM.Utils {
         static readonly char[] SUPPORTED_TOKENS = { '+', '-', '*', '/', '%', '^' };
 
         #region Integers
-        public static int Evaluate(in string expression, in Dictionary<string, int> vars) {
+        public static int Evaluate(in string expression, in SerializedDictionary<string, int> vars) {
             Stack<int> stack = new();
             foreach (string token in expression.Split(' ')) {
                 if (SUPPORTED_TOKENS.Contains(token[0])) {
@@ -100,7 +100,7 @@ namespace CMPM.Utils {
         #endregion
         
         #region Floats
-        public static float Evaluate(in string expression, in Dictionary<string, float> vars) {
+        public static float Evaluate(in string expression, in SerializedDictionary<string, float> vars) {
             Stack<float> stack = new();
             foreach (string token in expression.Split(' ')) {
                 if (SUPPORTED_TOKENS.Contains(token[0])) {

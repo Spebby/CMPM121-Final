@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using CMPM.Core;
 using CMPM.DamageSystem;
 using CMPM.Movement;
-using CMPM.Structures;
 using CMPM.UI;
 using CMPM.Utils;
 
@@ -29,7 +28,7 @@ namespace CMPM.Level {
 
         // We may be able to get away w/ making this a static member for easier usage for parser,
         // but there's not a (ton) of reason to expose it publicly to begin with.
-        public Hashtable<string, Enemy> enemyTypes;
+        public Utils.SerializedDictionary<string, Enemy> enemyTypes;
         public List<Level> levels;
 
         [Header("UI")]
@@ -55,7 +54,7 @@ namespace CMPM.Level {
         }
 
         void LoadEnemiesJson(in TextAsset enemyText) {
-            enemyTypes = new Hashtable<string, Enemy>();
+            enemyTypes = new Utils.SerializedDictionary<string, Enemy>();
             
             foreach (JToken _ in JToken.Parse(enemyText.text)) {
                 Enemy e = _.ToObject<Enemy>();
@@ -65,7 +64,7 @@ namespace CMPM.Level {
 
         // I wrote some JsonConverters to make the parsing logic less cluttered.
         // I may change more but for the moment this is acceptable.
-        void LoadLevelsJson(in TextAsset levelText, in Hashtable<string, Enemy> enemies) {
+        void LoadLevelsJson(in TextAsset levelText, in Utils.SerializedDictionary<string, Enemy> enemies) {
             // Set up a custom JsonConverter that includes the enemies dictionary
             JsonSerializerSettings settings = new() {
                 Converters = new List<JsonConverter> {
@@ -144,7 +143,7 @@ namespace CMPM.Level {
         // TODO: Convert to RPNStrings
         async Task SpawnEnemies(Spawn spawn, int wave) {
             int   n             = 0;
-            int   count         = RPN.Evaluate(spawn.count, new Hashtable<string, int> { { "wave", wave } });
+            int   count         = RPN.Evaluate(spawn.count, new Utils.SerializedDictionary<string, int> { { "wave", wave } });
             int   delay         = spawn.delay;
             int[] sequence      = spawn.sequence;
             int   sequenceIndex = 0;
@@ -155,9 +154,9 @@ namespace CMPM.Level {
             }
 
             EnemyPacket ep = new() {
-                HP     = RPN.Evaluate(spawn.HPFormula,     new Hashtable<string, int>() { { "wave", wave }, { "base", spawn.enemy.baseHP } }),
-                Damage = RPN.Evaluate(spawn.damageFormula, new Hashtable<string, int>() { { "wave", wave }, { "base", spawn.enemy.damage } }),
-                Speed  = RPN.Evaluate(spawn.speedFormula,  new Hashtable<string, int>() { { "wave", wave }, { "base", spawn.enemy.speed  } })
+                HP     = RPN.Evaluate(spawn.HPFormula,     new Utils.SerializedDictionary<string, int>() { { "wave", wave }, { "base", spawn.enemy.baseHP } }),
+                Damage = RPN.Evaluate(spawn.damageFormula, new Utils.SerializedDictionary<string, int>() { { "wave", wave }, { "base", spawn.enemy.damage } }),
+                Speed  = RPN.Evaluate(spawn.speedFormula,  new Utils.SerializedDictionary<string, int>() { { "wave", wave }, { "base", spawn.enemy.speed  } })
             };
 
             //this was provided by Markus Eger's Lecture 5: Design Patterns in pseudocode

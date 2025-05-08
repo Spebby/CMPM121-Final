@@ -2,28 +2,31 @@ using System;
 using System.Collections;
 using CMPM.Core;
 using CMPM.DamageSystem;
+using CMPM.Spells.Modifiers;
 using CMPM.Utils;
 using UnityEngine;
 
 
 namespace CMPM.Spells {
     public class MagicMissile : Spell {
-        public MagicMissile(SpellCaster owner, string name, RPNString manaCost, RPNString damage, Damage.Type damageDamageType, RPNString cooldown,
-                          uint icon, uint[] modifiers = null) : base(owner, name, manaCost, damage, damageDamageType, cooldown, icon, modifiers) {
-            
-        }
+        public MagicMissile(SpellCaster owner, string name, RPNString manaCost, RPNString damage,
+                            Damage.Type damageDamageType, RPNString speed, RPNString cooldown, RPNString? lifetime,
+                            uint icon, int[] modifiers = null) : base(owner, name, manaCost, damage, damageDamageType,
+                                                                       speed, cooldown, lifetime, icon, modifiers) { }
 
         public override IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {
             Team = team;
-            Action<Vector3, Vector3> castAction = (w, t) => {
-                GameManager.Instance.ProjectileManager.CreateProjectile(0, ProjectileType.HOMING, where,
-                                                                        target - where, 15f, OnHit);
+            Action<ProjectileType, Vector3, Vector3> castAction = (type, w, t) => {
+                GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
+                                                                        t - w, GetSpeed(), OnHit);
             };
 
-            foreach (uint hash in Modifiers ?? Array.Empty<uint>()) {
+            foreach (int hash in Modifiers ?? Array.Empty<int>()) {
                 ISpellModifier mod = SpellModifierRegistry.Get(hash);
                 mod?.ModifyCast(this, ref castAction);
             }
+            
+            castAction(ProjectileType.HOMING, where, target);
 
             LastCast = Time.time;
             yield return new WaitForEndOfFrame();

@@ -14,6 +14,7 @@
        "name": "doubled",
        "description": "Spell is cast a second time after a small delay; increased mana cost and cooldown.",
        "delay": "0.5",
+	   "count": "2",
        "mana_multiplier": "1.5",
        "cooldown_multiplier": "1.5"
    },
@@ -21,6 +22,7 @@
        "name": "split",
        "description": "Spell is cast twice in slightly different directions; increased mana cost.",
        "angle": "10",
+	   "count": "2",
        "mana_multiplier": "1.5"
    },
    "chaos": {

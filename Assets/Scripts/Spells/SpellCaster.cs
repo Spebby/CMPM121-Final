@@ -11,6 +11,8 @@ namespace CMPM.Spells {
         public int SpellPower;
         public readonly Hittable.Team Team;
         public readonly Spell Spell;
+        
+        const string DEFAULT_SPELL = "Arcane Bolt";
 
         public IEnumerator ManaRegeneration() {
             while (true) {
@@ -27,7 +29,7 @@ namespace CMPM.Spells {
             ManaReg    = manaReg;
             SpellPower = spellPower;
             Team       = team;
-            Spell      = new SpellBuilder().Build(this);
+            Spell      = SpellBuilder.BuildSpell(DEFAULT_SPELL, this);
         }
 
         // 

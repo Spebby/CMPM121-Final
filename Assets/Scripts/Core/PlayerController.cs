@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using CMPM.DamageSystem;
 using CMPM.Movement;
 using CMPM.Spells;
@@ -49,10 +48,10 @@ namespace CMPM.Core {
         }
 
         public void SetPlayerScale(int wave) {
-            HP.SetMaxHp(RPN.Evaluate("95 wave 5 * +", new Dictionary<string, int> { { "wave", wave } }));
-            _spellCaster.MaxMana    = RPN.Evaluate("90 wave 10 * +", new Dictionary<string, int> { { "wave", wave } });
-            _spellCaster.ManaReg    = RPN.Evaluate("10 wave +", new Dictionary<string, int> { { "wave", wave } });
-            _spellCaster.SpellPower = RPN.Evaluate("wave 10 *", new Dictionary<string, int> { { "wave", wave } });
+            HP.SetMaxHp(RPN.Evaluate("95 wave 5 * +", new SerializedDictionary<string, int> { { "wave", wave } }));
+            _spellCaster.MaxMana    = RPN.Evaluate("90 wave 10 * +", new SerializedDictionary<string, int> { { "wave", wave } });
+            _spellCaster.ManaReg    = RPN.Evaluate("10 wave +", new SerializedDictionary<string, int> { { "wave", wave } });
+            _spellCaster.SpellPower = RPN.Evaluate("wave 10 *", new SerializedDictionary<string, int> { { "wave", wave } });
             speed                   = 5;
         }
         

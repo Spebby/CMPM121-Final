@@ -1,39 +1,45 @@
 using System;
+using System.Collections;
 using CMPM.Core;
-using CMPM.Structures;
 using CMPM.Utils;
 using UnityEngine;
 
 
 namespace CMPM.Spells.Modifiers {
     public class SpellRepeaterModifier : SpellModifier {
-        RPNString Delay;
-        RPNString Counts;
+        protected readonly RPNString Delay;
+        protected readonly RPNString Count;
         
         public SpellRepeaterModifier(RPNString repeats, RPNString delay,
-                                     float damageMultiplier = 1f,
-                                     float manaMultiplier = 1f,
-                                     float speedMultiplier = 1f,
-                                     float cooldownMultiplier = 1f,
-                                     float lifetimeMultiplier = 1f) 
-            : base(damageMultiplier, manaMultiplier, 
-                   speedMultiplier, cooldownMultiplier,
-                   lifetimeMultiplier) {
-            Counts = repeats;
+                                     RPNString? damageModifier   = null,
+                                     RPNString? manaModifier     = null,
+                                     RPNString? speedModifier    = null,
+                                     RPNString? cooldownModifier = null,
+                                     RPNString? lifetimeModifier = null,
+                                     Operator op                 = Operator.MULTIPLIER) 
+            : base(damageModifier, manaModifier, 
+                   speedModifier, cooldownModifier,
+                   lifetimeModifier, op) {
+            Count = repeats;
             Delay = delay;
         }
 
-        // This is something to ask Markus about tomorrow.
-        public virtual void ModifyCast(Spell spell, ref Action<Vector3, Vector3> original) {
-            Hashtable<string, float> table = spell.GetRPNVariables();
-            original = (where, target) => {
-                // It's tempting to start a new coroutine, but because we're technically in a corooutine already... that's bad.
-                
-                // Ask markus about good ways to remedy this design flaw
+        public override void ModifyCast(Spell spell, ref Action<ProjectileType, Vector3, Vector3> original) {
+            SerializedDictionary<string, float> table = spell.GetRPNVariables();
+            
+			Action<ProjectileType, Vector3, Vector3> prev = original;
+            original = (type, where, target) => {
+                float delay = Delay.Evaluate(table);
+                int count = (int)Count.Evaluate(table);
+                CoroutineManager.Instance.Run(SpawnProjectileDelay(delay, count, prev, type, where, target));
             };
         }
-        
-        
- 
+
+        static IEnumerator SpawnProjectileDelay(float delay, int count, Action<ProjectileType, Vector3, Vector3> action, ProjectileType type, Vector3 where, Vector3 target) {
+            for (int i = 0; i < count; i++) {
+                action(type, where, target);
+                yield return new WaitForSeconds(delay);
+            }
+        }
     }
 }

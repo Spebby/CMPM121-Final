@@ -36,6 +36,7 @@ namespace CMPM.Core {
 
         public int totalWaves;
         public int currentWave;
+        public int MaxModifierCount { get; private set; }
 
         // slightly unthreadsafe
         public int EnemyCount => _enemies.Count;

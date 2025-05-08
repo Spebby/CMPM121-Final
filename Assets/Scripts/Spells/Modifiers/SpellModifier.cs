@@ -1,37 +1,56 @@
 using System;
+using System.Collections.Generic;
 using CMPM.DamageSystem;
+using CMPM.Utils;
 using UnityEngine;
 
 
-namespace CMPM.Spells {
+namespace CMPM.Spells.Modifiers {
     public abstract class SpellModifier : ISpellModifier {
-        #region Protected Properties
-        protected readonly float DamageMultiplier;
-        protected readonly float ManaMultiplier;
-        protected readonly float SpeedMultiplier;
-        protected readonly float CooldownMultiplier;
-        protected readonly float LifetimeMultiplier;
-        #endregion
-        
-        public SpellModifier(float damageMultiplier = 1f,
-                             float manaMultiplier = 1f,
-                             float speedMultiplier = 1f,
-                             float cooldownMultiplier = 1f,
-                             float lifetimeMultiplier = 1f) {
-            DamageMultiplier   = damageMultiplier;
-            ManaMultiplier     = manaMultiplier;
-            SpeedMultiplier    = speedMultiplier;
-            CooldownMultiplier = cooldownMultiplier;
-            LifetimeMultiplier = lifetimeMultiplier;
+        public enum Operator {
+            MULTIPLIER,
+            ADDER,
+            EQUALS,
         }
         
-        public virtual void ModifyCast(Spell spell, ref Action<Vector3, Vector3> original) { }
-        public virtual void ModifyHit(Spell spell, ref Action<Hittable, Vector3> original) { }
+        #region Protected Properties
+        protected readonly RPNString? DamageModifier;
+        protected readonly RPNString? ManaModifier;
+        protected readonly RPNString? SpeedModifier;
+        protected readonly RPNString? CooldownModifier;
+        protected readonly RPNString? LifetimeModifier;
+        protected readonly Operator Op;
+        #endregion
         
-        public virtual int ModifyDamage(Spell spell, int baseDamage) => (int)(baseDamage * DamageMultiplier);
-        public virtual int ModifyManaCost(Spell spell, int baseMana) => (int)(baseMana * ManaMultiplier);
-        public virtual float ModifySpeed(Spell spell, float baseSpeed) => baseSpeed * SpeedMultiplier;
-        public virtual float ModifyCooldown(Spell spell, float cooldown) => cooldown * CooldownMultiplier;
-        public virtual float ModifyLifetime(Spell spell, float lifetime) => lifetime * LifetimeMultiplier;
+        public SpellModifier(RPNString? damageModifier   = null,
+                             RPNString? manaModifier     = null,
+                             RPNString? speedModifier    = null,
+                             RPNString? cooldownModifier = null,
+                             RPNString? lifetimeModifier = null,
+                             Operator op = Operator.MULTIPLIER) {
+            DamageModifier   = damageModifier;
+            ManaModifier     = manaModifier;
+            SpeedModifier    = speedModifier;
+            CooldownModifier = cooldownModifier;
+            LifetimeModifier = lifetimeModifier;
+            Op               = op;
+        }
+        
+        public virtual void ModifyCast(Spell spell, ref Action<ProjectileType, Vector3, Vector3> original) { }
+        public virtual void ModifyHit(Spell spell, ref Action<Hittable, Vector3, Damage.Type> original) { }
+        
+        protected virtual float ApplyModifier(Spell spell, RPNString? modifier, float value) {
+            // The RPN Strings themselves have "value" worked into them in this case, this step is done during parsing.
+            SerializedDictionary<string, float> table = spell.GetRPNVariables();
+            table["value"] = value;
+
+            return modifier?.Evaluate(table) ?? value;
+        }
+        
+        public virtual int ModifyDamage(Spell spell, int baseDamage) => (int)ApplyModifier(spell, DamageModifier, baseDamage);
+        public virtual int ModifyManaCost(Spell spell, int baseMana) => (int)ApplyModifier(spell, ManaModifier, baseMana);
+        public virtual float ModifySpeed(Spell spell, float baseSpeed) => ApplyModifier(spell, SpeedModifier, baseSpeed);
+        public virtual float ModifyCooldown(Spell spell, float cooldown) => ApplyModifier(spell, CooldownModifier, cooldown);
+        public virtual float ModifyLifetime(Spell spell, float lifetime) => ApplyModifier(spell, LifetimeModifier, lifetime);
     }
 }

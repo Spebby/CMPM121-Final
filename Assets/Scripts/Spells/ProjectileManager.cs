@@ -30,6 +30,7 @@ namespace CMPM.Spells {
             newProjectile.GetComponent<ProjectileController>().OnHit    += onHit;
         }
 
+        // Always pass 0 for which, for now, may change later
         public void CreateProjectile(
             int which, ProjectileType trajectory, Vector3 where, Vector3 direction, float speed, Action<Hittable, Vector3> onHit,
             float lifetime) {
@@ -41,6 +42,15 @@ namespace CMPM.Spells {
             newProjectile.GetComponent<ProjectileController>().SetLifetime(lifetime);
         }
 
+        public static ProjectileType StringToProjectileType(string type) {
+            return type.ToLower() switch {
+                "homing"    => ProjectileType.HOMING,
+                "straight"  => ProjectileType.STRAIGHT,
+                "spiraling" => ProjectileType.SPIRALING,
+                _           => throw new ArgumentException($"{type} is not a recognized type")
+            };
+        }
+        
         public static ProjectileMovement MakeMovement(ProjectileType type, float speed) {
             return type switch {
                 ProjectileType.STRAIGHT  => new StraightProjectileMovement(speed),
