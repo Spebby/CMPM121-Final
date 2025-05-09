@@ -21,12 +21,17 @@ namespace CMPM.UI {
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start() {
             _lastTextUpdate = 0;
+            if (highlight) highlight.SetActive(false);
+            manacost.text = "";
+            damage.text = "";
         }
         
         public void SetSpell(Spell spell) {
             Spell = spell;
             GameManager.Instance.SpellIconManager.PlaceSprite(spell.GetIcon(), icon.GetComponent<Image>());
         }
+        
+        public bool IsEmpty() => Spell == null;
 
         // Update is called once per frame
         void Update() {

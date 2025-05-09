@@ -24,7 +24,7 @@ namespace CMPM.Core {
         // ReSharper disable once StringLiteralTypo
         [SerializeField, FormerlySerializedAs("manaui")] ManaBar manaUI;
         // ReSharper disable once StringLiteralTypo
-        [SerializeField, FormerlySerializedAs("spellui")] SpellUI spellUI;
+        [SerializeField] SpellUIContainer spellUI;
         #endregion
 
         public static implicit operator SpellCaster(PlayerController player) => player._spellCaster;
@@ -40,6 +40,7 @@ namespace CMPM.Core {
             Spell activeSpell = _spells[_spellIndex];
             _spellCaster = new SpellCaster(125, 8, 1, Hittable.Team.PLAYER, activeSpell);
             StartCoroutine(_spellCaster.ManaRegeneration());
+            _spells[_spellIndex] = _spellCaster.Spell;
 
             int wave = GameManager.Instance.currentWave;
             SetPlayerScale(wave);
@@ -49,7 +50,9 @@ namespace CMPM.Core {
             HP.team    =  Hittable.Team.PLAYER;
 
             // tell UI elements what to show
-            RefreshUI();
+            spellUI.AddSpell(_spellCaster.Spell, _spellIndex);
+            healthUI.SetHealth(HP);
+            manaUI.SetSpellCaster(_spellCaster);
         }
 
         void SetPlayerScale(int wave) {
@@ -61,7 +64,7 @@ namespace CMPM.Core {
         }
         
         #region Spells
-        int _spellIndex = 0;
+        int _spellIndex;
         readonly Spell[] _spells = new Spell[4];
         /* To note about readonly: you can think of it as preventing a change to the value of a variable
          * for value types, this is straight forwards. For reference types, like an array, this means
@@ -72,15 +75,15 @@ namespace CMPM.Core {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
             
-            NextSpell(_spellIndex);
-            RefreshUI();
+            NextSpell(++_spellIndex);
         }
         
-        public void AddNewSpell(Spell spell, int replaceIndex = 0) {
+        public void AddSpell(Spell spell, int replaceIndex = 0) {
             if (replaceIndex < 0) throw new ArgumentOutOfRangeException(nameof(replaceIndex));
             for (int i = 0; i < _spells.Length; ++i) {
                 if (_spells[i] != null) continue;
                 _spells[i] = spell;
+                spellUI.AddSpell(_spells[i], i);
                 return;
             }
             
@@ -90,19 +93,22 @@ namespace CMPM.Core {
         public void SwitchSpell(int i) {
             _spellCaster.Spell = _spells[i];
             _spellIndex = i;
+            spellUI.SetSpellAsActive(_spellIndex);
         }
 
         public void DropSpell(int i) {
             _spells[i] = null;
             NextSpell(i);
+            spellUI.SetSpellAsActive(_spellIndex);
         }
 
         void NextSpell(int start = 0) {
-            for (int offset = 0; offset < _spells.Length; ++offset) {
+            for (int offset = 0; offset < _spells.Length; offset++) {
                 int i = (start + offset) %  _spells.Length;
                 if (_spells[i] == null) continue;
                 _spellCaster.Spell = _spells[i];
                 _spellIndex = i;
+                spellUI.SetSpellAsActive(i);
                 return;
             }
 
@@ -110,6 +116,7 @@ namespace CMPM.Core {
         }
 
         public bool HasSpellRoom() => _spells.Any(t => t == null);
+        public Spell[] GetSpells() => _spells;
         #endregion
         
         void OnAttack(InputValue value) {
@@ -130,12 +137,6 @@ namespace CMPM.Core {
         // ReSharper disable once MemberCanBeMadeStatic.Local
         void Die() {
             GameManager.Instance.SetGameOver();
-        }
-        
-        void RefreshUI() {
-            healthUI.SetHealth(HP);
-            manaUI.SetSpellCaster(_spellCaster);
-            spellUI.SetSpell(_spellCaster.Spell);
         }
     }
 }

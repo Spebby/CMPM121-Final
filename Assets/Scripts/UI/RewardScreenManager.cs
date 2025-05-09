@@ -21,7 +21,8 @@ namespace CMPM.UI {
         public SpellUI spellUIIcon;
         public TextMeshProUGUI spellText;
         public GameObject discardSpellUI;
-
+        public GameObject discardSpellUIContainer;
+        
         Spell _rewardSpell;
 
         // I don't have time to give it a proper spot for now, so stat collection is going in here for the moment
@@ -93,12 +94,18 @@ namespace CMPM.UI {
         }
 
         void SetRewardScreen() {
+            if (_acceptingSpells) {
+                AcceptSpell();
+                return;
+            }
+            
             regUI.SetActive(false);
             _panel.SetActive(true);
             endUI.SetActive(true);
             nextButton.SetActive(true);
             acceptButton.SetActive(true);
             spellUI.SetActive(true);
+            discardSpellUI.SetActive(false);
 
             if (!_player) _player = GameManager.Instance.Player.GetComponent<PlayerController>();
             if (_rewardSpell == null) {
@@ -123,19 +130,30 @@ namespace CMPM.UI {
                 $"Time Spent: {_timeSpent:F2}\tDamage Done: {_damageDone}\tDamage Taken: {_damageTaken}{waveText}{extra}";
         }
 
+        bool _acceptingSpells = false;
         public void AcceptSpell() {
+            _acceptingSpells = true;
             if (!_player) _player = GameManager.Instance.Player.GetComponent<PlayerController>();
             if (_player.HasSpellRoom()) {
-                _player.AddNewSpell(_rewardSpell);
+                _player.AddSpell(_rewardSpell);
             } else {
-                spellUI.gameObject.SetActive(false);
-                discardSpellUI.SetActive(true);
+                endUI.gameObject.SetActive(false);
+                discardSpellUI.gameObject.SetActive(true);
+                
+                Spell[] spells = _player.GetSpells();
+                SpellUI[] discardUIContainer = discardSpellUIContainer.GetComponentsInChildren<SpellUI>();
+                for (int i = 0; i < spells.Length; i++) {
+                    Spell s = spells[i];
+                    SpellUI ui = discardUIContainer[i];
+                    ui.SetSpell(s);
+                }
             }
         }
 
         public void DisableUI() { 
             _panel.SetActive(false);
             _rewardSpell = null;
+            _acceptingSpells = false;
         }
     }
 }
