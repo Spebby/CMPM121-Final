@@ -9,7 +9,8 @@ namespace CMPM.Spells {
     public enum ProjectileType {
         STRAIGHT,
         HOMING,
-        SPIRALING
+        SPIRALING,
+        SINE
     }
     
     // This would be fun to object pool.
@@ -47,6 +48,7 @@ namespace CMPM.Spells {
                 "homing"    => ProjectileType.HOMING,
                 "straight"  => ProjectileType.STRAIGHT,
                 "spiraling" => ProjectileType.SPIRALING,
+                "sine"      => ProjectileType.SINE,
                 _           => throw new ArgumentException($"{type} is not a recognized type")
             };
         }
@@ -56,6 +58,7 @@ namespace CMPM.Spells {
                 ProjectileType.STRAIGHT  => new StraightProjectileMovement(speed),
                 ProjectileType.HOMING    => new HomingProjectileMovement(speed),
                 ProjectileType.SPIRALING => new SpiralingProjectileMovement(speed),
+                ProjectileType.SINE      => new SineProjectileMovement(speed),
                 _                        => null
             };
         }

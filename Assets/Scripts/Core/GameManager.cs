@@ -33,6 +33,7 @@ namespace CMPM.Core {
         public RelicIconManager RelicIconManager;
 
         List<GameObject> _enemies;
+        public int EnemiesLeft;
 
         public int totalWaves;
         public int currentWave;
@@ -52,6 +53,7 @@ namespace CMPM.Core {
             lock (ENEMY_LOCK) {
                 _enemies.Remove(enemy);
             }
+            EnemiesLeft--;
         }
 
         public GameObject GetClosestEnemy(Vector3 point) {

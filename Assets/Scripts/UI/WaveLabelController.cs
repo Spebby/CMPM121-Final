@@ -15,7 +15,7 @@ namespace CMPM.UI {
         // Update is called once per frame
         void Update() {
             _tmp.text = GameManager.Instance.State switch {
-                GameManager.GameState.INWAVE    => "Enemies left: " + GameManager.Instance.EnemyCount,
+                GameManager.GameState.INWAVE    => "Enemies left: " + GameManager.Instance.EnemiesLeft,
                 GameManager.GameState.COUNTDOWN => "Starting in " + GameManager.Instance.Countdown,
                 _                               => _tmp.text
             };

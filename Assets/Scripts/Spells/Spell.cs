@@ -72,6 +72,10 @@ namespace CMPM.Spells {
             return Name;
         }
 
+        public string GetDescription() {
+            return SpellRegistry.Get(Name.GetHashCode()).Description;
+        }
+
         #region Stat Getters
         protected virtual T ApplyModifiers<T>(T baseValue, Func<ISpellModifier, T, T> apply) {
             foreach (int hash in Modifiers ?? Array.Empty<int>()) {
@@ -83,7 +87,13 @@ namespace CMPM.Spells {
         }
 
         public virtual int GetManaCost() => ApplyModifiers((int)ManaCost.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyManaCost(this, val));
-        public virtual int GetDamage() => ApplyModifiers((int)DamageFormula.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyDamage(this, val));
+
+        public virtual int GetDamage() {
+            SerializedDictionary<string, float> dict = GetRPNVariables();
+            dict["speed"] = GetSpeed(); // This has to be done here to prevent a recursive loop that crashes the game
+            return ApplyModifiers((int)DamageFormula.Evaluate(dict), (mod, val) => mod.ModifyDamage(this, val));
+        }
+
         public virtual float GetSpeed() => ApplyModifiers(Speed.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifySpeed(this, val));
         public virtual float GetCooldown() => ApplyModifiers(Cooldown.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyCooldown(this, val));
         public virtual float GetLifetime() => ApplyModifiers(Lifetime?.Evaluate(GetRPNVariables()) ?? 9999f, (mod, val) => mod.ModifyLifetime(this, val));
@@ -132,8 +142,8 @@ namespace CMPM.Spells {
 
         public SerializedDictionary<string, float> GetRPNVariables() {
             return new SerializedDictionary<string, float> {
-                { "wave", GameManager.Instance.currentWave },
-                { "power", Owner.SpellPower}
+                { "wave",  GameManager.Instance.currentWave },
+                { "power", Owner.SpellPower }
             };
         }
     }

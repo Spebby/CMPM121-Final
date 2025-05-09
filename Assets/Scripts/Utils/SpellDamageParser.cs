@@ -16,7 +16,7 @@ namespace CMPM.Utils {
             if (amountStr == null || typeStr == null)
                 throw new JsonException("Missing 'amount' or 'type' field in damage JSON");
 
-            RPNString   rpn     = new(amountStr, null);
+            RPNString   rpn     = new(amountStr);
             Damage.Type dmgType = Damage.TypeFromString(typeStr);
 
             return new SpellDamageData(rpn, dmgType);

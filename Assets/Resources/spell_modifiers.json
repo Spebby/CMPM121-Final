@@ -10,6 +10,11 @@
        "description": "Faster projectile speed",
        "speed_multiplier": "1.75"
    },
+   "forceful": {
+	   "name": "forceful",
+	   "description": "Augment the projectile's damage with the projectiles speed.",
+	   "damage_multiplier": "speed 4 + 8 /",
+   },
    "doubler": {
        "name": "doubled",
        "description": "Spell is cast a second time after a small delay; increased mana cost and cooldown.",
@@ -37,6 +42,11 @@
        "damage_multiplier": "0.75",
        "mana_adder": "10",
        "projectile_trajectory": "homing"
+   },
+   "waver": {
+		"name": "waver",
+		"description": "Oscillating projectile, with decreased mana cost.",
+		"mana_multiplier": "0.75",
+		"projectile_trajectory": "sine"
    }
-
 }

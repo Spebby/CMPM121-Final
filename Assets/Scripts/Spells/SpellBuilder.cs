@@ -7,6 +7,7 @@ using CMPM.DamageSystem;
 using CMPM.Spells.Modifiers;
 using CMPM.Utils;
 using Newtonsoft.Json;
+using Debug = System.Diagnostics.Debug;
 using Random = UnityEngine.Random;
 
 
@@ -19,8 +20,8 @@ namespace CMPM.Spells {
         public static void ParseSpellsJson(TextAsset spellsJson, TextAsset modifiersJson) {
             // Spells
             foreach (JProperty _ in JObject.Parse(spellsJson.text).Properties()) {
-                SpellData s = _.ToObject<SpellData>();
-                SpellRegistry.Register(_.Name.GetHashCode(), s);
+                SpellData s = _.Value.ToObject<SpellData>();
+                SpellRegistry.Register(s.Name.GetHashCode(), s);
             }
             
             // Build Modifiers Library
@@ -29,10 +30,12 @@ namespace CMPM.Spells {
                 ISpellModifier    mod = _.Name switch {
                     "damage_amp" => new SpellStatModifier(s.DamageModifier, s.ManaCostModifier),
                     "speed_amp"  => new SpellStatModifier(null, null, s.SpeedModifier),
+                    "forceful"   => new SpellStatModifier(s.DamageModifier),
                     "doubler"    => new SpellRepeaterModifier(s.Count, s.Delay, null, s.ManaCostModifier, null, s.CooldownModifier),
                     "splitter"   => new SpellSplitModifier(s.Count, s.Angle, null, s.ManaCostModifier),
                     "chaos"      => new SpellProjectileModifier(ProjectileType.SPIRALING, s.DamageModifier),
                     "homing"     => new SpellProjectileModifier(ProjectileType.HOMING, s.DamageModifier, s.ManaCostModifier),
+                    "waver"      => new SpellProjectileModifier(ProjectileType.SINE, null, s.ManaCostModifier),
                     _            => throw new NotImplementedException($"{_.Name} is not implemented")
                 };
 
@@ -41,17 +44,17 @@ namespace CMPM.Spells {
             }
         }
         
-        public static Spell MakeRandomSpell(SpellCaster owner) {
-            return BuildSpell(SpellRegistry.GetRandomHash(), owner);
+        public static Spell MakeRandomSpell(SpellCaster owner, bool hasModifiers = true) {
+            return BuildSpell(SpellRegistry.GetRandomHash(), owner, hasModifiers);
         }
 
-        public static Spell BuildSpell(string spellName, SpellCaster owner) {
-            return BuildSpell(spellName.GetHashCode(), owner);
+        public static Spell BuildSpell(string spellName, SpellCaster owner, bool hasModifiers = true) {
+            return BuildSpell(spellName.GetHashCode(), owner, hasModifiers);
         }
 
         //to make the spell
         public static Spell BuildSpell(int hash, SpellCaster owner, bool hasModifiers = true) {
-            SpellData data      = SpellRegistry.Get(hash);
+            SpellData data = SpellRegistry.Get(hash);
             string name = data.Name;
             
             int[] modifiers = null;
@@ -75,23 +78,35 @@ namespace CMPM.Spells {
             
             switch (data.Name) {
                 case "Arcane Bolt":
-                    return new ArcaneBolt(owner, name, data.ManaCost, data.Damage.DamageRPN, data.DamageType, projectile.Speed, data.Cooldown, projectile.Lifetime,
-                                     data.Icon, modifiers);
+                    return new ArcaneBolt(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
+                                          projectile.Speed, data.Cooldown, projectile.Lifetime,
+                                          data.Icon, modifiers);
                 case "Magic Missile":
-                    return new MagicMissile(owner, name, data.ManaCost, data.Damage.DamageRPN, data.DamageType, projectile.Speed, data.Cooldown, projectile.Lifetime,
+                    return new MagicMissile(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
+                                            projectile.Speed, data.Cooldown, projectile.Lifetime,
                                             data.Icon, modifiers);
                 case "Arcane Blast": {
                     if (secondary == null) throw new Exception($"{name} has no secondary projectile");
-                    return new ArcaneBlast(owner, name, data.ManaCost, data.Damage.DamageRPN, data.DamageType,
+                    if (data.Count == null) throw new Exception($"{name} has no count defined");
+                    return new ArcaneBlast(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
                                            projectile.Speed, data.Cooldown, projectile.Lifetime,
-                                           secondary.Value, data.Icon, modifiers);
+                                           data.Count.Value, secondary.Value, data.Icon, modifiers);
                 }
                 case "Arcane Spray":
-                    return new ArcaneSpray(owner, name, data.ManaCost, data.Damage.DamageRPN, data.DamageType, projectile.Speed, data.Cooldown, projectile.Lifetime,
-                                           data.Icon, data.Count, data.Spray, modifiers);
+                    if (data.Count == null) throw new Exception($"{name} has no count defined");
+                    if (data.Spray == null) throw new Exception($"{name} has no spray defined");
+                    return new ArcaneSpray(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
+                                           projectile.Speed, data.Cooldown, projectile.Lifetime,
+                                           data.Icon, data.Count.Value, data.Spray.Value, modifiers);
+                case "Arcane River":
+                    if (data.Count == null) throw new Exception($"{name} has no count defined");
+                    if (data.Spray == null) throw new Exception($"{name} has no spray defined");
+                    return new ArcaneRiver(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
+                                           projectile.Speed, data.Cooldown, projectile.Lifetime, data.Icon,
+                                           data.Count.Value, data.Spray.Value, modifiers);
                 //then it is a modifier spell, by recursively calling the BuildSpell method
                 default: {
-                    throw new Exception("Unknown spell name: " + data.Name);
+                    throw new Exception($"Unknown spell name: {data.Name}");
                 }
             }
         }
@@ -101,35 +116,24 @@ namespace CMPM.Spells {
     // TODO: At some point making these *all* RPN Strings may be beneficial simply for added flexibility would be cool.
     // Though that would be bad for performance lol
     [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [JsonConverter(typeof(SpellDataParser))]
     public struct SpellData {
         #region Metadata
-        [JsonProperty("name")]
         public string Name;
-        [JsonProperty("damage")]
         public string Description;
-        [JsonProperty("icon")]
         public uint Icon;
         #endregion
        
         #region Stats
         public SpellDamageData Damage;
-        [JsonConverter(typeof(RPNStringParser)), JsonProperty("damage")]
-        public Damage.Type DamageType;
-        
-        [JsonConverter(typeof(RPNStringParser)), JsonProperty("mana_cost")]
         public RPNString ManaCost;
-        [JsonConverter(typeof(RPNStringParser)), JsonProperty("cooldown"), Tooltip("In ms.")]
         public RPNString Cooldown;
        
-        [JsonProperty("damage")]
         public ProjectileData  Projectile;
-        [JsonProperty("secondary_projectile")]
         public ProjectileData? SecondaryProjectile;
         
-        [JsonConverter(typeof(RPNStringParser)), JsonProperty("N")]
-        public RPNString Count;
-        [JsonConverter(typeof(RPNStringParser)), JsonProperty("spray")]
-        public RPNString Spray;
+        public RPNString? Count;
+        public RPNString? Spray;
         #endregion
     }
 

@@ -28,7 +28,7 @@ namespace CMPM.Level {
 
         // We may be able to get away w/ making this a static member for easier usage for parser,
         // but there's not a (ton) of reason to expose it publicly to begin with.
-        public Utils.SerializedDictionary<string, Enemy> enemyTypes;
+        public SerializedDictionary<string, Enemy> enemyTypes;
         public List<Level> levels;
 
         [Header("UI")]
@@ -37,6 +37,7 @@ namespace CMPM.Level {
         #region Privates
         Level _currentLevel;
         int _currentWave;
+        int _remainingSpawns;
         #endregion
         
         void Awake() {
@@ -54,7 +55,7 @@ namespace CMPM.Level {
         }
 
         void LoadEnemiesJson(in TextAsset enemyText) {
-            enemyTypes = new Utils.SerializedDictionary<string, Enemy>();
+            enemyTypes = new SerializedDictionary<string, Enemy>();
             
             foreach (JToken _ in JToken.Parse(enemyText.text)) {
                 Enemy e = _.ToObject<Enemy>();
@@ -64,7 +65,7 @@ namespace CMPM.Level {
 
         // I wrote some JsonConverters to make the parsing logic less cluttered.
         // I may change more but for the moment this is acceptable.
-        void LoadLevelsJson(in TextAsset levelText, in Utils.SerializedDictionary<string, Enemy> enemies) {
+        void LoadLevelsJson(in TextAsset levelText, in SerializedDictionary<string, Enemy> enemies) {
             // Set up a custom JsonConverter that includes the enemies dictionary
             JsonSerializerSettings settings = new() {
                 Converters = new List<JsonConverter> {
@@ -78,15 +79,15 @@ namespace CMPM.Level {
                 foreach (ref Spawn spawn in level.spawns.AsSpan()) {
                     ref Enemy fallback = ref spawn.enemy;
                     FormulaFallback(ref spawn.HPFormula,     fallback.baseHP);
-                    FormulaFallback(ref spawn.damageFormula, fallback.damage);
-                    FormulaFallback(ref spawn.speedFormula,  fallback.speed);
+                    FormulaFallback(ref spawn.DamageFormula, fallback.damage);
+                    FormulaFallback(ref spawn.SpeedFormula,  fallback.speed);
                     spawn.sequence ??= new[] { 1 };
                 }
             }
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void FormulaFallback(ref string str, int fallback) => str = string.IsNullOrEmpty(str) ? Convert.ToString(fallback) : str;
+        static void FormulaFallback(ref RPNString str, int fallback) => str = string.IsNullOrEmpty(str) ? new RPNString(Convert.ToString(fallback)) : str;
 
         
         public void StartLevel(string levelName) {
@@ -121,6 +122,17 @@ namespace CMPM.Level {
             
             GameManager.Instance.State     = GameManager.GameState.COUNTDOWN;
             GameManager.Instance.Countdown = 3;
+
+            {
+                SerializedDictionary<string, int> table      = new() { { "wave", wave } };
+                Span<Spawn>                       span       = level.spawns.AsSpan();
+                int                               maxEnemies = 0;
+                for (int i = 0; i < span.Length; i++) {
+                    maxEnemies += span[i].Count.Evaluate(table);
+                }
+                GameManager.Instance.EnemiesLeft = maxEnemies;
+            }
+
             for (int i = 3; i > 0; i--) {
                 yield return new WaitForSeconds(1);
                 GameManager.Instance.Countdown--;
@@ -134,7 +146,7 @@ namespace CMPM.Level {
                 _ = SpawnEnemies(spawn, wave);
             }
 
-            yield return new WaitWhile(() => GameManager.Instance.EnemyCount > 0);
+            yield return new WaitWhile(() => GameManager.Instance.EnemiesLeft > 0);
             if (GameManager.Instance.State != GameManager.GameState.GAMEOVER) {
                 GameManager.Instance.State = GameManager.GameState.WAVEEND;
             }
@@ -143,7 +155,7 @@ namespace CMPM.Level {
         // TODO: Convert to RPNStrings
         async Task SpawnEnemies(Spawn spawn, int wave) {
             int   n             = 0;
-            int   count         = RPN.Evaluate(spawn.count, new Utils.SerializedDictionary<string, int> { { "wave", wave } });
+            int   count         = spawn.Count.Evaluate(new SerializedDictionary<string, int> { { "wave", wave } });
             int   delay         = spawn.delay;
             int[] sequence      = spawn.sequence;
             int   sequenceIndex = 0;
@@ -154,9 +166,9 @@ namespace CMPM.Level {
             }
 
             EnemyPacket ep = new() {
-                HP     = RPN.Evaluate(spawn.HPFormula,     new Utils.SerializedDictionary<string, int>() { { "wave", wave }, { "base", spawn.enemy.baseHP } }),
-                Damage = RPN.Evaluate(spawn.damageFormula, new Utils.SerializedDictionary<string, int>() { { "wave", wave }, { "base", spawn.enemy.damage } }),
-                Speed  = RPN.Evaluate(spawn.speedFormula,  new Utils.SerializedDictionary<string, int>() { { "wave", wave }, { "base", spawn.enemy.speed  } })
+                HP     = spawn.HPFormula.Evaluate(new SerializedDictionary<string, int>()     { { "wave", wave }, { "base", spawn.enemy.baseHP } }),
+                Damage = spawn.DamageFormula.Evaluate(new SerializedDictionary<string, int>() { { "wave", wave }, { "base", spawn.enemy.damage } }),
+                Speed  = spawn.SpeedFormula.Evaluate(new SerializedDictionary<string, int>()  { { "wave", wave }, { "base", spawn.enemy.speed  } })
             };
 
             //this was provided by Markus Eger's Lecture 5: Design Patterns in pseudocode
@@ -215,13 +227,14 @@ namespace CMPM.Level {
     public struct Spawn {
         //[JsonConverter(typeof(SpawnEnemyParser))] <-- this is only valid syntax when it's a parameterless constructor
         public Enemy enemy;
-        public string count;
-        [JsonProperty("hp")]
-        public string HPFormula;
-        [JsonProperty("speed")]
-        public string speedFormula;
-        [JsonProperty("damage")]
-        public string damageFormula;
+        [JsonConverter(typeof(RPNStringParser)), JsonProperty("count")]
+        public RPNString Count;
+        [JsonConverter(typeof(RPNStringParser)), JsonProperty("hp")]
+        public RPNString HPFormula;
+        [JsonConverter(typeof(RPNStringParser)), JsonProperty("speed")]
+        public RPNString SpeedFormula;
+        [JsonConverter(typeof(RPNStringParser)), JsonProperty("damage")]
+        public RPNString DamageFormula;
         [JsonConverter(typeof(SecondsParser)), Tooltip("In ms.")]
         public int delay;
         [CanBeNull] public int[] sequence;

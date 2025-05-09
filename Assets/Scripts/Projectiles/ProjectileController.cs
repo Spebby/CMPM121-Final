@@ -12,9 +12,6 @@ namespace CMPM.Projectiles {
         public event Action<Hittable, Vector3> OnHit;
         public ProjectileMovement Movement;
 
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start() { }
-
         // Update is called once per frame
         void Update() {
             Movement.Movement(transform);

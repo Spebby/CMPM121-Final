@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using UnityEngine;
 
 
 namespace CMPM.Utils {
     // I figured a wrapper for RPN Strings was fitting to make the use case clear & keep associated data together
     // + reduce user error.
+    [JsonConverter(typeof(RPNStringParser))]
     public struct RPNString : IEquatable<RPNString> {
         public readonly string String;
-        [CanBeNull] public SerializedDictionary<string, int> Variables;
+        [CanBeNull] public readonly SerializedDictionary<string, int> Variables;
 
         public RPNString(string str, SerializedDictionary<string, int> vars = null) {
             String = str;

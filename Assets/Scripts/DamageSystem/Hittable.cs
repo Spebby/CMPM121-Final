@@ -3,6 +3,7 @@ using UnityEngine;
 
 
 namespace CMPM.DamageSystem {
+    [Serializable]
     public class Hittable {
         public enum Team {
             PLAYER,

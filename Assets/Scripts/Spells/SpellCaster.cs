@@ -10,8 +10,8 @@ namespace CMPM.Spells {
         public int ManaReg;
         public int SpellPower;
         public readonly Hittable.Team Team;
-        public readonly Spell Spell;
-        
+
+        public Spell Spell;
         const string DEFAULT_SPELL = "Arcane Bolt";
 
         public IEnumerator ManaRegeneration() {
@@ -23,13 +23,13 @@ namespace CMPM.Spells {
             // ReSharper disable once IteratorNeverReturns
         }
 
-        public SpellCaster(int mana, int manaReg, int spellPower, Hittable.Team team) {
-            Mana       = mana;
-            MaxMana    = mana;
-            ManaReg    = manaReg;
-            SpellPower = spellPower;
-            Team       = team;
-            Spell      = SpellBuilder.BuildSpell(DEFAULT_SPELL, this);
+        public SpellCaster(int mana, int manaReg, int spellPower, Hittable.Team team, Spell spell) {
+            Mana        = mana;
+            MaxMana     = mana;
+            ManaReg     = manaReg;
+            SpellPower  = spellPower;
+            Team        = team;
+            Spell = spell ?? SpellBuilder.BuildSpell(DEFAULT_SPELL, this, false);
         }
 
         // 

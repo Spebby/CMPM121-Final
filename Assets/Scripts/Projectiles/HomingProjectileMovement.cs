@@ -39,8 +39,8 @@ namespace CMPM.Projectiles {
                     _angle += Mathf.Clamp(da, -_turnRate * Mathf.Deg2Rad, _turnRate * Mathf.Deg2Rad);
                 }
 
-                var direction = new Vector3(Mathf.Cos(_angle), Mathf.Sin(_angle), 0);
-                transform.Translate(direction.normalized * Speed * Time.deltaTime, Space.World);
+                Vector3 direction = new(Mathf.Cos(_angle), Mathf.Sin(_angle), 0);
+                transform.Translate(direction.normalized * (Speed * Time.deltaTime), Space.World);
             }
         }
     }

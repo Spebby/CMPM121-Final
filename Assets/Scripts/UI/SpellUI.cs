@@ -22,7 +22,7 @@ namespace CMPM.UI {
         void Start() {
             _lastTextUpdate = 0;
         }
-
+        
         public void SetSpell(Spell spell) {
             Spell = spell;
             GameManager.Instance.SpellIconManager.PlaceSprite(spell.GetIcon(), icon.GetComponent<Image>());
@@ -37,9 +37,9 @@ namespace CMPM.UI {
                 _lastTextUpdate = Time.time;
             }
 
+            if (!cooldown) return;
             float sinceLast = Time.time - Spell.LastCast;
             float ratio     = sinceLast > Spell.GetCooldown() ? 0 : 1 - sinceLast / Spell.GetCooldown();
-
             cooldown.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 48 * ratio);
         }
     }
