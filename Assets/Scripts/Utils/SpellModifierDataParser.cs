@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using CMPM.Spells;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -13,23 +12,43 @@ namespace CMPM.Utils {
 
             string    damageMultiplier = obj.Value<string>("damage_multiplier") ?? "1";
             string    damageAdder      = obj.Value<string>("damage_adder") ?? "";
-            RPNString damageModifier   = new($"value {damageMultiplier} * {damageAdder} +");
+            RPNString damageModifier   = new(
+                string.IsNullOrEmpty(damageAdder)
+                    ? $"value {damageMultiplier} *"
+                    : $"value {damageMultiplier} * {damageAdder} +"
+            );
 
             string    manaCostMultiplier = obj.Value<string>("mana_multiplier") ?? "1";
             string    manaCostAdder      = obj.Value<string>("mana_adder") ?? "0";
-            RPNString manaModifier       = new($"value {manaCostMultiplier} * {manaCostAdder} +");
+            RPNString manaModifier       = new(
+                string.IsNullOrEmpty(manaCostAdder)
+                    ? $"value {manaCostMultiplier} *"
+                    : $"value {manaCostMultiplier} * {manaCostAdder} +"
+            );
 
             string    cooldownMultiplier = obj.Value<string>("cooldown_multiplier") ?? "1";
             string    cooldownAdder      = obj.Value<string>("cooldown_adder") ?? "0";
-            RPNString cooldownModifier   = new($"value {cooldownMultiplier} * {cooldownAdder} +");
+            RPNString cooldownModifier   = new(
+                string.IsNullOrEmpty(cooldownAdder)
+                    ? $"value {cooldownMultiplier} *"
+                    : $"value {cooldownMultiplier} * {cooldownAdder} +"
+            );
 
             string    speedMultiplier = obj.Value<string>("speed_multiplier") ?? "1";
             string    speedAdder      = obj.Value<string>("speed_adder") ?? "0";
-            RPNString speedModifier   = new($"value {speedMultiplier} * {speedAdder} +");
+            RPNString speedModifier   = new(
+                string.IsNullOrEmpty(speedAdder)
+                    ? $"value {speedMultiplier} *"
+                    : $"value {speedMultiplier} * {speedAdder} +"
+            );
 
             string    lifetimeMultiplier = obj.Value<string>("lifetime_multiplier") ?? "1";
             string    lifetimeAdder      = obj.Value<string>("lifetime_adder") ?? "0";
-            RPNString lifetimeModifier   = new($"value {lifetimeMultiplier} * {lifetimeAdder} +");
+            RPNString lifetimeModifier   = new(
+                string.IsNullOrEmpty(lifetimeAdder)
+                    ? $"value {lifetimeMultiplier} *"
+                    : $"value {lifetimeMultiplier} * {lifetimeAdder} +"
+            );
 
             RPNString count = new(obj.Value<string>("count") ?? "1");
             RPNString angle = new(obj.Value<string>("angle") ?? "0");

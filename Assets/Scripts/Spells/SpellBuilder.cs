@@ -44,32 +44,25 @@ namespace CMPM.Spells {
             }
         }
         
-        public static Spell MakeRandomSpell(SpellCaster owner, bool hasModifiers = true) {
-            return BuildSpell(SpellRegistry.GetRandomHash(), owner, hasModifiers);
+        public static Spell MakeRandomSpell(SpellCaster owner, int maxModifiers = 3) {
+            return BuildSpell(SpellRegistry.GetRandomHash(), owner, maxModifiers);
         }
 
-        public static Spell BuildSpell(string spellName, SpellCaster owner, bool hasModifiers = true) {
-            return BuildSpell(spellName.GetHashCode(), owner, hasModifiers);
+        public static Spell BuildSpell(string spellName, SpellCaster owner, int maxModifiers = 3) {
+            return BuildSpell(spellName.GetHashCode(), owner, maxModifiers);
         }
 
         //to make the spell
-        public static Spell BuildSpell(int hash, SpellCaster owner, bool hasModifiers = true) {
+        public static Spell BuildSpell(int hash, SpellCaster owner, int maxModifiers = 3) {
             SpellData data = SpellRegistry.Get(hash);
             string name = data.Name;
             
             int[] modifiers = null;
-            if (hasModifiers) {
-                modifiers = new int[Random.Range(0, GameManager.Instance.MaxModifierCount)];
-                string modifierNames = "";
+            if (maxModifiers > 0) {
+                modifiers = new int[Random.Range(0, maxModifiers)];
                 for (int i = 0; i < modifiers.Length; ++i) {
-                    int h = SpellModifierRegistry.GetRandomHash();
-                    SpellModifierData modData = SpellModifierDataRegistry.Get(h);
-                    
-                    modifiers[i]  = h;
-                    modifierNames += $"{modData.Name} ";
+                    modifiers[i] = SpellModifierRegistry.GetRandomHash();
                 }
-
-                name = string.IsNullOrEmpty(modifierNames) ? name : $"{modifierNames.Trim()} {name}";
             }
 
             ProjectileData  projectile = data.Projectile;
@@ -78,7 +71,7 @@ namespace CMPM.Spells {
             
             switch (data.Name) {
                 case "Arcane Bolt":
-                    return new ArcaneBolt(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
+                    return new ArcaneBolt(owner, data.Name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
                                           projectile.Speed, data.Cooldown, projectile.Lifetime,
                                           data.Icon, modifiers);
                 case "Magic Missile":
@@ -98,10 +91,10 @@ namespace CMPM.Spells {
                     return new ArcaneSpray(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
                                            projectile.Speed, data.Cooldown, projectile.Lifetime,
                                            data.Icon, data.Count.Value, data.Spray.Value, modifiers);
-                case "Arcane River":
+                case "Mystic River":
                     if (data.Count == null) throw new Exception($"{name} has no count defined");
                     if (data.Spray == null) throw new Exception($"{name} has no spray defined");
-                    return new ArcaneRiver(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
+                    return new MysticRiver(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
                                            projectile.Speed, data.Cooldown, projectile.Lifetime, data.Icon,
                                            data.Count.Value, data.Spray.Value, modifiers);
                 //then it is a modifier spell, by recursively calling the BuildSpell method

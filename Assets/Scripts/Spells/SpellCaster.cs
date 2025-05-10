@@ -1,4 +1,5 @@
 using System.Collections;
+using CMPM.Core;
 using CMPM.DamageSystem;
 using UnityEngine;
 
@@ -29,12 +30,11 @@ namespace CMPM.Spells {
             ManaReg     = manaReg;
             SpellPower  = spellPower;
             Team        = team;
-            Spell = spell ?? SpellBuilder.BuildSpell(DEFAULT_SPELL, this, false);
+            Spell = spell ?? SpellBuilder.BuildSpell(DEFAULT_SPELL, this, 0);
         }
 
-        // 
         public IEnumerator Cast(Vector3 where, Vector3 target) {
-            if (Mana < Spell.GetManaCost() || !Spell.IsReady()) yield break;
+            if (Mana < Spell.GetManaCost() || !Spell.IsReady() || GameManager.Instance.State != GameManager.GameState.INWAVE) yield break;
             Mana -= Spell.GetManaCost();
             yield return Spell.Cast(where, target, Team);
         }

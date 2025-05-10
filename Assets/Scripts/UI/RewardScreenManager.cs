@@ -1,159 +1,215 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 using CMPM.Core;
 using CMPM.DamageSystem;
-using CMPM.Spells;
-using TMPro;
-using UnityEngine;
 using static CMPM.Core.GameManager.GameState;
+using CMPM.Spells;
+using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 
 namespace CMPM.UI {
     public class RewardScreenManager : MonoBehaviour {
-        public GameObject endUI;
-        public GameObject nextButton;
+        [Header("Panels & Buttons")]
+        [SerializeField] GameObject panel;
+        [SerializeField] GameObject regUI;
+        [SerializeField] GameObject endUI;
+        [SerializeField] GameObject nextButton;
+        [SerializeField] Button acceptButton;
 
-        public GameObject regUI;
-        public TextMeshProUGUI stats;
-        GameObject _panel;
+        [Header("Spell UI")]
+        [SerializeField] GameObject spellUI;
+        [SerializeField] SpellUI spellUIIcon;
+        [SerializeField] TextMeshProUGUI spellText;
 
+        [Header("Discard UI")]
+        [SerializeField] GameObject discardSpellUI;
+        [SerializeField] Transform discardSpellUIContainer;
+        [SerializeField] Button discardSpellButton;
 
-        [Header("Spell UI")] public GameObject acceptButton;
-        public GameObject spellUI;
-        public SpellUI spellUIIcon;
-        public TextMeshProUGUI spellText;
-        public GameObject discardSpellUI;
-        public GameObject discardSpellUIContainer;
-        
+        [Header("Stats")]
+        [SerializeField] TextMeshProUGUI statsText;
+
+        PlayerController _player;
         Spell _rewardSpell;
 
-        // I don't have time to give it a proper spot for now, so stat collection is going in here for the moment
+        [FormerlySerializedAs("OnPanelClose")]
+        [Header("Unity Events")] // I don't like Unity Events that much, but they are convenient from time to time.
+        [SerializeField] UnityEvent onPanelClose;
+
+        // Temporary stat collectors
         double _timeSpent;
         int _damageDone;
         int _damageTaken;
-        
-        PlayerController _player;
-        
+
+        void Awake() {
+            // Cache player reference
+            _player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+        }
+
         void OnEnable() {
-            _panel ??= GameObject.FindWithTag($"UIPanelPopup");
-            if (!_panel) throw new MissingComponentException("UIPanelPopup not found");
+            GameManager.OnStateChanged += HandleGameStateChanged;
             EventBus.Instance.OnDamage += UpdateDamageStats;
         }
 
         void OnDisable() {
+            GameManager.OnStateChanged -= HandleGameStateChanged;
             EventBus.Instance.OnDamage -= UpdateDamageStats;
         }
 
-        // Update is called once per frame
-        void LateUpdate() {
-            // this is ass
-            switch (GameManager.Instance.State) {
-                case WAVEEND:
-                    SetRewardScreen();
-                    break;
-                case GAMEOVER:
-                    SetLossScreen();
-                    break;
-                case INWAVE:
-                    _timeSpent += Time.deltaTime;
-                    break;
+        public void ResetGame() {
+            GameManager.Instance.SetState(PREGAME);
+            _player.ClearSpells();
+        }
+
+        void HandleGameStateChanged(GameManager.GameState newState) {
+            acceptButton.onClick.RemoveAllListeners();
+            discardSpellButton.onClick.RemoveAllListeners();
+
+            switch (newState) {
                 case PREGAME:
-                    SetStartScreen();
+                    ShowStartScreen();
                     break;
+
+                case INWAVE:
+                    // we continue tracking time in Update()
+                    break;
+
+                case WAVEEND:
+                    ShowRewardScreen();
+                    break;
+
+                case GAMEOVER:
+                    ShowLossScreen();
+                    break;
+
                 case COUNTDOWN:
                 default:
-                    DisableUI();
+                    HideAllUI();
                     break;
             }
         }
 
-        public void SetStartScreen() {
-            GameManager.Instance.State = PREGAME;
-            _panel.SetActive(true);
+        void Update() {
+            if (GameManager.Instance.State != INWAVE) return;
+            _timeSpent += Time.deltaTime;
+        }
+
+        #region Screens
+        void ShowStartScreen() {
+            panel.SetActive(true);
             regUI.SetActive(true);
             endUI.SetActive(false);
+            nextButton.SetActive(false);
+            spellUI.SetActive(false);
+            discardSpellUI.SetActive(false);
+            statsText.text = string.Empty;
         }
 
-        void UpdateDamageStats(Vector3 target, Damage damage, Hittable hittable) {
-            if (hittable.Owner != GameManager.Instance.Player) {
-                _damageDone += damage.Amount;
-                return;
-            }
-            // ^ This assumes that only the player can damage other entities.
-
-            _damageTaken += damage.Amount;
-        }
-
-        void SetLossScreen() {
-            _panel.SetActive(true);
+        void ShowLossScreen() {
+            panel.SetActive(true);
             regUI.SetActive(false);
             endUI.SetActive(true);
             nextButton.SetActive(false);
-            acceptButton.SetActive(false);
+            acceptButton.gameObject.SetActive(false);
             spellUI.SetActive(false);
+            discardSpellUI.SetActive(false);
 
-            stats.text = $"Time Spent: {_timeSpent:F2}\tDamage Done: {_damageDone}\tDamage Taken: {_damageTaken}";
+            statsText.text = $"Time Spent: {_timeSpent:F2}\t" +
+                             $"Damage Done: {_damageDone}\t" +
+                             $"Damage Taken: {_damageTaken}";
         }
 
-        void SetRewardScreen() {
-            if (_acceptingSpells) {
-                AcceptSpell();
-                return;
-            }
-            
+        void ShowRewardScreen() {
+            panel.SetActive(true);
             regUI.SetActive(false);
-            _panel.SetActive(true);
             endUI.SetActive(true);
             nextButton.SetActive(true);
-            acceptButton.SetActive(true);
+            acceptButton.gameObject.SetActive(true);
             spellUI.SetActive(true);
             discardSpellUI.SetActive(false);
 
-            if (!_player) _player = GameManager.Instance.Player.GetComponent<PlayerController>();
-            if (_rewardSpell == null) {
-                _rewardSpell =
-                    SpellBuilder.MakeRandomSpell(_player);
-                spellUIIcon.SetSpell(_rewardSpell);
-                spellText.text = $"{_rewardSpell.GetName()}\n{_rewardSpell.GetDescription()}";
-            }
+            // Pick and display one random spell
+            _rewardSpell ??= SpellBuilder.MakeRandomSpell(_player, 3);
+            spellUIIcon.SetSpell(_rewardSpell);
+            spellText.text = $"{_rewardSpell.GetName()}\n{_rewardSpell.GetDescription()}";
 
+            UpdateStatsText();
 
-            string extra    = "";
-            string waveText = $"\tWave: {GameManager.Instance.currentWave}";
-            if (GameManager.Instance.totalWaves > 0) {
-                waveText += $"/{GameManager.Instance.totalWaves}";
-                if (GameManager.Instance.currentWave == GameManager.Instance.totalWaves) {
-                    extra = "\nYou Win!";
-                    nextButton.SetActive(false);
-                }
-            }
-
-            stats.text =
-                $"Time Spent: {_timeSpent:F2}\tDamage Done: {_damageDone}\tDamage Taken: {_damageTaken}{waveText}{extra}";
+            // Wire up the accept button
+            acceptButton.onClick.AddListener(OnAcceptClicked);
         }
 
-        bool _acceptingSpells = false;
-        public void AcceptSpell() {
-            _acceptingSpells = true;
-            if (!_player) _player = GameManager.Instance.Player.GetComponent<PlayerController>();
+        void ShowDiscardMenu() {
+            endUI.SetActive(false);
+            discardSpellUI.SetActive(true);
+            discardSpellButton.onClick.AddListener(ClosePanel);
+
+            Spell[]   spells = _player.GetSpells();
+            SpellUI[] slots  = discardSpellUIContainer.GetComponentsInChildren<SpellUI>();
+
+            for (int i = 0; i < slots.Length; i++) {
+                SpellUI slot = slots[i];
+                slot.SetSpell(spells[i]);
+                if (i < spells.Length) {
+                    slot.SetSpell(spells[i]);
+
+                    Button btn = slot.GetComponentInChildren<Button>();
+                    btn.onClick.RemoveAllListeners();
+                    int idx = i;
+                    btn.onClick.AddListener(() => {
+                        _player.AddSpell(_rewardSpell, idx);
+                        ClosePanel();
+                    });
+                } else {
+                    slot.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        void HideAllUI() {
+            panel.SetActive(false);
+        }
+        #endregion
+
+        void OnAcceptClicked() {
             if (_player.HasSpellRoom()) {
                 _player.AddSpell(_rewardSpell);
+                ClosePanel();
             } else {
-                endUI.gameObject.SetActive(false);
-                discardSpellUI.gameObject.SetActive(true);
-                
-                Spell[] spells = _player.GetSpells();
-                SpellUI[] discardUIContainer = discardSpellUIContainer.GetComponentsInChildren<SpellUI>();
-                for (int i = 0; i < spells.Length; i++) {
-                    Spell s = spells[i];
-                    SpellUI ui = discardUIContainer[i];
-                    ui.SetSpell(s);
-                }
+                ShowDiscardMenu();
             }
         }
 
-        public void DisableUI() { 
-            _panel.SetActive(false);
+        void ClosePanel() {
+            panel.SetActive(false);
+            nextButton.SetActive(false);
+            acceptButton.onClick.RemoveAllListeners();
             _rewardSpell = null;
-            _acceptingSpells = false;
+            onPanelClose?.Invoke();
+        }
+
+        void UpdateStatsText() {
+            int    cur      = GameManager.Instance.CurrentWave;
+            int    tot      = GameManager.Instance.TotalWaves;
+            string waveInfo = $"\tWave: {cur}" + (tot > 0 ? $"/{tot}" : "");
+
+            if (tot > 0 && cur == tot)
+                nextButton.SetActive(false);
+
+            statsText.text =
+                $"Time Spent: {_timeSpent:F2}\t" +
+                $"Damage Done: {_damageDone}\t"  +
+                $"Damage Taken: {_damageTaken}{waveInfo}";
+        }
+
+        void UpdateDamageStats(Vector3 _, Damage damage, Hittable target) {
+            if (target.Owner == GameManager.Instance.Player) {
+                _damageTaken += damage.Amount;
+            } else {
+                _damageDone += damage.Amount;
+            }
         }
     }
 }

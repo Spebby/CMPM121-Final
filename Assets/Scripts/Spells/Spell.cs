@@ -69,11 +69,23 @@ namespace CMPM.Spells {
         }
 
         public string GetName() {
-            return Name;
+            string baseStr = Name;
+            foreach (int modifier in Modifiers) {
+                SpellModifierData data    = SpellModifierDataRegistry.Get(modifier);
+                char[]            adjName = data.Name.ToCharArray();
+                adjName[0] = char.ToUpper(adjName[0]);
+                baseStr = $"{new string(adjName)} {baseStr}";
+            }
+            return baseStr;
         }
 
         public string GetDescription() {
-            return SpellRegistry.Get(Name.GetHashCode()).Description;
+            string baseStr = $"base: {SpellRegistry.Get(Name.GetHashCode()).Description}\n";
+            foreach (int modifier in Modifiers) {
+                SpellModifierData data = SpellModifierDataRegistry.Get(modifier);
+                baseStr += $"{data.Name}: {data.Description}\n";
+            }
+            return baseStr;
         }
 
         #region Stat Getters
@@ -87,14 +99,8 @@ namespace CMPM.Spells {
         }
 
         public virtual int GetManaCost() => ApplyModifiers((int)ManaCost.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyManaCost(this, val));
-
-        public virtual int GetDamage() {
-            SerializedDictionary<string, float> dict = GetRPNVariables();
-            dict["speed"] = GetSpeed(); // This has to be done here to prevent a recursive loop that crashes the game
-            return ApplyModifiers((int)DamageFormula.Evaluate(dict), (mod, val) => mod.ModifyDamage(this, val));
-        }
-
-        public virtual float GetSpeed() => ApplyModifiers(Speed.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifySpeed(this, val));
+        public virtual int GetDamage() => ApplyModifiers((int)DamageFormula.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyDamage(this, val));
+        public virtual float GetSpeed() => ApplyModifiers(Speed.Evaluate(GetRPNVariablesSafe()), (mod, val) => mod.ModifySpeed(this, val));
         public virtual float GetCooldown() => ApplyModifiers(Cooldown.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyCooldown(this, val));
         public virtual float GetLifetime() => ApplyModifiers(Lifetime?.Evaluate(GetRPNVariables()) ?? 9999f, (mod, val) => mod.ModifyLifetime(this, val));
         #endregion
@@ -106,11 +112,10 @@ namespace CMPM.Spells {
         public bool IsReady() {
             return LastCast + GetCooldown() < Time.time;
         }
-
+        
         public virtual IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {
             Team = team;
             Action<ProjectileType, Vector3, Vector3> castAction = (type, w, t) => {
-                // Which is always "0" by default
                 GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
                                                                         t - w, GetSpeed(), OnHit);
             };
@@ -119,8 +124,8 @@ namespace CMPM.Spells {
                 ISpellModifier mod = SpellModifierRegistry.Get(hash);
                 mod?.ModifyCast(this, ref castAction);
             }
-            
-            castAction(ProjectileType.STRAIGHT, target, where);
+
+            castAction(ProjectileType.STRAIGHT, where, target);
             
             LastCast = Time.time;
             yield return new WaitForEndOfFrame();
@@ -140,9 +145,18 @@ namespace CMPM.Spells {
             hitAction(other, impact, DamageType);
         }
 
+        // NOTE: this **CANNOT** be used on speed, as you'll end up with a circular calculation.
         public SerializedDictionary<string, float> GetRPNVariables() {
             return new SerializedDictionary<string, float> {
-                { "wave",  GameManager.Instance.currentWave },
+                { "wave",  GameManager.Instance.CurrentWave },
+                { "power", Owner.SpellPower },
+                { "speed", GetSpeed() }
+            };
+        }
+
+        public SerializedDictionary<string, float> GetRPNVariablesSafe() {
+            return new SerializedDictionary<string, float> {
+                { "wave", GameManager.Instance.CurrentWave },
                 { "power", Owner.SpellPower }
             };
         }

@@ -1310,16 +1310,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 889e30827d3de8847b0caf6a2d04eb83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  panel: {fileID: 1115058366}
+  regUI: {fileID: 1611758730}
   endUI: {fileID: 510432643}
   nextButton: {fileID: 284566016}
-  regUI: {fileID: 1611758730}
-  stats: {fileID: 1287823204}
-  acceptButton: {fileID: 262679913}
+  acceptButton: {fileID: 262679915}
   spellUI: {fileID: 1395241979}
   spellUIIcon: {fileID: 497288775}
   spellText: {fileID: 946896298}
   discardSpellUI: {fileID: 916171671}
-  discardSpellUIContainer: {fileID: 12444233}
+  discardSpellUIContainer: {fileID: 12444234}
+  discardSpellButton: {fileID: 1666889828}
+  statsText: {fileID: 1287823204}
+  onPanelClose:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1316251275}
+        m_TargetAssemblyTypeName: CMPM.Level.EnemySpawner, Assembly-CSharp
+        m_MethodName: NextWave
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &220180078
 Transform:
   m_ObjectHideFlags: 0
@@ -1640,19 +1657,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 262679916}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 220180077}
-        m_TargetAssemblyTypeName: CMPM.UI.RewardScreenManager, Assembly-CSharp
-        m_MethodName: AcceptSpell
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &262679916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1848,19 +1853,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 284566019}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1316251275}
-        m_TargetAssemblyTypeName: CMPM.Level.EnemySpawner, Assembly-CSharp
-        m_MethodName: NextWave
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &284566019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3654,7 +3647,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 220180077}
         m_TargetAssemblyTypeName: CMPM.UI.RewardScreenManager, Assembly-CSharp
-        m_MethodName: SetStartScreen
+        m_MethodName: ResetGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3662,7 +3655,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 1
+          m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &555958276
 MonoBehaviour:
@@ -9319,19 +9312,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1666889829}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1316251275}
-        m_TargetAssemblyTypeName: CMPM.Level.EnemySpawner, Assembly-CSharp
-        m_MethodName: NextWave
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1666889829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9778,7 +9759,7 @@ GameObject:
   - component: {fileID: 1718273954}
   m_Layer: 0
   m_Name: Player
-  m_TagString: unit
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

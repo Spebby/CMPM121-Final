@@ -96,8 +96,8 @@ namespace CMPM.Level {
             // this is not nice: we should not have to be required to tell the player directly that the level is starting
 
             Level currentLevel = levels.Find(level => level.name == levelName);
-            GameManager.Instance.totalWaves  = currentLevel.waves;
-            GameManager.Instance.currentWave = 1;
+            GameManager.Instance.TotalWaves  = currentLevel.waves;
+            GameManager.Instance.CurrentWave = 1;
 
             //to start the level
             GameManager.Instance.Player.GetComponent<PlayerController>().StartLevel();
@@ -118,9 +118,9 @@ namespace CMPM.Level {
         IEnumerator SpawnWave(Level level, int wave) {
             _currentLevel = level;
             _currentWave  = wave;
-            GameManager.Instance.currentWave = _currentWave;
-            
-            GameManager.Instance.State     = GameManager.GameState.COUNTDOWN;
+            GameManager.Instance.CurrentWave = _currentWave;
+           
+            GameManager.Instance.SetState(GameManager.GameState.COUNTDOWN);
             GameManager.Instance.Countdown = 3;
 
             {
@@ -138,7 +138,7 @@ namespace CMPM.Level {
                 GameManager.Instance.Countdown--;
             }
 
-            GameManager.Instance.State = GameManager.GameState.INWAVE;
+            GameManager.Instance.SetState(GameManager.GameState.INWAVE);
 
 
             // Definition of Embarrassingly Parallel
@@ -148,7 +148,7 @@ namespace CMPM.Level {
 
             yield return new WaitWhile(() => GameManager.Instance.EnemiesLeft > 0);
             if (GameManager.Instance.State != GameManager.GameState.GAMEOVER) {
-                GameManager.Instance.State = GameManager.GameState.WAVEEND;
+                GameManager.Instance.SetState(GameManager.GameState.WAVEEND);
             }
         }
 

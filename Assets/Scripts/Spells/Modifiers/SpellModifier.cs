@@ -7,50 +7,40 @@ using UnityEngine;
 
 namespace CMPM.Spells.Modifiers {
     public abstract class SpellModifier : ISpellModifier {
-        public enum Operator {
-            MULTIPLIER,
-            ADDER,
-            EQUALS,
-        }
-        
         #region Protected Properties
         protected readonly RPNString? DamageModifier;
         protected readonly RPNString? ManaModifier;
         protected readonly RPNString? SpeedModifier;
         protected readonly RPNString? CooldownModifier;
         protected readonly RPNString? LifetimeModifier;
-        protected readonly Operator Op;
         #endregion
         
         public SpellModifier(RPNString? damageModifier   = null,
                              RPNString? manaModifier     = null,
                              RPNString? speedModifier    = null,
                              RPNString? cooldownModifier = null,
-                             RPNString? lifetimeModifier = null,
-                             Operator op = Operator.MULTIPLIER) {
+                             RPNString? lifetimeModifier = null) {
             DamageModifier   = damageModifier;
             ManaModifier     = manaModifier;
             SpeedModifier    = speedModifier;
             CooldownModifier = cooldownModifier;
             LifetimeModifier = lifetimeModifier;
-            Op               = op;
         }
         
         public virtual void ModifyCast(Spell spell, ref Action<ProjectileType, Vector3, Vector3> original) { }
         public virtual void ModifyHit(Spell spell, ref Action<Hittable, Vector3, Damage.Type> original) { }
         
-        protected virtual float ApplyModifier(Spell spell, RPNString? modifier, float value) {
+        protected virtual float ApplyModifier(Spell spell, RPNString? modifier, float value, SerializedDictionary<string, float> table) {
             // The RPN Strings themselves have "value" worked into them in this case, this step is done during parsing.
-            SerializedDictionary<string, float> table = spell.GetRPNVariables();
             table["value"] = value;
 
             return modifier?.Evaluate(table) ?? value;
         }
         
-        public virtual int ModifyDamage(Spell spell, int baseDamage) => (int)ApplyModifier(spell, DamageModifier, baseDamage);
-        public virtual int ModifyManaCost(Spell spell, int baseMana) => (int)ApplyModifier(spell, ManaModifier, baseMana);
-        public virtual float ModifySpeed(Spell spell, float baseSpeed) => ApplyModifier(spell, SpeedModifier, baseSpeed);
-        public virtual float ModifyCooldown(Spell spell, float cooldown) => ApplyModifier(spell, CooldownModifier, cooldown);
-        public virtual float ModifyLifetime(Spell spell, float lifetime) => ApplyModifier(spell, LifetimeModifier, lifetime);
+        public virtual int ModifyDamage(Spell spell, int baseDamage) => (int)ApplyModifier(spell, DamageModifier, baseDamage, spell.GetRPNVariables());
+        public virtual int ModifyManaCost(Spell spell, int baseMana) => (int)ApplyModifier(spell, ManaModifier, baseMana, spell.GetRPNVariables());
+        public virtual float ModifySpeed(Spell spell, float baseSpeed) => ApplyModifier(spell, SpeedModifier, baseSpeed, spell.GetRPNVariablesSafe());
+        public virtual float ModifyCooldown(Spell spell, float cooldown) => ApplyModifier(spell, CooldownModifier, cooldown, spell.GetRPNVariables());
+        public virtual float ModifyLifetime(Spell spell, float lifetime) => ApplyModifier(spell, LifetimeModifier, lifetime, spell.GetRPNVariables());
     }
 }

@@ -13,11 +13,10 @@ namespace CMPM.Spells.Modifiers {
                                   RPNString? manaModifier     = null,
                                   RPNString? speedModifier    = null,
                                   RPNString? cooldownModifier = null,
-                                  RPNString? lifetimeModifier = null,
-                                  Operator op                 = Operator.MULTIPLIER) 
+                                  RPNString? lifetimeModifier = null)
             : base(damageModifier, manaModifier, 
                    speedModifier, cooldownModifier,
-                   lifetimeModifier, op) {
+                   lifetimeModifier) {
             _count  = count;
             _spread = spread;
         }
@@ -34,13 +33,16 @@ namespace CMPM.Spells.Modifiers {
                 Vector3 delta = target - where;
                 float distance = delta.magnitude;
                 Vector3 dir = delta.normalized;
+                
+                Vector3 arcAxis                      = Vector3.Cross(dir, Vector3.up);
+                if (arcAxis == Vector3.zero) arcAxis = Vector3.right; // Fallback if shooting straight up/down
 
                 for (int i = 0; i < count; i++) {
                     float   t          = i / (float)count;
-                    float   angle      = (t - 0.5f) * spread; // Already in degrees
-                    Vector3 shotDir    = Quaternion.AngleAxis(angle, Vector3.up) * dir;
+                    float   angle      = (t - 0.5f) * spread; // Still in degrees
+                    Vector3 shotDir    = Quaternion.AngleAxis(angle, arcAxis) * dir;
                     Vector3 shotTarget = where + shotDir * distance;
-                    prev (type, where, shotTarget);
+                    prev(type, where, shotTarget);
                 }
             };
         }

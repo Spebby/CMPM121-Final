@@ -71,26 +71,26 @@
 			"trajectory": "straight",
 			"speed": "8",
 			"sprite": 0,
-			"lifetime": "0.1 power 100 / +"
+			"lifetime": "0.2 power 100 / +"
 		}
    },
-   "arcane_river": {
-		"name": "Arcane River",
+   "mystic_river": {
+		"name": "Mystic River",
 		"description": "A wave of mana that flows from the tip of the wand.",
-		"icon": 1,
+		"icon": 10,
 		"N": "7 power 25 / +",
 		"spray": "0.25",
 		"damage": {
 			"amount": "3 power 5 / +",
 			"type": "arcane"
 		},
-		"mana_cost": "15",
+		"mana_cost": "7 power + 2 *",
 		"cooldown": "0.5",
 		"projectile": {
 			"trajectory": "sine",
 			"speed": "10",
 			"sprite": 0,
-			"lifetime": "0.2 power 100 / +"
+			"lifetime": "0.75 power 100 / +"
 		}
 	}
 }

@@ -13,7 +13,7 @@ namespace CMPM.UI {
         public TextMeshProUGUI manacost;
         public TextMeshProUGUI damage;
         public GameObject highlight;
-        public Spell Spell;
+        Spell _spell;
         float _lastTextUpdate;
         const float UPDATE_DELAY = 1;
         [FormerlySerializedAs("dropbutton")] public GameObject dropButton;
@@ -27,24 +27,28 @@ namespace CMPM.UI {
         }
         
         public void SetSpell(Spell spell) {
-            Spell = spell;
-            GameManager.Instance.SpellIconManager.PlaceSprite(spell.GetIcon(), icon.GetComponent<Image>());
+            _spell = spell;
+            if (spell != null) {
+                GameManager.Instance.SpellIconManager.PlaceSprite(spell.GetIcon(), icon.GetComponent<Image>());
+            } else {
+                icon.GetComponent<Image>().sprite = null;
+            }
         }
         
-        public bool IsEmpty() => Spell == null;
+        public bool IsEmpty() => _spell == null;
 
         // Update is called once per frame
         void Update() {
-            if (Spell == null) return;
+            if (_spell == null) return;
             if (Time.time > _lastTextUpdate + UPDATE_DELAY) {
-                manacost.text   = Spell.GetManaCost().ToString();
-                damage.text     = Spell.GetDamage().ToString();
+                manacost.text   = _spell.GetManaCost().ToString();
+                damage.text     = _spell.GetDamage().ToString();
                 _lastTextUpdate = Time.time;
             }
 
             if (!cooldown) return;
-            float sinceLast = Time.time - Spell.LastCast;
-            float ratio     = sinceLast > Spell.GetCooldown() ? 0 : 1 - sinceLast / Spell.GetCooldown();
+            float sinceLast = Time.time - _spell.LastCast;
+            float ratio     = sinceLast > _spell.GetCooldown() ? 0 : 1 - sinceLast / _spell.GetCooldown();
             cooldown.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 48 * ratio);
         }
     }

@@ -45,8 +45,9 @@
    },
    "waver": {
 		"name": "waver",
-		"description": "Oscillating projectile, with decreased mana cost.",
+		"description": "Oscillating projectile, with decreased mana cost. Gets more powerful each wave.",
 		"mana_multiplier": "0.75",
+		"count": "wave 2 / 1 +"
 		"projectile_trajectory": "sine"
    }
 }

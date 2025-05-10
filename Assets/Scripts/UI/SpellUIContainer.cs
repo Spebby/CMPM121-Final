@@ -57,10 +57,8 @@ namespace CMPM.UI {
                 }
             }
             
-            foreach (SpellUI spellUI in spellUIs) {
-                if (!spellUI.IsEmpty()) {
-                    spellUI.dropButton.SetActive(activeCount >= spellUIs.Length);
-                }
+            foreach (SpellUI spellUI in spellUIs) { 
+                spellUI.dropButton.SetActive(activeCount >= spellUIs.Length);
             }
         }
 

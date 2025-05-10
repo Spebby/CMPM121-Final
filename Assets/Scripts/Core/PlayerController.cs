@@ -42,7 +42,7 @@ namespace CMPM.Core {
             StartCoroutine(_spellCaster.ManaRegeneration());
             _spells[_spellIndex] = _spellCaster.Spell;
 
-            int wave = GameManager.Instance.currentWave;
+            int wave = GameManager.Instance.CurrentWave;
             SetPlayerScale(wave);
             
             HP.ResetHealth();
@@ -90,6 +90,13 @@ namespace CMPM.Core {
             _spells[replaceIndex] = spell;
         }
 
+        public void ClearSpells() {
+            for (int i = 0; i < _spells.Length; ++i) {
+                _spells[i] = null;
+                spellUI.spellUIs[i].SetSpell(null);
+            }
+        }
+        
         public void SwitchSpell(int i) {
             _spellCaster.Spell = _spells[i];
             _spellIndex = i;
@@ -98,6 +105,7 @@ namespace CMPM.Core {
 
         public void DropSpell(int i) {
             _spells[i] = null;
+            spellUI.AddSpell(null, i);
             NextSpell(i);
             spellUI.SetSpellAsActive(_spellIndex);
         }

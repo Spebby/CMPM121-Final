@@ -12,11 +12,10 @@ namespace CMPM.Spells.Modifiers {
                                        RPNString? manaModifier     = null,
                                        RPNString? speedModifier    = null,
                                        RPNString? cooldownModifier = null,
-                                       RPNString? lifetimeModifier = null,
-                                       Operator op                 = Operator.MULTIPLIER) 
+                                       RPNString? lifetimeModifier = null) 
             : base(damageModifier, manaModifier, 
                    speedModifier, cooldownModifier,
-                   lifetimeModifier, op) {
+                   lifetimeModifier) {
             Type = type;
         }
 

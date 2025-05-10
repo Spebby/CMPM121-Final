@@ -8,8 +8,8 @@ using UnityEngine;
 
 
 namespace CMPM.Spells {
-    public class ArcaneRiver : ArcaneSpray {
-        public ArcaneRiver(SpellCaster owner, string name, RPNString manaCost, RPNString damage, Damage.Type damageType,
+    public class MysticRiver : ArcaneSpray {
+        public MysticRiver(SpellCaster owner, string name, RPNString manaCost, RPNString damage, Damage.Type damageType,
                            RPNString speed, RPNString cooldown, RPNString? lifetime, uint icon,
                            RPNString countFormula, RPNString spreadFormula, int[] modifiers = null) : base(
             owner, name, manaCost, damage, damageType, speed, cooldown, lifetime, icon, countFormula, spreadFormula, modifiers) { }
@@ -36,7 +36,7 @@ namespace CMPM.Spells {
 
         IEnumerator CastHelper(ProjectileType type, Vector3 where, Vector3 target, int count, float delay) {
             for (int i = 0; i < count; i++) {
-                GameManager.Instance.ProjectileManager.CreateProjectile(0, type, where, target - where, GetSpeed(), OnHit);
+                GameManager.Instance.ProjectileManager.CreateProjectile(0, type, where, target - where, GetSpeed(), OnHit, GetLifetime());
                 yield return new WaitForSeconds(delay);
             }
         }

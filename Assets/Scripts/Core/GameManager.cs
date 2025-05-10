@@ -1,12 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using CMPM.DamageSystem;
 using CMPM.Level;
-using CMPM.Movement;
 using CMPM.Spells;
 using CMPM.Sprites;
-using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 
 namespace CMPM.Core {
@@ -19,8 +18,14 @@ namespace CMPM.Core {
             GAMEOVER
         }
 
-        public GameState State;
+        public GameState State { get; private set; }
+        public static event Action<GameState> OnStateChanged;
 
+        public void SetState(GameState state) {
+            State = state;
+            OnStateChanged?.Invoke(state);
+        }
+        
         public int Countdown;
         public static readonly GameManager Instance = new();
 
@@ -32,14 +37,12 @@ namespace CMPM.Core {
         public PlayerSpriteManager PlayerSpriteManager;
         public RelicIconManager RelicIconManager;
 
-        List<GameObject> _enemies;
+        readonly List<GameObject> _enemies;
         public int EnemiesLeft;
 
-        public int totalWaves;
-        public int currentWave;
-        public int MaxModifierCount { get; private set; }
+        public int TotalWaves;
+        public int CurrentWave;
 
-        // slightly unthreadsafe
         public int EnemyCount => _enemies.Count;
 
         static readonly object ENEMY_LOCK = new(); 
@@ -74,13 +77,13 @@ namespace CMPM.Core {
                     Object.Destroy(e);
                 }
                 _enemies.Clear();
-                State = GameState.GAMEOVER;
+                SetState(GameState.GAMEOVER);
             }
         }
         
         GameManager() {
             _enemies = new List<GameObject>();
-            State = GameState.PREGAME;
+            State    = GameState.PREGAME;
         }
     }
 }

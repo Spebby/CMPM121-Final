@@ -28,7 +28,7 @@ namespace CMPM.Spells {
             Action<ProjectileType, Vector3, Vector3> castAction = (type, w, t) => {
                 float speed = ApplyModifiers(Speed.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifySpeed(this, val));
                 GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
-                                                                        t - w, speed, base.OnHit);
+                                                                        t - w, speed, base.OnHit, GetLifetime());
             };
 
             foreach (int hash in Modifiers ?? Array.Empty<int>()) {
@@ -50,9 +50,14 @@ namespace CMPM.Spells {
                 int count = GetSecondaryCount();
                 float angleStep = 360f / count;
                 for (int index = 0; index < count; index++) {
-                    float       angle         = angleStep * index;
-                    Vector3     dir           = Quaternion.Euler(0, 0, angle) * Vector3.right;
-                    CoroutineManager.Instance.Run(CastSecondary(impact, dir, Owner.Team));
+                    float angle = angleStep * index;
+                    // direction in the XY-plane
+                    Vector3 dir = new Vector3(
+                        Mathf.Cos(Mathf.Deg2Rad * angle),
+                        Mathf.Sin(Mathf.Deg2Rad * angle),
+                        0f
+                    );
+                    CoroutineManager.Instance.Run(CastSecondary(i, dir, Owner.Team));
                 }
             };
 

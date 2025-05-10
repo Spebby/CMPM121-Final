@@ -27,7 +27,7 @@ namespace CMPM.Spells {
             Team = team;
             Action<ProjectileType, Vector3, Vector3> castAction = (type, w, t) => {
                 GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
-                                                                        t - w, GetSpeed(), OnHit);
+                                                                        t - w, GetSpeed(), OnHit, GetLifetime());
             };
             
             // This is insanely dumb but you have to love it

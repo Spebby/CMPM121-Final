@@ -13,8 +13,8 @@ namespace CMPM.Projectiles {
             float dx = Speed * dt;
             _travelledDistance += dx;
 
-            float frequency = Speed * 0.5f;
-            float amplitude = 1.0f / Mathf.Sqrt(Speed);
+            float frequency = Speed * 0.25f;
+            float amplitude = 1.0f / (0.5f + Mathf.Sqrt(Speed));
             float dy        = Mathf.Sin(_travelledDistance * frequency) * amplitude;
             
             transform.Translate(new Vector3(dx, dy, 0), Space.Self);
