@@ -3,7 +3,7 @@ using UnityEngine;
 
 
 // Serializing Dictionary
-namespace CMPM.Utils {
+namespace CMPM.Utils.Structures {
     [System.Serializable]
     public class SerializedDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver {
         [SerializeField] List<TKey> keys = new();

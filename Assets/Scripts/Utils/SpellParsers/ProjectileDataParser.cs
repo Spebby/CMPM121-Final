@@ -1,12 +1,10 @@
 using System;
-using System.Globalization;
-using CMPM.Projectiles;
 using CMPM.Spells;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
-namespace CMPM.Utils {
+namespace CMPM.Utils.SpellParsers {
     public class ProjectileDataParser : JsonConverter<ProjectileData> {
         public override ProjectileData ReadJson(JsonReader reader, Type objectType, ProjectileData existingValue,
                                                 bool hasExistingValue, JsonSerializer serializer) {

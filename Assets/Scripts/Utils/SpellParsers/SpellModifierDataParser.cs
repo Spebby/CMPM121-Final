@@ -3,7 +3,8 @@ using CMPM.Spells;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace CMPM.Utils {
+
+namespace CMPM.Utils.SpellParsers {
     public class SpellModifierDataParser : JsonConverter<SpellModifierData> {
         public override SpellModifierData ReadJson(JsonReader reader, Type objectType, SpellModifierData existingValue, bool hasExistingValue, JsonSerializer serializer) {
             JObject obj         = JObject.Load(reader);

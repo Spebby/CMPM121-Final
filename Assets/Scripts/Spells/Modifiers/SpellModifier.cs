@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CMPM.DamageSystem;
 using CMPM.Utils;
+using CMPM.Utils.Structures;
 using UnityEngine;
 
 

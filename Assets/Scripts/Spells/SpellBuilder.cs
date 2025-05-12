@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using CMPM.DamageSystem;
 using CMPM.Spells.Modifiers;
 using CMPM.Utils;
+using CMPM.Utils.SpellParsers;
 using Newtonsoft.Json;
 using Debug = System.Diagnostics.Debug;
 using Random = UnityEngine.Random;
@@ -16,8 +17,8 @@ namespace CMPM.Spells {
         static SpellBuilder() {
             ParseSpellsJson(Resources.Load<TextAsset>("spells"), Resources.Load<TextAsset>("spell_modifiers"));
         }
-        
-        public static void ParseSpellsJson(TextAsset spellsJson, TextAsset modifiersJson) {
+
+        static void ParseSpellsJson(TextAsset spellsJson, TextAsset modifiersJson) {
             // Spells
             foreach (JProperty _ in JObject.Parse(spellsJson.text).Properties()) {
                 SpellData s = _.Value.ToObject<SpellData>();

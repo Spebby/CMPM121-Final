@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using static CMPM.Level.SpawnPoint;
 
 
-namespace CMPM.Utils {
+namespace CMPM.Utils.SpawningParsers {
     public class SpawnLocationParser : JsonConverter<SpawnName> {
         public override SpawnName ReadJson(JsonReader reader, Type objectType, SpawnName existingValue, bool hasExistingValue, JsonSerializer serializer) {
             if (reader.TokenType == JsonToken.Null || reader.Value == null) return SpawnName.RANDOM;

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using CMPM.Level;
+using CMPM.Utils.Structures;
 using Newtonsoft.Json;
 
 
-namespace CMPM.Utils {
+namespace CMPM.Utils.SpawningParsers {
     public class SpawnEnemyParser : JsonConverter<Enemy> {
         readonly SerializedDictionary<string, Enemy> _enemies;
         public SpawnEnemyParser(in SerializedDictionary<string, Enemy> enemies) {

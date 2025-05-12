@@ -1,4 +1,7 @@
 using CMPM.Spells.Modifiers;
+using CMPM.Utils.Structures;
+
+
 // ReSharper disable ClassNeverInstantiated.Global
 
 

@@ -6,6 +6,7 @@ using CMPM.Core;
 using CMPM.DamageSystem;
 using CMPM.Spells.Modifiers;
 using CMPM.Utils;
+using CMPM.Utils.Structures;
 using UnityEngine;
 
 

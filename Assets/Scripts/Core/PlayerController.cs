@@ -4,6 +4,7 @@ using CMPM.DamageSystem;
 using CMPM.Spells;
 using CMPM.UI;
 using CMPM.Utils;
+using CMPM.Utils.Structures;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;

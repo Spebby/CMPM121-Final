@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace CMPM {
+namespace CMPM.Utils.Structures {
     public abstract class Registry<T> {
         protected static readonly Dictionary<int, T> REGISTRY = new();
         

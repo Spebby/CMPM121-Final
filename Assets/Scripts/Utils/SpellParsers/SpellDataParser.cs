@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
-namespace CMPM.Utils {
+namespace CMPM.Utils.SpellParsers {
     public class SpellDataParser : JsonConverter<SpellData> {
         public override SpellData ReadJson(JsonReader reader, Type objectType, SpellData existingValue,
                                            bool hasExistingValue, JsonSerializer serializer) {
