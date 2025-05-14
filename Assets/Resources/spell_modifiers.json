@@ -13,7 +13,7 @@
    "forceful": {
 	   "name": "forceful",
 	   "description": "Augment the projectile's damage with the projectiles speed.",
-	   "damage_multiplier": "speed 4 + 8 /",
+	   "damage_multiplier": "speed 4 + 8 /"
    },
    "doubler": {
        "name": "doubled",
@@ -47,7 +47,7 @@
 		"name": "waver",
 		"description": "Oscillating projectile, with decreased mana cost. Gets more powerful each wave.",
 		"mana_multiplier": "0.75",
-		"count": "wave 2 / 1 +"
+		"count": "wave 2 / 1 +",
 		"projectile_trajectory": "sine"
    }
 }
