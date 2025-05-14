@@ -12,7 +12,7 @@ namespace CMPM.Spells {
         SPIRALING,
         SINE
     }
-    
+
     // This would be fun to object pool.
     public class ProjectileManager : MonoBehaviour {
         [SerializeField] GameObject[] projectiles;
@@ -23,7 +23,8 @@ namespace CMPM.Spells {
         }
 
         public void CreateProjectile(
-            int which, ProjectileType trajectory, Vector3 where, Vector3 direction, float speed, Action<Hittable, Vector3> onHit) {
+            int which, ProjectileType trajectory, Vector3 where, Vector3 direction, float speed,
+            Action<Hittable, Vector3> onHit) {
             GameObject newProjectile = Instantiate(projectiles[which], where + direction.normalized * 1.1f,
                                                    Quaternion.Euler(
                                                        0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg));
@@ -33,7 +34,8 @@ namespace CMPM.Spells {
 
         // Always pass 0 for which, for now, may change later
         public void CreateProjectile(
-            int which, ProjectileType trajectory, Vector3 where, Vector3 direction, float speed, Action<Hittable, Vector3> onHit,
+            int which, ProjectileType trajectory, Vector3 where, Vector3 direction, float speed,
+            Action<Hittable, Vector3> onHit,
             float lifetime) {
             GameObject newProjectile = Instantiate(projectiles[which], where + direction.normalized * 1.1f,
                                                    Quaternion.Euler(
@@ -52,7 +54,7 @@ namespace CMPM.Spells {
                 _           => throw new ArgumentException($"{type} is not a recognized type")
             };
         }
-        
+
         public static ProjectileMovement MakeMovement(ProjectileType type, float speed) {
             return type switch {
                 ProjectileType.STRAIGHT  => new StraightProjectileMovement(speed),

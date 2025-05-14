@@ -9,8 +9,9 @@ namespace CMPM.Utils.RelicParsers {
             throw new NotImplementedException();
         }
 
-        public override RelicData ReadJson(JsonReader reader, Type objectType, RelicData existingValue, bool hasExistingValue,
-                                             JsonSerializer serializer) {
+        public override RelicData ReadJson(JsonReader reader, Type objectType, RelicData existingValue,
+                                           bool hasExistingValue,
+                                           JsonSerializer serializer) {
             throw new NotImplementedException();
         }
     }

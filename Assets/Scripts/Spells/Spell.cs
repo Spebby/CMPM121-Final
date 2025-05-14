@@ -16,14 +16,14 @@ namespace CMPM.Spells {
         public float LastCast { get; protected set; }
         public readonly SpellCaster Owner;
         protected Hittable.Team Team;
-        
+
         #region Values
         public readonly string Name;
-        protected RPNString  ManaCost;
-        protected RPNString  DamageFormula;
+        protected RPNString ManaCost;
+        protected RPNString DamageFormula;
         public readonly Damage.Type DamageType;
-        protected RPNString  Speed;
-        protected RPNString  Cooldown; // In Miliseconds
+        protected RPNString Speed;
+        protected RPNString Cooldown; // In Miliseconds
         protected RPNString? Lifetime;
         readonly uint _iconIndex;
         #endregion
@@ -45,11 +45,11 @@ namespace CMPM.Spells {
         /// <param name="modifiers">List of modifier hashes. Null by default.</param>
         public Spell(SpellCaster owner,
                      string name,
-                     RPNString  manaCost,
-                     RPNString  damage,
+                     RPNString manaCost,
+                     RPNString damage,
                      Damage.Type damageDamageType,
-                     RPNString  speed,
-                     RPNString  cooldown,
+                     RPNString speed,
+                     RPNString cooldown,
                      RPNString? lifetime,
                      uint icon,
                      int[] modifiers = null) {
@@ -75,8 +75,9 @@ namespace CMPM.Spells {
                 SpellModifierData data    = SpellModifierDataRegistry.Get(modifier);
                 char[]            adjName = data.Name.ToCharArray();
                 adjName[0] = char.ToUpper(adjName[0]);
-                baseStr = $"{new string(adjName)} {baseStr}";
+                baseStr    = $"{new string(adjName)} {baseStr}";
             }
+
             return baseStr;
         }
 
@@ -86,6 +87,7 @@ namespace CMPM.Spells {
                 SpellModifierData data = SpellModifierDataRegistry.Get(modifier);
                 baseStr += $"{data.Name}: {data.Description}\n";
             }
+
             return baseStr;
         }
 
@@ -96,14 +98,32 @@ namespace CMPM.Spells {
                 if (mod != null)
                     baseValue = apply(mod, baseValue);
             }
+
             return baseValue;
         }
 
-        public virtual int GetManaCost() => ApplyModifiers((int)ManaCost.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyManaCost(this, val));
-        public virtual int GetDamage() => ApplyModifiers((int)DamageFormula.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyDamage(this, val));
-        public virtual float GetSpeed() => ApplyModifiers(Speed.Evaluate(GetRPNVariablesSafe()), (mod, val) => mod.ModifySpeed(this, val));
-        public virtual float GetCooldown() => ApplyModifiers(Cooldown.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyCooldown(this, val));
-        public virtual float GetLifetime() => ApplyModifiers(Lifetime?.Evaluate(GetRPNVariables()) ?? 9999f, (mod, val) => mod.ModifyLifetime(this, val));
+        public virtual int GetManaCost() {
+            return ApplyModifiers((int)ManaCost.Evaluate(GetRPNVariables()),
+                                  (mod, val) => mod.ModifyManaCost(this, val));
+        }
+
+        public virtual int GetDamage() {
+            return ApplyModifiers((int)DamageFormula.Evaluate(GetRPNVariables()),
+                                  (mod, val) => mod.ModifyDamage(this, val));
+        }
+
+        public virtual float GetSpeed() {
+            return ApplyModifiers(Speed.Evaluate(GetRPNVariablesSafe()), (mod, val) => mod.ModifySpeed(this, val));
+        }
+
+        public virtual float GetCooldown() {
+            return ApplyModifiers(Cooldown.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyCooldown(this, val));
+        }
+
+        public virtual float GetLifetime() {
+            return ApplyModifiers(Lifetime?.Evaluate(GetRPNVariables()) ?? 9999f,
+                                  (mod, val) => mod.ModifyLifetime(this, val));
+        }
         #endregion
 
         public uint GetIcon() {
@@ -113,7 +133,7 @@ namespace CMPM.Spells {
         public bool IsReady() {
             return LastCast + GetCooldown() < Time.time;
         }
-        
+
         public virtual IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {
             Team = team;
             Action<ProjectileType, Vector3, Vector3> castAction = (type, w, t) => {
@@ -127,7 +147,7 @@ namespace CMPM.Spells {
             }
 
             castAction(ProjectileType.STRAIGHT, where, target);
-            
+
             LastCast = Time.time;
             yield return new WaitForEndOfFrame();
         }
@@ -142,14 +162,14 @@ namespace CMPM.Spells {
                 ISpellModifier mod = SpellModifierRegistry.Get(hash);
                 mod?.ModifyHit(this, ref hitAction);
             }
-            
+
             hitAction(other, impact, DamageType);
         }
 
         // NOTE: this **CANNOT** be used on speed, as you'll end up with a circular calculation.
         public SerializedDictionary<string, float> GetRPNVariables() {
             return new SerializedDictionary<string, float> {
-                { "wave",  GameManager.Instance.CurrentWave },
+                { "wave", GameManager.Instance.CurrentWave },
                 { "power", Owner.SpellPower },
                 { "speed", GetSpeed() }
             };

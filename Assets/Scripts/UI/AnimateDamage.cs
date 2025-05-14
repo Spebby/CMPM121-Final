@@ -16,7 +16,8 @@ namespace CMPM.UI {
         float _timeOffset;
 
         public void Setup(
-            string dmg, Vector3 initialPosition, Vector3 finalPosition, int fontI, int fontF, Color colorI, Color colorF,
+            string dmg, Vector3 initialPosition, Vector3 finalPosition, int fontI, int fontF, Color colorI,
+            Color colorF,
             float duration) {
             this.dmg             = dmg;
             this.fontI           = fontI;
@@ -39,7 +40,7 @@ namespace CMPM.UI {
             if (progress <= 1) {
                 transform.position = Vector3.Lerp(initialPosition, finalPosition, progress)
                                    + new Vector3(Mathf.Sin((Time.time + _timeOffset) * 10) / 3, 0, 0);
-                GetComponent<TMP_Text>().fontSize           = Mathf.RoundToInt(progress * fontF + (1 - progress) * fontI);
+                GetComponent<TMP_Text>().fontSize = Mathf.RoundToInt(progress * fontF + (1 - progress) * fontI);
                 GetComponent<TMP_Text>().fontMaterial.color = Color.Lerp(colorI, colorF, progress);
             } else Destroy(gameObject);
         }

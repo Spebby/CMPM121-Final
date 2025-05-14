@@ -11,7 +11,7 @@ namespace CMPM.UI {
         public EnemySpawner spawner;
 
         GameObject _panel;
-        
+
         void OnEnable() {
             _panel ??= GameObject.FindWithTag($"UIPanelPopup");
             if (!_panel) throw new MissingComponentException("UIPanelPopup not found");
@@ -23,7 +23,7 @@ namespace CMPM.UI {
         }
 
         public void StartLevel() {
-            _panel.SetActive(false); 
+            _panel.SetActive(false);
             spawner.StartLevel(level);
         }
     }

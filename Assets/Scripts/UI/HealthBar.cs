@@ -16,7 +16,7 @@ namespace CMPM.UI {
         // Update is called once per frame
         void Update() {
             if (Hp == null) return;
-            float ratio = Hp.Hp * 1.0f / Hp.MaxHp;
+            float ratio = Hp.HP * 1.0f / Hp.MaxHP;
             if (!(Mathf.Abs(_prevRatio - ratio) > 0.01f)) return;
             slider.transform.localScale    = new Vector3(ratio, 1, 1);
             slider.transform.localPosition = new Vector3(-(1 - ratio) / 2, 0, 0);
@@ -25,7 +25,7 @@ namespace CMPM.UI {
 
         public void SetHealth(Hittable hp) {
             Hp = hp;
-            float ratio = hp.Hp * 1.0f / hp.MaxHp;
+            float ratio = hp.HP * 1.0f / hp.MaxHP;
 
             slider.transform.localScale    = new Vector3(ratio, 1, 1);
             slider.transform.localPosition = new Vector3(-(1 - ratio) / 2, 0, 0);

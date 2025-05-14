@@ -18,10 +18,10 @@ namespace CMPM.Utils.SpellParsers {
             if (speedStr == null) {
                 throw new JsonException("Missing 'speed'");
             }
-            
+
             RPNString  speed    = new(speedStr);
             RPNString? lifetime = string.IsNullOrEmpty(lifetimeStr) ? null : new RPNString(lifetimeStr);
-            
+
             return new ProjectileData(trajectory, speed, sprite, lifetime);
         }
 

@@ -8,17 +8,19 @@ using Newtonsoft.Json;
 namespace CMPM.Utils.SpawningParsers {
     public class SpawnEnemyParser : JsonConverter<Enemy> {
         readonly SerializedDictionary<string, Enemy> _enemies;
+
         public SpawnEnemyParser(in SerializedDictionary<string, Enemy> enemies) {
             _enemies = enemies;
         }
-        
-        public override Enemy ReadJson(JsonReader reader, Type objectType, Enemy existingValue, bool hasExistingValue, JsonSerializer serializer) {
+
+        public override Enemy ReadJson(JsonReader reader, Type objectType, Enemy existingValue, bool hasExistingValue,
+                                       JsonSerializer serializer) {
             string enemyName = reader.Value as string;
             if (string.IsNullOrEmpty(enemyName)) {
                 throw new ArgumentException("Enemy name cannot be null or empty");
             }
-           
-            
+
+
             // Look up the enemy in the dictionary
             if (_enemies.TryGetValue(enemyName, out Enemy enemy)) {
                 return enemy;

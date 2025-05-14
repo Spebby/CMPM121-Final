@@ -25,16 +25,17 @@ namespace CMPM.Spells {
         }
 
         public SpellCaster(int mana, int manaReg, int spellPower, Hittable.Team team, Spell spell) {
-            Mana        = mana;
-            MaxMana     = mana;
-            ManaReg     = manaReg;
-            SpellPower  = spellPower;
-            Team        = team;
-            Spell = spell ?? SpellBuilder.BuildSpell(DEFAULT_SPELL, this, 0);
+            Mana       = mana;
+            MaxMana    = mana;
+            ManaReg    = manaReg;
+            SpellPower = spellPower;
+            Team       = team;
+            Spell      = spell ?? SpellBuilder.BuildSpell(DEFAULT_SPELL, this, 0);
         }
 
         public IEnumerator Cast(Vector3 where, Vector3 target) {
-            if (Mana < Spell.GetManaCost() || !Spell.IsReady() || GameManager.Instance.State != GameManager.GameState.INWAVE) yield break;
+            if (Mana < Spell.GetManaCost() || !Spell.IsReady() ||
+                GameManager.Instance.State != GameManager.GameState.INWAVE) yield break;
             Mana -= Spell.GetManaCost();
             yield return Spell.Cast(where, target, Team);
         }

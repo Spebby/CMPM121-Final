@@ -34,14 +34,20 @@ namespace CMPM.Utils.SpellParsers {
             }
 
             // Stats (using serializer for known RPNString converters)
-            result.ManaCost = serializer.Deserialize<RPNString>(obj["mana_cost"]?.CreateReader() ?? throw new Exception("Missing mana cost"));
-            result.Cooldown = serializer.Deserialize<RPNString>(obj["cooldown"]?.CreateReader()  ?? throw new Exception("Missing cooldown"));
+            result.ManaCost =
+                serializer.Deserialize<RPNString>(obj["mana_cost"]?.CreateReader() ??
+                                                  throw new Exception("Missing mana cost"));
+            result.Cooldown =
+                serializer.Deserialize<RPNString>(obj["cooldown"]?.CreateReader() ??
+                                                  throw new Exception("Missing cooldown"));
 
-            result.Projectile = serializer.Deserialize<ProjectileData>(obj["projectile"]?.CreateReader() ?? throw new Exception("Missing projectile"));
+            result.Projectile =
+                serializer.Deserialize<ProjectileData>(obj["projectile"]?.CreateReader() ??
+                                                       throw new Exception("Missing projectile"));
             if (obj.TryGetValue("secondary_projectile", out JToken secondary)) {
                 result.SecondaryProjectile = serializer.Deserialize<ProjectileData>(secondary.CreateReader());
             }
-            
+
             JToken countToken = obj["N"];
             result.Count = countToken != null && countToken.Type != JTokenType.Null
                 ? new RPNString(countToken.ToString())

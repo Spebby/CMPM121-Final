@@ -15,7 +15,8 @@ namespace CMPM.UI {
         void OnDamage(Vector3 where, Damage dmg, Hittable target) {
             GameObject newDmgNr = Instantiate(damageNumber, where, Quaternion.identity);
             Vector3    dmgPos   = where + new Vector3(0, 0, -2);
-            newDmgNr.GetComponent<AnimateDamage>().Setup(dmg.Amount.ToString(), dmgPos, dmgPos + new Vector3(0, 3, 0), 10,
+            newDmgNr.GetComponent<AnimateDamage>().Setup(dmg.Amount.ToString(), dmgPos, dmgPos + new Vector3(0, 3, 0),
+                                                         10,
                                                          2, Color.magenta, Color.white, 1.5f);
         }
     }

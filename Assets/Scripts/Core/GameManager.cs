@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CMPM.Level;
 using CMPM.Spells;
 using CMPM.Sprites;
 using UnityEngine;
@@ -25,7 +24,7 @@ namespace CMPM.Core {
             State = state;
             OnStateChanged?.Invoke(state);
         }
-        
+
         public int Countdown;
         public static readonly GameManager Instance = new();
 
@@ -45,7 +44,8 @@ namespace CMPM.Core {
 
         public int EnemyCount => _enemies.Count;
 
-        static readonly object ENEMY_LOCK = new(); 
+        static readonly object ENEMY_LOCK = new();
+
         public void AddEnemy(GameObject enemy) {
             lock (ENEMY_LOCK) {
                 _enemies.Add(enemy);
@@ -56,6 +56,7 @@ namespace CMPM.Core {
             lock (ENEMY_LOCK) {
                 _enemies.Remove(enemy);
             }
+
             EnemiesLeft--;
         }
 
@@ -70,17 +71,37 @@ namespace CMPM.Core {
             }
         }
 
+        public GameObject GetClosestOtherEnemy(GameObject self) {
+            Vector3 point = self.transform.position;
+            lock (ENEMY_LOCK) {
+                if (_enemies == null || _enemies.Count < 2) return null;
+                return _enemies.FindAll((a) => a != self).Aggregate(
+                    (a, b) => (a.transform.position - point).sqrMagnitude
+                            < (b.transform.position - point).sqrMagnitude
+                        ? a
+                        : b);
+            }
+        }
+
+        public List<GameObject> GetEnemiesInRange(Vector3 point, float distance) {
+            lock (ENEMY_LOCK) {
+                if (_enemies == null || _enemies.Count == 0) return null;
+                return _enemies.FindAll((a) => (a.transform.position - point).magnitude <= distance);
+            }
+        }
+
         public void SetGameOver() {
             lock (ENEMY_LOCK) {
                 // this is terrible
                 foreach (GameObject e in _enemies) {
                     Object.Destroy(e);
                 }
+
                 _enemies.Clear();
                 SetState(GameState.GAMEOVER);
             }
         }
-        
+
         GameManager() {
             _enemies = new List<GameObject>();
             State    = GameState.PREGAME;

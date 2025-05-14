@@ -11,32 +11,33 @@ using UnityEngine.Serialization;
 
 namespace CMPM.UI {
     public class RewardScreenManager : MonoBehaviour {
-        [Header("Panels & Buttons")]
-        [SerializeField] GameObject panel;
+        [Header("Panels & Buttons")] [SerializeField]
+        GameObject panel;
+
         [SerializeField] GameObject regUI;
         [SerializeField] GameObject endUI;
         [SerializeField] GameObject nextButton;
         [SerializeField] Button acceptButton;
 
-        [Header("Spell UI")]
-        [SerializeField] GameObject spellUI;
+        [Header("Spell UI")] [SerializeField] GameObject spellUI;
         [SerializeField] SpellUI spellUIIcon;
         [SerializeField] TextMeshProUGUI spellText;
 
-        [Header("Discard UI")]
-        [SerializeField] GameObject discardSpellUI;
+        [Header("Discard UI")] [SerializeField]
+        GameObject discardSpellUI;
+
         [SerializeField] Transform discardSpellUIContainer;
         [SerializeField] Button discardSpellButton;
 
-        [Header("Stats")]
-        [SerializeField] TextMeshProUGUI statsText;
+        [Header("Stats")] [SerializeField] TextMeshProUGUI statsText;
 
         PlayerController _player;
         Spell _rewardSpell;
 
         [FormerlySerializedAs("OnPanelClose")]
         [Header("Unity Events")] // I don't like Unity Events that much, but they are convenient from time to time.
-        [SerializeField] UnityEvent onPanelClose;
+        [SerializeField]
+        UnityEvent onPanelClose;
 
         // Temporary stat collectors
         double _timeSpent;
@@ -200,7 +201,7 @@ namespace CMPM.UI {
 
             statsText.text =
                 $"Time Spent: {_timeSpent:F2}\t" +
-                $"Damage Done: {_damageDone}\t"  +
+                $"Damage Done: {_damageDone}\t" +
                 $"Damage Taken: {_damageTaken}{waveInfo}";
         }
 

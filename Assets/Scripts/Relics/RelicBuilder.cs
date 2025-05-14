@@ -10,9 +10,7 @@ namespace CMPM.Relics {
             ParseRelicsJson(Resources.Load<TextAsset>("relics"));
         }
 
-        static void ParseRelicsJson(TextAsset relicsJson) {
-            
-        }
+        static void ParseRelicsJson(TextAsset relicsJson) { }
     }
 
     #region JSON Parsing
@@ -41,7 +39,7 @@ namespace CMPM.Relics {
         public readonly string Name;
         public readonly int SpriteIndex;
         public readonly RelicTriggerData Trigger;
-        public readonly RelicEffectData  Effect;
+        public readonly RelicEffectData Effect;
 
         public RelicData(string name, int sprite, RelicTriggerData trigger, RelicEffectData effect) {
             Name        = name;
@@ -54,7 +52,7 @@ namespace CMPM.Relics {
     public readonly struct RelicTriggerData {
         public readonly string Description;
         public readonly TriggerType Type;
-        
+
         public RelicTriggerData(string description, TriggerType type) {
             Description = description;
             Type        = type;

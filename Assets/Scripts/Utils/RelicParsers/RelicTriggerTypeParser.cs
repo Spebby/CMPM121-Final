@@ -5,7 +5,8 @@ using Newtonsoft.Json;
 
 namespace CMPM.Utils.RelicParsers {
     public class RelicTriggerTypeParser : JsonConverter<TriggerType> {
-        public override TriggerType ReadJson(JsonReader reader, Type objectType, TriggerType existingValue, bool hasExistingValue,
+        public override TriggerType ReadJson(JsonReader reader, Type objectType, TriggerType existingValue,
+                                             bool hasExistingValue,
                                              JsonSerializer serializer) {
             string str = (reader.Value as string)?.ToLower();
             if (string.IsNullOrEmpty(str))
@@ -18,7 +19,7 @@ namespace CMPM.Utils.RelicParsers {
                 _             => throw new NotImplementedException($"Unknown trigger type '{str}'")
             };
         }
-        
+
         public override void WriteJson(JsonWriter writer, TriggerType value, JsonSerializer serializer) {
             throw new NotImplementedException();
         }

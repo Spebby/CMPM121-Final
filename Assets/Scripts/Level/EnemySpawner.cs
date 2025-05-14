@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-
 using CMPM.Core;
 using CMPM.DamageSystem;
 using CMPM.Movement;
@@ -15,9 +14,10 @@ using CMPM.Utils.Structures;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
 using UnityEngine;
 using Random = UnityEngine.Random;
+
+
 // This is the most imports I've ever had in my life.
 
 
@@ -32,15 +32,14 @@ namespace CMPM.Level {
         public SerializedDictionary<string, Enemy> enemyTypes;
         public List<Level> levels;
 
-        [Header("UI")]
-        [SerializeField] GameObject levelSelector;
-       
+        [Header("UI")] [SerializeField] GameObject levelSelector;
+
         #region Privates
         Level _currentLevel;
         int _currentWave;
         int _remainingSpawns;
         #endregion
-        
+
         void Awake() {
             LoadEnemiesJson(Resources.Load<TextAsset>("enemies"));
             LoadLevelsJson(Resources.Load<TextAsset>("levels"), enemyTypes);
@@ -57,7 +56,7 @@ namespace CMPM.Level {
 
         void LoadEnemiesJson(in TextAsset enemyText) {
             enemyTypes = new SerializedDictionary<string, Enemy>();
-            
+
             foreach (JToken _ in JToken.Parse(enemyText.text)) {
                 Enemy e = _.ToObject<Enemy>();
                 enemyTypes[e.name] = e;
@@ -73,24 +72,25 @@ namespace CMPM.Level {
                     new SpawnEnemyParser(enemies)
                 }
             };
-            
+
             levels = JsonConvert.DeserializeObject<List<Level>>(levelText.text, settings);
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator <-- Resharper is wrong
             foreach (Level level in levels) {
                 foreach (ref Spawn spawn in level.spawns.AsSpan()) {
                     ref Enemy fallback = ref spawn.enemy;
-                    FormulaFallback(ref spawn.HPFormula,     fallback.baseHP);
+                    FormulaFallback(ref spawn.HPFormula, fallback.baseHP);
                     FormulaFallback(ref spawn.DamageFormula, fallback.damage);
-                    FormulaFallback(ref spawn.SpeedFormula,  fallback.speed);
+                    FormulaFallback(ref spawn.SpeedFormula, fallback.speed);
                     spawn.sequence ??= new[] { 1 };
                 }
             }
         }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void FormulaFallback(ref RPNString str, int fallback) => str = string.IsNullOrEmpty(str) ? new RPNString(Convert.ToString(fallback)) : str;
 
-        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void FormulaFallback(ref RPNString str, int fallback) {
+            str = string.IsNullOrEmpty(str) ? new RPNString(Convert.ToString(fallback)) : str;
+        }
+
         public void StartLevel(string levelName) {
             levelSelector.gameObject.SetActive(false);
 
@@ -117,10 +117,10 @@ namespace CMPM.Level {
         // It may be good to also make this async at some point. I don't see any reason *why* it has to sync w/
         // game manager, especially as this function gets more complex
         IEnumerator SpawnWave(Level level, int wave) {
-            _currentLevel = level;
-            _currentWave  = wave;
+            _currentLevel                    = level;
+            _currentWave                     = wave;
             GameManager.Instance.CurrentWave = _currentWave;
-           
+
             GameManager.Instance.SetState(GameManager.GameState.COUNTDOWN);
             GameManager.Instance.Countdown = 3;
 
@@ -131,6 +131,7 @@ namespace CMPM.Level {
                 for (int i = 0; i < span.Length; i++) {
                     maxEnemies += span[i].Count.Evaluate(table);
                 }
+
                 GameManager.Instance.EnemiesLeft = maxEnemies;
             }
 
@@ -167,9 +168,12 @@ namespace CMPM.Level {
             }
 
             EnemyPacket ep = new() {
-                HP     = spawn.HPFormula.Evaluate(new SerializedDictionary<string, int>()     { { "wave", wave }, { "base", spawn.enemy.baseHP } }),
-                Damage = spawn.DamageFormula.Evaluate(new SerializedDictionary<string, int>() { { "wave", wave }, { "base", spawn.enemy.damage } }),
-                Speed  = spawn.SpeedFormula.Evaluate(new SerializedDictionary<string, int>()  { { "wave", wave }, { "base", spawn.enemy.speed  } })
+                HP = spawn.HPFormula.Evaluate(new SerializedDictionary<string, int>()
+                                                  { { "wave", wave }, { "base", spawn.enemy.baseHP } }),
+                Damage = spawn.DamageFormula.Evaluate(new SerializedDictionary<string, int>()
+                                                          { { "wave", wave }, { "base", spawn.enemy.damage } }),
+                Speed = spawn.SpeedFormula.Evaluate(new SerializedDictionary<string, int>()
+                                                        { { "wave", wave }, { "base", spawn.enemy.speed } })
             };
 
             //this was provided by Markus Eger's Lecture 5: Design Patterns in pseudocode
@@ -194,13 +198,14 @@ namespace CMPM.Level {
             Vector2    offset = Random.insideUnitCircle * 1.8f;
 
             Vector3    initialPosition = p.transform.position + new Vector3(offset.x, offset.y, 0);
-            GameObject newEnemy = Instantiate(enemy, initialPosition, Quaternion.identity);
-            
-            newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.EnemySpriteManager.Get(spawn.enemy.sprite);
+            GameObject newEnemy        = Instantiate(enemy, initialPosition, Quaternion.identity);
+
+            newEnemy.GetComponent<SpriteRenderer>().sprite =
+                GameManager.Instance.EnemySpriteManager.Get(spawn.enemy.sprite);
             EnemyController en = newEnemy.GetComponent<EnemyController>();
             en.HP    = new Hittable(packet.HP, Hittable.Team.MONSTERS, newEnemy);
             en.speed = packet.Speed;
-            
+
             // I don't have the time to refactor the enemy rn to make the damage amount be different
             GameManager.Instance.AddEnemy(newEnemy);
         }
@@ -210,8 +215,7 @@ namespace CMPM.Level {
     public struct Enemy {
         public string name;
         public int sprite;
-        [JsonProperty("hp")]
-        public int baseHP;
+        [JsonProperty("hp")] public int baseHP;
         public int speed;
         public int damage;
     }
@@ -228,17 +232,24 @@ namespace CMPM.Level {
     public struct Spawn {
         //[JsonConverter(typeof(SpawnEnemyParser))] <-- this is only valid syntax when it's a parameterless constructor
         public Enemy enemy;
-        [JsonConverter(typeof(RPNStringParser)), JsonProperty("count")]
+
+        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("count")]
         public RPNString Count;
-        [JsonConverter(typeof(RPNStringParser)), JsonProperty("hp")]
+
+        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("hp")]
         public RPNString HPFormula;
-        [JsonConverter(typeof(RPNStringParser)), JsonProperty("speed")]
+
+        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("speed")]
         public RPNString SpeedFormula;
-        [JsonConverter(typeof(RPNStringParser)), JsonProperty("damage")]
+
+        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("damage")]
         public RPNString DamageFormula;
-        [JsonConverter(typeof(SecondsParser)), Tooltip("In ms.")]
+
+        [JsonConverter(typeof(SecondsParser))] [Tooltip("In ms.")]
         public int delay;
+
         [CanBeNull] public int[] sequence;
+
         [JsonConverter(typeof(SpawnLocationParser))]
         public SpawnPoint.SpawnName location;
     }

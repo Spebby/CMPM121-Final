@@ -23,9 +23,9 @@ namespace CMPM.UI {
             _lastTextUpdate = 0;
             if (highlight) highlight.SetActive(false);
             manacost.text = "";
-            damage.text = "";
+            damage.text   = "";
         }
-        
+
         public void SetSpell(Spell spell) {
             _spell = spell;
             if (spell != null) {
@@ -34,8 +34,10 @@ namespace CMPM.UI {
                 icon.GetComponent<Image>().sprite = null;
             }
         }
-        
-        public bool IsEmpty() => _spell == null;
+
+        public bool IsEmpty() {
+            return _spell == null;
+        }
 
         // Update is called once per frame
         void Update() {

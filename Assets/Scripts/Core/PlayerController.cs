@@ -21,20 +21,26 @@ namespace CMPM.Core {
 
         #region UI
         // ReSharper disable once StringLiteralTypo
-        [SerializeField, FormerlySerializedAs("healthui")] HealthBar healthUI;
+        [SerializeField] [FormerlySerializedAs("healthui")]
+        HealthBar healthUI;
+
         // ReSharper disable once StringLiteralTypo
-        [SerializeField, FormerlySerializedAs("manaui")] ManaBar manaUI;
+        [SerializeField] [FormerlySerializedAs("manaui")]
+        ManaBar manaUI;
+
         // ReSharper disable once StringLiteralTypo
         [SerializeField] SpellUIContainer spellUI;
         #endregion
 
-        public static implicit operator SpellCaster(PlayerController player) => player._spellCaster;
-        
+        public static implicit operator SpellCaster(PlayerController player) {
+            return player._spellCaster;
+        }
+
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start() {
             unit                        = GetComponent<Unit>();
             GameManager.Instance.Player = gameObject;
-            HP = new Hittable(100,  Hittable.Team.PLAYER, this.gameObject);
+            HP                          = new Hittable(100, Hittable.Team.PLAYER, gameObject);
         }
 
         public void StartLevel() {
@@ -45,8 +51,8 @@ namespace CMPM.Core {
 
             int wave = GameManager.Instance.CurrentWave;
             SetPlayerScale(wave);
-            
-            HP.ResetHealth();
+
+            HP.HealToMax();
             HP.OnDeath += Die;
             HP.team    =  Hittable.Team.PLAYER;
 
@@ -57,28 +63,32 @@ namespace CMPM.Core {
         }
 
         void SetPlayerScale(int wave) {
-            HP.SetMaxHp(RPN.Evaluate("95 wave 5 * +", new SerializedDictionary<string, int> { { "wave", wave } }));
-            _spellCaster.MaxMana    = RPN.Evaluate("90 wave 10 * +", new SerializedDictionary<string, int> { { "wave", wave } });
-            _spellCaster.ManaReg    = RPN.Evaluate("10 wave +", new SerializedDictionary<string, int> { { "wave", wave } });
-            _spellCaster.SpellPower = RPN.Evaluate("wave 10 *", new SerializedDictionary<string, int> { { "wave", wave } });
-            speed                   = 5;
+            HP.UpdateHPCap(RPN.Evaluate("95 wave 5 * +", new SerializedDictionary<string, int> { { "wave", wave } }));
+            _spellCaster.MaxMana =
+                RPN.Evaluate("90 wave 10 * +", new SerializedDictionary<string, int> { { "wave", wave } });
+            _spellCaster.ManaReg =
+                RPN.Evaluate("10 wave +", new SerializedDictionary<string, int> { { "wave", wave } });
+            _spellCaster.SpellPower =
+                RPN.Evaluate("wave 10 *", new SerializedDictionary<string, int> { { "wave", wave } });
+            speed = 5;
         }
-        
+
         #region Spells
         int _spellIndex;
+
         readonly Spell[] _spells = new Spell[4];
         /* To note about readonly: you can think of it as preventing a change to the value of a variable
          * for value types, this is straight forwards. For reference types, like an array, this means
          * the pointer cannot be changed--so you cannot reallocate the array. But you *can* still change
          * the value of what the reference is pointing to. */
-        
+
         void OnChangeSpell(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
-            
+
             NextSpell(++_spellIndex);
         }
-        
+
         public void AddSpell(Spell spell, int replaceIndex = 0) {
             if (replaceIndex < 0) throw new ArgumentOutOfRangeException(nameof(replaceIndex));
             for (int i = 0; i < _spells.Length; ++i) {
@@ -87,7 +97,7 @@ namespace CMPM.Core {
                 spellUI.AddSpell(_spells[i], i);
                 return;
             }
-            
+
             _spells[replaceIndex] = spell;
         }
 
@@ -97,10 +107,10 @@ namespace CMPM.Core {
                 spellUI.spellUIs[i].SetSpell(null);
             }
         }
-        
+
         public void SwitchSpell(int i) {
             _spellCaster.Spell = _spells[i];
-            _spellIndex = i;
+            _spellIndex        = i;
             spellUI.SetSpellAsActive(_spellIndex);
         }
 
@@ -113,10 +123,10 @@ namespace CMPM.Core {
 
         void NextSpell(int start = 0) {
             for (int offset = 0; offset < _spells.Length; offset++) {
-                int i = (start + offset) %  _spells.Length;
+                int i = (start + offset) % _spells.Length;
                 if (_spells[i] == null) continue;
                 _spellCaster.Spell = _spells[i];
-                _spellIndex = i;
+                _spellIndex        = i;
                 spellUI.SetSpellAsActive(i);
                 return;
             }
@@ -124,10 +134,15 @@ namespace CMPM.Core {
             throw new Exception("Spell Caster has no spells!");
         }
 
-        public bool HasSpellRoom() => _spells.Any(t => t == null);
-        public Spell[] GetSpells() => _spells;
+        public bool HasSpellRoom() {
+            return _spells.Any(t => t == null);
+        }
+
+        public Spell[] GetSpells() {
+            return _spells;
+        }
         #endregion
-        
+
         void OnAttack(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;

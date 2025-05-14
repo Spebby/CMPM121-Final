@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+
 namespace CMPM.Core {
     public class CoroutineManager : MonoBehaviour {
         public static CoroutineManager Instance;

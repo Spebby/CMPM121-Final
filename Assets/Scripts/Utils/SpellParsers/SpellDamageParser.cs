@@ -7,7 +7,8 @@ using Newtonsoft.Json.Linq;
 
 namespace CMPM.Utils.SpellParsers {
     public class SpellDamageParser : JsonConverter<SpellDamageData> {
-        public override SpellDamageData ReadJson(JsonReader reader, Type objectType, SpellDamageData existingValue, bool hasExistingValue, JsonSerializer serializer) {
+        public override SpellDamageData ReadJson(JsonReader reader, Type objectType, SpellDamageData existingValue,
+                                                 bool hasExistingValue, JsonSerializer serializer) {
             JObject obj = JObject.Load(reader);
 
             string amountStr = obj["amount"]?.ToString();

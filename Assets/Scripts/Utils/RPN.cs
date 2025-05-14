@@ -17,26 +17,48 @@ namespace CMPM.Utils {
         [CanBeNull] public readonly SerializedDictionary<string, int> Variables;
 
         public RPNString(string str, SerializedDictionary<string, int> vars = null) {
-            String = str;
+            String    = str;
             Variables = vars;
         }
-        
-        public static implicit operator int(RPNString entry) => RPN.Evaluate(entry.String, entry.Variables);
-        public static implicit operator string(RPNString entry) => entry.String;
-        
-        public static bool operator !=(RPNString a, RPNString b) => a.String != b.String;
-        public static bool operator ==(RPNString a, RPNString b) => a.String == b.String;
 
-        public override bool Equals(object obj) => obj is RPNString other && this == other;
-        public bool Equals(RPNString other) => String == other.String;
-        public override int GetHashCode() => String.GetHashCode();
-        
+        public static implicit operator int(RPNString entry) {
+            return RPN.Evaluate(entry.String, entry.Variables);
+        }
+
+        public static implicit operator string(RPNString entry) {
+            return entry.String;
+        }
+
+        public static bool operator !=(RPNString a, RPNString b) {
+            return a.String != b.String;
+        }
+
+        public static bool operator ==(RPNString a, RPNString b) {
+            return a.String == b.String;
+        }
+
+        public override bool Equals(object obj) {
+            return obj is RPNString other && this == other;
+        }
+
+        public bool Equals(RPNString other) {
+            return String == other.String;
+        }
+
+        public override int GetHashCode() {
+            return String.GetHashCode();
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly int Evaluate(SerializedDictionary<string, int> variables) => RPN.Evaluate(String, variables);
-        public readonly float Evaluate(SerializedDictionary<string, float> variables) => RPN.Evaluate(String, variables);
+        public readonly int Evaluate(SerializedDictionary<string, int> variables) {
+            return RPN.Evaluate(String, variables);
+        }
+
+        public readonly float Evaluate(SerializedDictionary<string, float> variables) {
+            return RPN.Evaluate(String, variables);
+        }
     }
-    
-    
+
     public static class RPN {
         static readonly char[] SUPPORTED_TOKENS = { '+', '-', '*', '/', '%', '^' };
 
@@ -96,12 +118,12 @@ namespace CMPM.Utils {
             if (p == 0) return 1;
             if (p == 1) return x;
 
-            int tmp = IntPow(x, p/2);
+            int tmp = IntPow(x, p / 2);
             if (p % 2 == 0) return tmp * tmp;
             return x * tmp * tmp;
         }
         #endregion
-        
+
         #region Floats
         public static float Evaluate(in string expression, in SerializedDictionary<string, float> vars) {
             Stack<float> stack = new();
@@ -154,6 +176,6 @@ namespace CMPM.Utils {
         }
         #endregion
     }
-    
+
     // Consider Shunting Yard algorithm for conversions
 }
