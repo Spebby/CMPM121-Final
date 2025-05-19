@@ -7,7 +7,7 @@ namespace CMPM.AI.BehaviorTree.Actions {
         public Attack() : base() { }
 
         public override Result Run() {
-            EnemyAction act = Agent.GetAction("attack");
+            EnemyAction act = Agent.GetAction(EnemyActionTypes.Attack);
             if (act == null) return Result.FAILURE;
 
             bool success = act.Do(GameManager.Instance.Player.transform);

@@ -11,17 +11,17 @@ namespace CMPM.AI.BehaviorTree.Actions {
 
         public override Result Run() {
             GameObject  target = GameManager.Instance.GetClosestOtherEnemy(Agent.gameObject);
-            EnemyAction act    = Agent.GetAction("buff");
+            EnemyAction act    = Agent.GetAction(EnemyActionTypes.Buff);
             if (act == null) return Result.FAILURE;
             bool success = false;
 
-            if (!Agent.GetAction("buff").Ready()) return Result.FAILURE;
-            List<GameObject> nearby =
-                GameManager.Instance.GetEnemiesInRange(Agent.transform.position, Agent.GetAction("buff").Range);
+            if (!Agent.GetAction(EnemyActionTypes.Buff).Ready()) return Result.FAILURE;
+            List<GameObject> nearby = GameManager.Instance.GetEnemiesInRange(Agent.transform.position, Agent.GetAction(EnemyActionTypes.Buff).Range);
 
+            // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
             foreach (GameObject enemy in nearby) {
                 EnemyController reference = enemy.GetComponent<EnemyController>();
-                if (reference.monster != "skeleton") continue;
+                if (!reference.canBeBuffed) continue;
                 success = act.Do(target.transform);
                 break;
             }

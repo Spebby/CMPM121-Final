@@ -17,21 +17,20 @@ namespace CMPM.AI.BehaviorTree.Queries {
         }
 
         public override Result Run() {
-            List<GameObject> nearby      = GameManager.Instance.GetEnemiesInRange(Agent.transform.position, _distance);
-            bool             success     = true;
-            bool             hasWarlock  = false;
-            bool             hasSkeleton = false;
-            if (Agent.GetComponent<EnemyController>().monster == "skeleton")
-                hasSkeleton                                                                 = true;
-            else if (Agent.GetComponent<EnemyController>().monster == "warlock") hasWarlock = true;
-            if (nearby.Count < _count) success = false;
+            List<GameObject> nearby          = GameManager.Instance.GetEnemiesInRange(Agent.transform.position, _distance);
+            bool             success         = true;
+            bool             hasSupport      = false;
+            EnemyController  enemyController = Agent.GetComponent<EnemyController>();
+            
+            if      (enemyController.type == BehaviorType.Support) hasSupport = true;
+            if      (nearby.Count < _count) success = false;
+            
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
             foreach (GameObject enemy in nearby) {
-                if (enemy.GetComponent<EnemyController>().monster == "warlock")
-                    hasWarlock                                                                    = true;
-                else if (enemy.GetComponent<EnemyController>().monster == "skeleton") hasSkeleton = true;
+                if (enemy.GetComponent<EnemyController>().type == BehaviorType.Support) hasSupport = true;
             }
 
-            if (!hasWarlock && !hasSkeleton) success = false;
+            if (hasSupport) success = false;
             return success ? Result.FAILURE : Result.SUCCESS;
         }
 

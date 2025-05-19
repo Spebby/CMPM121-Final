@@ -16,7 +16,7 @@ namespace CMPM.AI.BehaviorTree.Queries {
 
         public override Result Run() {
             GameObject target = GameManager.Instance.GetClosestOtherEnemy(Agent.gameObject);
-            return ((EnemyAttack)target.GetComponent<EnemyController>().GetAction("attack")).StrengthFactor
+            return ((EnemyAttack)target.GetComponent<EnemyController>().GetAction(EnemyActionTypes.Attack)).StrengthFactor
                 >= _minStrengthFactor
                 ? Result.SUCCESS
                 : Result.FAILURE;

@@ -3,6 +3,13 @@ using UnityEngine;
 
 
 namespace CMPM.Enemies {
+    public enum EnemyActionTypes {
+        Attack,
+        Buff,
+        Permabuff,
+        Heal
+    }
+    
     public class EnemyAction {
         #region Publics
         public float LastUse;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CMPM.AI;
 using CMPM.AI.BehaviorTree;
 using CMPM.Core;
 using CMPM.DamageSystem;
@@ -11,22 +12,25 @@ using UnityEngine.Serialization;
 namespace CMPM.Movement {
     public class EnemyController : MonoBehaviour {
         #region Publics
-        public string monster;
         public Transform target;
         public int speed;
         public Hittable HP;
         [FormerlySerializedAs("healthui")] public HealthBar healthUI;
         public bool dead;
 
-        public Dictionary<string, EnemyAction> Actions;
-        public Dictionary<string, int> Effects;
+        #region Actions
+        readonly Dictionary<EnemyActionTypes, EnemyAction> _actions = new();
+        Dictionary<string, int> _effects;
+        public bool canBeBuffed = true;
+        #endregion
+        
         [FormerlySerializedAs("strength_pip")] public GameObject strengthPip;
         List<GameObject> _pips;
 
+        public BehaviorType type;
         public BehaviorTree Behavior;
         #endregion
 
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start() {
             target     =  GameManager.Instance.Player.transform;
             HP.OnDeath += Die;
@@ -36,7 +40,6 @@ namespace CMPM.Movement {
             _pips                      = new List<GameObject>();
         }
 
-        // Update is called once per frame
         void Update() {
             if (GameManager.Instance.State != GameManager.GameState.INWAVE)
                 Destroy(gameObject);
@@ -59,26 +62,25 @@ namespace CMPM.Movement {
             }
         }
 
-        public void AddAction(string name, EnemyAction action) {
-            Actions       ??= new Dictionary<string, EnemyAction>();
+        public void AddAction(EnemyActionTypes type, EnemyAction action) {
             action.Enemy  =   this;
-            Actions[name] =   action;
+            _actions[type] =   action;
         }
 
-        public EnemyAction GetAction(string name) {
-            return Actions.GetValueOrDefault(name, null);
+        public EnemyAction GetAction(EnemyActionTypes type) {
+            return _actions.GetValueOrDefault(type, null);
         }
 
         public void AddEffect(string name, int stacks) {
-            Effects ??= new Dictionary<string, int>();
-            Effects.TryAdd(name, 0);
+            _effects ??= new Dictionary<string, int>();
+            _effects.TryAdd(name, 0);
 
-            Effects[name] += stacks;
-            if (Effects[name] > 10) Effects[name] = 10;
+            _effects[name] += stacks;
+            if (_effects[name] > 10) _effects[name] = 10;
         }
 
         public int GetEffect(string name) {
-            return Effects?.GetValueOrDefault(name, 0) ?? 0;
+            return _effects?.GetValueOrDefault(name, 0) ?? 0;
         }
 
         void Die() {

@@ -12,13 +12,13 @@ namespace CMPM.AI.BehaviorTree.Actions {
 
         public override Result Run() {
             GameObject  target = GameManager.Instance.GetClosestOtherEnemy(Agent.gameObject);
-            EnemyAction act    = Agent.GetAction("heal");
+            EnemyAction act    = Agent.GetAction(EnemyActionTypes.Heal);
             if (act == null) return Result.FAILURE;
             bool success = false;
 
-            if (!Agent.GetAction("heal").Ready()) return Result.FAILURE;
+            if (!Agent.GetAction(EnemyActionTypes.Heal).Ready()) return Result.FAILURE;
             List<GameObject> nearby =
-                GameManager.Instance.GetEnemiesInRange(Agent.transform.position, Agent.GetAction("heal").Range);
+                GameManager.Instance.GetEnemiesInRange(Agent.transform.position, Agent.GetAction(EnemyActionTypes.Heal).Range);
 
             // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
             foreach (GameObject enemy in nearby) {

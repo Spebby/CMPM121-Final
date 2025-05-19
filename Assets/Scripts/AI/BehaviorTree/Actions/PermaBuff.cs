@@ -9,7 +9,7 @@ namespace CMPM.AI.BehaviorTree.Actions {
 
         public override Result Run() {
             GameObject  target = GameManager.Instance.GetClosestOtherEnemy(Agent.gameObject);
-            EnemyAction act    = Agent.GetAction("permabuff");
+            EnemyAction act    = Agent.GetAction(EnemyActionTypes.Permabuff);
             if (act == null) return Result.FAILURE;
 
             bool success = act.Do(target.transform);

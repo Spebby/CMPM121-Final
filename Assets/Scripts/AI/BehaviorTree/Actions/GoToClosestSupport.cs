@@ -1,30 +1,28 @@
 using System.Collections.Generic;
 using CMPM.Core;
 using CMPM.DamageSystem;
+using CMPM.Enemies;
 using CMPM.Movement;
 using UnityEngine;
 
 
 namespace CMPM.AI.BehaviorTree.Actions {
-    public class GoToClosestWarlock : BehaviorTree {
+    public class GoToClosestSupport : BehaviorTree {
         #region Readonlys
         readonly Transform _target;
         readonly float _arrivedDistance;
         #endregion
 
-        public GoToClosestWarlock(float arrivedDistance) : base() {
+        public GoToClosestSupport(float arrivedDistance) : base() {
             _arrivedDistance = arrivedDistance;
         }
 
         public override Result Run() {
             Vector3 playerDirection = GameManager.Instance.Player.transform.position - Agent.transform.position;
             if (playerDirection.magnitude < 25) return Result.FAILURE;
-            GameObject       closestEnemy = GameObject.Find("wp0");
+            GameObject       closestEnemy = GameObject.Find("wp0"); // <-- This is bad
             List<GameObject> suds         = GameManager.Instance.GetEnemiesInRange(Agent.transform.position, 8f);
-            if (suds.Count >= 5) {
-                closestEnemy = GameManager.Instance.GetClosestOtherEnemy(Agent.gameObject);
-                return Result.SUCCESS;
-            }
+            if (suds.Count >= 5) return Result.SUCCESS;
 
             if (!closestEnemy) return Result.IN_PROGRESS;
             Vector3 target    = closestEnemy.transform.position;
@@ -34,42 +32,15 @@ namespace CMPM.AI.BehaviorTree.Actions {
                 if (!closestEnemy) return Result.IN_PROGRESS;
                 target    = closestEnemy.transform.position;
                 direction = target - Agent.transform.position;
-                string name = Agent.monster;
-                int order = name switch {
-                    "zombie"   => 1,
-                    "skeleton" => 2,
-                    _          => 3
-                };
-                name = closestEnemy.GetComponent<EnemyController>().monster;
-                int otherOrder = name switch {
-                    "zombie"   => 1,
-                    "skeleton" => 2,
-                    _          => 3
-                };
-                if (Agent.GetAction("permabuff").Ready()) {
-                    List<GameObject> nearby =
-                        GameManager.Instance.GetEnemiesInRange(Agent.transform.position,
-                                                               Agent.GetAction("permabuff").Range);
-                    foreach (GameObject enemy in nearby) {
-                        EnemyController reference = enemy.GetComponent<EnemyController>();
-                        if (reference.monster != "skeleton") continue;
-                        if (reference.GetEffect("strength") > 2) continue;
-                        Agent.GetAction("permabuff").Do(enemy.transform);
-                        break;
-                    }
-                }
+                
+                ApplyAction(Agent.GetAction(EnemyActionTypes.Permabuff));
+                ApplyAction(Agent.GetAction(EnemyActionTypes.Heal));
 
-                if (Agent.GetAction("heal").Ready()) {
-                    List<GameObject> nearby =
-                        GameManager.Instance.GetEnemiesInRange(Agent.transform.position, Agent.GetAction("heal").Range);
-                    foreach (GameObject enemy in nearby) {
-                        Hittable healthInfo = enemy.GetComponent<EnemyController>().HP;
-                        if (healthInfo.MinHP >= healthInfo.MaxHP) continue;
-                        Agent.GetAction("heal").Do(enemy.transform);
-                        break;
-                    }
-                }
-
+                EnemyController oEnemy     = closestEnemy.GetComponent<EnemyController>();
+                BehaviorType    type       = Agent.type;
+                int             order      = Agent.HP.HP  + (type == BehaviorType.Support ? 10000 : 0);
+                int             otherOrder = oEnemy.HP.HP + (type == BehaviorType.Support ? 10000 : 0);
+                
                 //playerDirection is the distance from the player to the enemy, now we need to check the distance between the target and the player
                 Vector3 playerToTarget = GameManager.Instance.Player.transform.position - target;
                 // Repositioning
@@ -97,8 +68,21 @@ namespace CMPM.AI.BehaviorTree.Actions {
             return Result.IN_PROGRESS;
         }
 
+        void ApplyAction(EnemyAction action) {
+            if (!action.Ready()) return;
+            
+            List<GameObject> nearby = GameManager.Instance.GetEnemiesInRange(Agent.transform.position, action.Range);
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+            foreach (GameObject enemy in nearby) {
+                Hittable healthInfo = enemy.GetComponent<EnemyController>().HP;
+                if (healthInfo.MinHP >= healthInfo.MaxHP) continue;
+                action.Do(enemy.transform);
+                break;
+            }
+        }
+
         public override BehaviorTree Copy() {
-            return new GoToClosestWarlock(_arrivedDistance);
+            return new GoToClosestSupport(_arrivedDistance);
         }
     }
 }

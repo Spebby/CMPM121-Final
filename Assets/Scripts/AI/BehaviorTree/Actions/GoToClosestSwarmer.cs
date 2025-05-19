@@ -5,25 +5,22 @@ using UnityEngine;
 
 
 namespace CMPM.AI.BehaviorTree.Actions {
-    public class GoToClosestBasic : BehaviorTree {
+    public class GoToClosestSwarmer : BehaviorTree {
         #region Readonlys
         readonly Transform _target;
         readonly float _arrivedDistance;
         #endregion
 
-        public GoToClosestBasic(float arrivedDistance) : base() {
+        public GoToClosestSwarmer(float arrivedDistance) : base() {
             _arrivedDistance = arrivedDistance;
         }
 
         public override Result Run() {
             Vector3 playerDirection = GameManager.Instance.Player.transform.position - Agent.transform.position;
             if (playerDirection.magnitude < 25) return Result.FAILURE;
-            GameObject       closestEnemy = GameObject.Find("wp0");
-            List<GameObject> nearby       = GameManager.Instance.GetEnemiesInRange(Agent.transform.position, 8f);
-            if (nearby.Count >= 5) {
-                closestEnemy = GameManager.Instance.GetClosestOtherEnemy(Agent.gameObject);
-                return Result.SUCCESS;
-            }
+            GameObject       closestEnemy = GameObject.Find("wp0"); // <-- This is bad
+            List<GameObject> suds         = GameManager.Instance.GetEnemiesInRange(Agent.transform.position, 8f);
+            if (suds.Count >= 5) return Result.SUCCESS;
 
             if (!closestEnemy) return Result.IN_PROGRESS;
             Vector3 target    = closestEnemy.transform.position;
@@ -33,18 +30,11 @@ namespace CMPM.AI.BehaviorTree.Actions {
                 if (!closestEnemy) return Result.IN_PROGRESS;
                 target    = closestEnemy.transform.position;
                 direction = target - Agent.transform.position;
-                string name = Agent.monster;
-                int order = name switch {
-                    "zombie"   => 1,
-                    "skeleton" => 2,
-                    _          => 3
-                };
-                name = closestEnemy.GetComponent<EnemyController>().monster;
-                int otherOrder = name switch {
-                    "zombie"   => 1,
-                    "skeleton" => 2,
-                    _          => 3
-                };
+                
+                EnemyController oEnemy     = closestEnemy.GetComponent<EnemyController>();
+                BehaviorType    type       = Agent.type;
+                int             order      = Agent.HP.HP  + (type == BehaviorType.Support ? 10000 : 0);
+                int             otherOrder = oEnemy.HP.HP + (type == BehaviorType.Support ? 10000 : 0);
 
                 //playerDirection is the distance from the player to the enemy, now we need to check the distance between the target and the player
                 Vector3 playerToTarget = GameManager.Instance.Player.transform.position - target;
@@ -75,7 +65,7 @@ namespace CMPM.AI.BehaviorTree.Actions {
         }
 
         public override BehaviorTree Copy() {
-            return new GoToClosestBasic(_arrivedDistance);
+            return new GoToClosestSwarmer(_arrivedDistance);
         }
     }
 }
