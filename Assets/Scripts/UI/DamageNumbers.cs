@@ -1,3 +1,4 @@
+using CMPM.Core;
 using CMPM.DamageSystem;
 using UnityEngine;
 using UnityEngine.Serialization;

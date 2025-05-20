@@ -3,7 +3,6 @@ using CMPM.Utils.Structures;
 
 
 // ReSharper disable ClassNeverInstantiated.Global
-
 namespace CMPM.Spells {
     public class SpellRegistry : Registry<SpellData> { }
 

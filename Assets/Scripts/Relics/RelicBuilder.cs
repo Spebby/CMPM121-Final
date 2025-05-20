@@ -1,3 +1,6 @@
+using System;
+using CMPM.Core;
+using CMPM.Spells;
 using CMPM.Utils;
 using CMPM.Utils.RelicParsers;
 using Newtonsoft.Json;
@@ -13,9 +16,64 @@ namespace CMPM.Relics {
         static void ParseRelicsJson(TextAsset relicsJson) { }
     }
 
+    public class Relic {
+        public readonly SpellCaster Caster;
+
+        #region Privates
+        readonly RelicData _data;
+        readonly RelicPrecondition _precondition;
+        readonly RelicEffect _effect;
+        #endregion
+
+        public Relic(SpellCaster caster, RelicData data) {
+            Caster = caster;
+            _data  = data;
+
+            RelicData.RelicPreconditionData precondition = _data.Precondition;
+            switch (precondition.Type) {
+                case PreconditionType.TakeDamage:
+                    break;
+                case PreconditionType.StandStill:
+                    
+                case PreconditionType.OnKill:
+                default:
+                    throw new NotImplementedException($"Precondition type {precondition.Type} is not implemented");
+            }
+
+            RelicData.RelicEffectData effect = data.Effect;
+            _effect = effect.Type switch {
+                EffectType.GainMana       => new GainManaEffect(caster, effect.Amount),
+                EffectType.GainSpellpower => new GainSpellpowerEffect(caster, effect.Amount),
+                _                         => throw new NotImplementedException($"Effect type {effect.Type} is not implemented")
+            };
+
+            switch (effect.Expiration) {
+                case EffectExpiration.Move:
+                    EventBus.Instance.OnPlayerMove += OnCancel;
+                    break;
+                case EffectExpiration.CastSpell:
+                    Caster.OnCast += OnCancel;
+                    break;
+                case EffectExpiration.None:
+                    break;
+                default:
+                    throw new NotImplementedException($"Effect cancellation condition {effect.Expiration} is not implemented");
+            }
+        }
+
+        void OnCallback() {
+            if (!_precondition.Evaluate()) return;
+            _effect.ApplyEffect();
+        }
+
+        void OnCancel() {
+            _effect.RevertEffect();
+        }
+    }
+
     #region JSON Parsing
     [JsonConverter(typeof(RelicTriggerTypeParser))]
-    public enum TriggerType {
+    public enum PreconditionType {
         TakeDamage,
         StandStill,
         OnKill
@@ -28,8 +86,8 @@ namespace CMPM.Relics {
     }
 
     [JsonConverter(typeof(RelicEffectConditionParser))]
-    public enum EffectCondition {
-        Count,
+    public enum EffectExpiration {
+        None,
         Move,
         CastSpell
     }
@@ -38,38 +96,40 @@ namespace CMPM.Relics {
     public readonly struct RelicData {
         public readonly string Name;
         public readonly int SpriteIndex;
-        public readonly RelicTriggerData Trigger;
+
+        public readonly RelicPreconditionData Precondition;
         public readonly RelicEffectData Effect;
-
-        public RelicData(string name, int sprite, RelicTriggerData trigger, RelicEffectData effect) {
-            Name        = name;
-            SpriteIndex = sprite;
-            Trigger     = trigger;
-            Effect      = effect;
+        
+        public readonly struct RelicPreconditionData {
+            public readonly string Description;
+            public readonly PreconditionType Type;
+            public readonly RPNString? Amount;
+            
+            public RelicPreconditionData(string description, PreconditionType type, RPNString? amount) {
+                Description = description;
+                Type        = type;
+                Amount      = amount;
+            }
         }
-    };
+        public readonly struct RelicEffectData {
+            public readonly string Description;
+            public readonly EffectType Type;
+            public readonly RPNString Amount;
+            public readonly EffectExpiration Expiration;
 
-    public readonly struct RelicTriggerData {
-        public readonly string Description;
-        public readonly TriggerType Type;
-
-        public RelicTriggerData(string description, TriggerType type) {
-            Description = description;
-            Type        = type;
+            public RelicEffectData(string description, EffectType type, RPNString amount, EffectExpiration? condition) {
+                Description = description;
+                Type        = type;
+                Amount      = amount;
+                Expiration  = condition ?? EffectExpiration.None;
+            }
         }
-    }
-
-    public readonly struct RelicEffectData {
-        public readonly string Description;
-        public readonly EffectType Type;
-        public readonly RPNString Amount;
-        public readonly EffectCondition Condition;
-
-        public RelicEffectData(string description, EffectType type, RPNString amount, EffectCondition? condition) {
-            Description = description;
-            Type        = type;
-            Amount      = amount;
-            Condition   = condition ?? EffectCondition.Count;
+        
+        public RelicData(string name, int sprite, RelicPreconditionData precondition, RelicEffectData effect) {
+            Name              = name;
+            SpriteIndex       = sprite;
+            Precondition = precondition;
+            Effect = effect;
         }
     }
     #endregion

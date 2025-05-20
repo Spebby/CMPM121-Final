@@ -2,7 +2,7 @@
     {
         "name": "Green Gem",
         "sprite": 0,
-        "trigger": {
+        "precondition": {
             "description": "Whenever you take damage",
             "type": "take-damage"
         },
@@ -15,7 +15,7 @@
     {
         "name": "Jade Elephant",
         "sprite": 1,
-        "trigger": {
+        "precondition": {
             "description": "When you don't move for 3 seconds",
             "type": "stand-still",
             "amount": "3"
@@ -30,7 +30,7 @@
     {
         "name": "Golden Mask",
         "sprite": 2,
-        "trigger": {
+        "precondition": {
             "description": "When you take damage",
             "type": "take-damage"
         },
@@ -44,7 +44,7 @@
     {
         "name": "Cursed Scroll",
         "sprite": 3,
-        "trigger": {
+        "precondition": {
             "description": "When you kill an enemy",
             "type": "on-kill"
         },

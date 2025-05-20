@@ -15,7 +15,7 @@ namespace CMPM.Core {
     public class PlayerController : MonoBehaviour {
         // ReSharper disable once InconsistentNaming
         public Hittable HP;
-        SpellCaster _spellCaster;
+        SpellCaster _caster;
         [SerializeField] int speed;
         [SerializeField] Unit unit;
 
@@ -33,7 +33,7 @@ namespace CMPM.Core {
         #endregion
 
         public static implicit operator SpellCaster(PlayerController player) {
-            return player._spellCaster;
+            return player._caster;
         }
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -45,9 +45,9 @@ namespace CMPM.Core {
 
         public void StartLevel() {
             Spell activeSpell = _spells[_spellIndex];
-            _spellCaster = new SpellCaster(125, 8, 1, Hittable.Team.PLAYER, activeSpell);
-            StartCoroutine(_spellCaster.ManaRegeneration());
-            _spells[_spellIndex] = _spellCaster.Spell;
+            _caster = new SpellCaster(125, 8, 1, Hittable.Team.PLAYER, activeSpell);
+            StartCoroutine(_caster.ManaRegeneration());
+            _spells[_spellIndex] = _caster.Spell;
 
             int wave = GameManager.Instance.CurrentWave;
             SetPlayerScale(wave);
@@ -57,19 +57,19 @@ namespace CMPM.Core {
             HP.team    =  Hittable.Team.PLAYER;
 
             // tell UI elements what to show
-            spellUI.AddSpell(_spellCaster.Spell, _spellIndex);
+            spellUI.AddSpell(_caster.Spell, _spellIndex);
             healthUI.SetHealth(HP);
-            manaUI.SetSpellCaster(_spellCaster);
+            manaUI.SetSpellCaster(_caster);
         }
 
         void SetPlayerScale(int wave) {
             HP.UpdateHPCap(RPN.Evaluate("95 wave 5 * +", new SerializedDictionary<string, int> { { "wave", wave } }));
-            _spellCaster.MaxMana =
+            _caster.MaxMana =
                 RPN.Evaluate("90 wave 10 * +", new SerializedDictionary<string, int> { { "wave", wave } });
-            _spellCaster.ManaReg =
+            _caster.ManaReg =
                 RPN.Evaluate("10 wave +", new SerializedDictionary<string, int> { { "wave", wave } });
-            _spellCaster.SpellPower =
-                RPN.Evaluate("wave 10 *", new SerializedDictionary<string, int> { { "wave", wave } });
+            _caster.GainSpellpower(
+                RPN.Evaluate("wave 10 *", new SerializedDictionary<string, int> { { "wave", wave } }));
             speed = 5;
         }
 
@@ -109,7 +109,7 @@ namespace CMPM.Core {
         }
 
         public void SwitchSpell(int i) {
-            _spellCaster.Spell = _spells[i];
+            _caster.Spell = _spells[i];
             _spellIndex        = i;
             spellUI.SetSpellAsActive(_spellIndex);
         }
@@ -125,7 +125,7 @@ namespace CMPM.Core {
             for (int offset = 0; offset < _spells.Length; offset++) {
                 int i = (start + offset) % _spells.Length;
                 if (_spells[i] == null) continue;
-                _spellCaster.Spell = _spells[i];
+                _caster.Spell = _spells[i];
                 _spellIndex        = i;
                 spellUI.SetSpellAsActive(i);
                 return;
@@ -149,13 +149,14 @@ namespace CMPM.Core {
             Vector2 mouseScreen = Mouse.current.position.value;
             Vector3 mouseWorld  = Camera.main!.ScreenToWorldPoint(mouseScreen);
             mouseWorld.z = 0;
-            StartCoroutine(_spellCaster.Cast(transform.position, mouseWorld));
+            StartCoroutine(_caster.Cast(transform.position, mouseWorld));
         }
 
         void OnMove(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
             unit.movement = value.Get<Vector2>() * speed;
+            EventBus.Instance.DoPlayerMove();
         }
 
         // ReSharper disable once MemberCanBeMadeStatic.Local

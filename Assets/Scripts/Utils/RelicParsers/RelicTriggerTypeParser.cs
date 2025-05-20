@@ -4,8 +4,8 @@ using Newtonsoft.Json;
 
 
 namespace CMPM.Utils.RelicParsers {
-    public class RelicTriggerTypeParser : JsonConverter<TriggerType> {
-        public override TriggerType ReadJson(JsonReader reader, Type objectType, TriggerType existingValue,
+    public class RelicTriggerTypeParser : JsonConverter<PreconditionType> {
+        public override PreconditionType ReadJson(JsonReader reader, Type objectType, PreconditionType existingValue,
                                              bool hasExistingValue,
                                              JsonSerializer serializer) {
             string str = (reader.Value as string)?.ToLower();
@@ -13,14 +13,14 @@ namespace CMPM.Utils.RelicParsers {
                 throw new JsonReaderException("RelicTriggerTypeParser expected string 'Trigger.Type'!");
 
             return str switch {
-                "on-kill"     => TriggerType.OnKill,
-                "stand-still" => TriggerType.StandStill,
-                "take-damage" => TriggerType.TakeDamage,
+                "on-kill"     => PreconditionType.OnKill,
+                "stand-still" => PreconditionType.StandStill,
+                "take-damage" => PreconditionType.TakeDamage,
                 _             => throw new NotImplementedException($"Unknown trigger type '{str}'")
             };
         }
 
-        public override void WriteJson(JsonWriter writer, TriggerType value, JsonSerializer serializer) {
+        public override void WriteJson(JsonWriter writer, PreconditionType value, JsonSerializer serializer) {
             throw new NotImplementedException();
         }
     }

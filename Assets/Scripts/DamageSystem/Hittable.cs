@@ -1,4 +1,5 @@
 using System;
+using CMPM.Core;
 using UnityEngine;
 using UnityEngine.Serialization;
 

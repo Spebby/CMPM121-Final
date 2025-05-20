@@ -32,7 +32,7 @@ namespace CMPM.Movement {
         #endregion
 
         void Start() {
-            target     =  GameManager.Instance.Player.transform;
+            target =  GameManager.Instance.Player.transform;
             HP.OnDeath += Die;
             healthUI.SetHealth(HP);
 

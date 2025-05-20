@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using CMPM.Core;
 using CMPM.DamageSystem;
@@ -6,15 +7,18 @@ using UnityEngine;
 
 namespace CMPM.Spells {
     public class SpellCaster {
-        public int Mana;
-        public int MaxMana;
-        public int ManaReg;
-        public int SpellPower;
+        public int Mana { get; private set; }
+        public int MaxMana { get; set; }
+        public int ManaReg { get; set; }
+        public int SpellPower { get; private set; }
         public readonly Hittable.Team Team;
-
+        
         public Spell Spell;
         const string DEFAULT_SPELL = "Arcane Bolt";
 
+        // ReSharper disable once UnassignedField.Global
+        public Action OnCast;
+        
         public IEnumerator ManaRegeneration() {
             while (true) {
                 Mana += ManaReg;
@@ -37,7 +41,16 @@ namespace CMPM.Spells {
             if (Mana < Spell.GetManaCost() || !Spell.IsReady() ||
                 GameManager.Instance.State != GameManager.GameState.INWAVE) yield break;
             Mana -= Spell.GetManaCost();
+            OnCast?.Invoke();
             yield return Spell.Cast(where, target, Team);
+        }
+
+        public void GainMana(int c) {
+            Mana = Mathf.Clamp(Mana + c, 0, MaxMana);
+        }
+
+        public void GainSpellpower(int c) {
+            SpellPower = Mathf.Max(SpellPower + c, 1);
         }
     }
 }

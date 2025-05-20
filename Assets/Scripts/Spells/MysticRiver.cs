@@ -23,7 +23,6 @@ namespace CMPM.Spells {
                 CoroutineManager.Instance.Run(CastHelper(type, w, t, count, delay));
             };
 
-            // This is insanely dumb but you have to love it
             foreach (int hash in Modifiers ?? Array.Empty<int>()) {
                 ISpellModifier mod = SpellModifierRegistry.Get(hash);
                 mod?.ModifyCast(this, ref castAction);
