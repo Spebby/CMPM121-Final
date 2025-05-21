@@ -18,7 +18,7 @@ namespace CMPM.Enemies {
         protected override bool Perform(Transform target) {
             int amount = AttackDamage;
             amount += Mathf.RoundToInt(Enemy.GetEffect("strength") * StrengthFactor);
-            GameManager.Instance.Player.GetComponent<PlayerController>().HP
+            GameManager.Instance.PlayerController.HP
                        .Damage(new Damage(amount, Damage.Type.PHYSICAL));
             return true;
         }

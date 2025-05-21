@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CMPM.Core;
 using CMPM.Spells;
 using CMPM.Utils;
@@ -8,24 +9,27 @@ namespace CMPM.Relics {
 	public class GainSpellpowerEffect : RelicEffect, IRPNEvaluator {
 		protected readonly RPNString Amount;
 
+		Stack<int> _stack;
+		
 		public GainSpellpowerEffect(SpellCaster caster, RPNString amount) : base(caster) {
 			Amount = amount;
 		}
 
 		public override void ApplyEffect() {
-			Caster.GainSpellpower((int)Amount.Evaluate(GetRPNVariables()));
+			int i = (int)Amount.Evaluate(GetRPNVariables());
+			Caster.ModifySpellpower(i);
+			_stack.Push(i);
 		}
 
 		public override void RevertEffect() {
-			Caster.GainMana(-(int)Amount.Evaluate(GetRPNVariables()));
+			if (!CanCancel()) return;
+			Caster.ModifyMana(-_stack.Pop());
 		}
 
-		public override bool CanCancel() {
-			throw new System.NotImplementedException();
-		}
+		public override bool CanCancel() => _stack.Count > 0;
 
 		public SerializedDictionary<string, float> GetRPNVariables() {
-			return new SerializedDictionary<string, float>() {
+			return new SerializedDictionary<string, float> {
 				{ "wave", GameManager.Instance.CurrentWave }
 			};
 		}

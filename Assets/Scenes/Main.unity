@@ -4831,8 +4831,9 @@ MonoBehaviour:
   slider: {fileID: 1884016144}
   Hp:
     team: 0
-    Hp: 0
-    MaxHp: 0
+    HP: 0
+    MaxHP: 0
+    MinHP: 0
 --- !u!212 &765025205
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -9808,8 +9809,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HP:
     team: 0
-    Hp: 0
-    MaxHp: 0
+    HP: 0
+    MaxHP: 0
+    MinHP: 0
   speed: 5
   unit: {fileID: 1718273956}
   healthUI: {fileID: 765025204}
@@ -9920,7 +9922,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movement: {x: 0, y: 0}
-  distance: 0
+  speed: 0
 --- !u!1 &1727109217
 GameObject:
   m_ObjectHideFlags: 0
@@ -61950,6 +61952,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 421493446964380599, guid: b531ed09aa5f5a847918ddac98e4bf16, type: 3}
+      propertyPath: sprites.Array.size
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 421493446964380599, guid: b531ed09aa5f5a847918ddac98e4bf16, type: 3}
+      propertyPath: 'sprites.Array.data[16]'
+      value: 
+      objectReference: {fileID: -5015623547701330828, guid: e621137f9197f0842a52168123ca0298, type: 3}
     - target: {fileID: 2107732465084047900, guid: b531ed09aa5f5a847918ddac98e4bf16, type: 3}
       propertyPath: m_Name
       value: GFXManager

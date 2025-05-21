@@ -101,7 +101,7 @@ namespace CMPM.Level {
             GameManager.Instance.CurrentWave = 1;
 
             //to start the level
-            GameManager.Instance.Player.GetComponent<PlayerController>().StartLevel();
+            GameManager.Instance.PlayerController.StartLevel();
             StartCoroutine(SpawnWave(currentLevel, 1));
         }
 

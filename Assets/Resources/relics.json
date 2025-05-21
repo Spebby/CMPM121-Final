@@ -53,5 +53,27 @@
             "type": "gain-mana",
             "amount": "25"
         }
-    }
+    },
+	{
+		"name": "Fungus",
+		"sprite": 16,
+		"precondition": {
+			"description": "Every 2-4 seconds".
+			"type": "timer",
+			"range": {
+				"min": 2,
+				"max": 4
+			}
+		},
+		"effect": {
+			"description": "A temporary random stat boost.",
+			"type": "random-boost",
+			"amount": "0.2",
+			"until": "timer",
+			"range": {
+				"min": 2,
+				"max": 4
+			}
+		}
+	}
 ]

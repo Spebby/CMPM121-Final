@@ -9,7 +9,7 @@ namespace CMPM.Spells {
     public class SpellCaster {
         public int Mana { get; private set; }
         public int MaxMana { get; set; }
-        public int ManaReg { get; set; }
+        public int ManaRegen { get; set; }
         public int SpellPower { get; private set; }
         public readonly Hittable.Team Team;
         
@@ -21,17 +21,17 @@ namespace CMPM.Spells {
         
         public IEnumerator ManaRegeneration() {
             while (true) {
-                Mana += ManaReg;
+                Mana += ManaRegen;
                 Mana =  Mathf.Min(Mana, MaxMana);
                 yield return new WaitForSeconds(1);
             }
             // ReSharper disable once IteratorNeverReturns
         }
 
-        public SpellCaster(int mana, int manaReg, int spellPower, Hittable.Team team, Spell spell) {
+        public SpellCaster(int mana, int manaRegen, int spellPower, Hittable.Team team, Spell spell) {
             Mana       = mana;
             MaxMana    = mana;
-            ManaReg    = manaReg;
+            ManaRegen  = manaRegen;
             SpellPower = spellPower;
             Team       = team;
             Spell      = spell ?? SpellBuilder.BuildSpell(DEFAULT_SPELL, this, 0);
@@ -45,11 +45,20 @@ namespace CMPM.Spells {
             yield return Spell.Cast(where, target, Team);
         }
 
-        public void GainMana(int c) {
+        public void ModifyMana(int c) {
             Mana = Mathf.Clamp(Mana + c, 0, MaxMana);
         }
 
-        public void GainSpellpower(int c) {
+        public void ModifyMaxMana(int c) {
+            MaxMana = Mathf.Max(MaxMana + c, 0);
+        }
+
+        // Arguably we may want "negative" mana regen as a feature but for the moment I don't see any value in that.
+        public void ModifyManaRegen(int c) {
+            ManaRegen = Mathf.Max(ManaRegen + c, 0); 
+        }
+        
+        public void ModifySpellpower(int c) {
             SpellPower = Mathf.Max(SpellPower + c, 1);
         }
     }

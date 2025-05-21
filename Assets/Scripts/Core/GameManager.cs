@@ -29,6 +29,7 @@ namespace CMPM.Core {
         public static readonly GameManager Instance = new();
 
         public GameObject Player;
+        public PlayerController PlayerController;
 
         public ProjectileManager ProjectileManager;
         public SpellIconManager SpellIconManager;

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using CMPM.DamageSystem;
+using CMPM.Relics;
 using CMPM.Spells;
 using CMPM.UI;
 using CMPM.Utils;
@@ -16,7 +18,7 @@ namespace CMPM.Core {
         // ReSharper disable once InconsistentNaming
         public Hittable HP;
         SpellCaster _caster;
-        [SerializeField] int speed;
+        public int Speed { get; private set; }
         [SerializeField] Unit unit;
 
         #region UI
@@ -32,14 +34,16 @@ namespace CMPM.Core {
         [SerializeField] SpellUIContainer spellUI;
         #endregion
 
-        public static implicit operator SpellCaster(PlayerController player) {
-            return player._caster;
-        }
+        #region APIs
+        public bool IsMoving() => unit.movement.magnitude > Mathf.Epsilon;
+        public void ModifySpeed(int c) => Speed = Mathf.Max(Speed + c, 1);
+        public static implicit operator SpellCaster(PlayerController player) => player._caster;
+        #endregion
 
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start() {
             unit                        = GetComponent<Unit>();
             GameManager.Instance.Player = gameObject;
+            GameManager.Instance.PlayerController = this;
             HP                          = new Hittable(100, Hittable.Team.PLAYER, gameObject);
         }
 
@@ -66,11 +70,11 @@ namespace CMPM.Core {
             HP.UpdateHPCap(RPN.Evaluate("95 wave 5 * +", new SerializedDictionary<string, int> { { "wave", wave } }));
             _caster.MaxMana =
                 RPN.Evaluate("90 wave 10 * +", new SerializedDictionary<string, int> { { "wave", wave } });
-            _caster.ManaReg =
+            _caster.ManaRegen =
                 RPN.Evaluate("10 wave +", new SerializedDictionary<string, int> { { "wave", wave } });
-            _caster.GainSpellpower(
+            _caster.ModifySpellpower(
                 RPN.Evaluate("wave 10 *", new SerializedDictionary<string, int> { { "wave", wave } }));
-            speed = 5;
+            Speed = 5;
         }
 
         #region Spells
@@ -81,13 +85,6 @@ namespace CMPM.Core {
          * for value types, this is straight forwards. For reference types, like an array, this means
          * the pointer cannot be changed--so you cannot reallocate the array. But you *can* still change
          * the value of what the reference is pointing to. */
-
-        void OnChangeSpell(InputValue value) {
-            if (GameManager.Instance.State == GameManager.GameState.PREGAME
-             || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
-
-            NextSpell(++_spellIndex);
-        }
 
         public void AddSpell(Spell spell, int replaceIndex = 0) {
             if (replaceIndex < 0) throw new ArgumentOutOfRangeException(nameof(replaceIndex));
@@ -143,6 +140,16 @@ namespace CMPM.Core {
         }
         #endregion
 
+        #region Relics
+        readonly public List<Relic> Relics;
+        
+        public void AddRelic(Relic relic) {
+            Relics.Add(relic);
+            EventBus.Instance.DoRelicPickup(relic);
+        } 
+        #endregion
+        
+        #region Input Callbacks
         void OnAttack(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
@@ -151,13 +158,22 @@ namespace CMPM.Core {
             mouseWorld.z = 0;
             StartCoroutine(_caster.Cast(transform.position, mouseWorld));
         }
+        
+        void OnChangeSpell(InputValue value) {
+            if (GameManager.Instance.State == GameManager.GameState.PREGAME
+             || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
+
+            NextSpell(++_spellIndex);
+        }
 
         void OnMove(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
-            unit.movement = value.Get<Vector2>() * speed;
-            EventBus.Instance.DoPlayerMove();
+            unit.movement = value.Get<Vector2>() * Speed;
+            EventBus.Instance.DoPlayerMove(unit.movement.magnitude);
+            EventBus.Instance.DoPlayerStandstill();
         }
+        #endregion
 
         // ReSharper disable once MemberCanBeMadeStatic.Local
         void Die() {

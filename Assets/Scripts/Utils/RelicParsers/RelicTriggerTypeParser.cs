@@ -16,12 +16,21 @@ namespace CMPM.Utils.RelicParsers {
                 "on-kill"     => PreconditionType.OnKill,
                 "stand-still" => PreconditionType.StandStill,
                 "take-damage" => PreconditionType.TakeDamage,
+                "timer"       => PreconditionType.Timer,
                 _             => throw new NotImplementedException($"Unknown trigger type '{str}'")
             };
         }
 
         public override void WriteJson(JsonWriter writer, PreconditionType value, JsonSerializer serializer) {
-            throw new NotImplementedException();
+            string str = value switch {
+                PreconditionType.OnKill     => "on-kill",
+                PreconditionType.StandStill => "standing-still",
+                PreconditionType.TakeDamage => "take-damage",
+                PreconditionType.Timer      => "timer",
+                _                           => throw new NotImplementedException($"Unknown precondition type '{value}'")
+            };
+
+            writer.WriteValue(str);
         }
     }
 }

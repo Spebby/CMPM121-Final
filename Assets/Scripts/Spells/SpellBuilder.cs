@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using CMPM.Core;
 using UnityEngine;
 using Newtonsoft.Json.Linq;
 using CMPM.DamageSystem;
@@ -8,7 +7,6 @@ using CMPM.Spells.Modifiers;
 using CMPM.Utils;
 using CMPM.Utils.SpellParsers;
 using Newtonsoft.Json;
-using Debug = System.Diagnostics.Debug;
 using Random = UnityEngine.Random;
 
 

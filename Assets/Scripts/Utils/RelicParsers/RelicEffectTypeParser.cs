@@ -15,12 +15,20 @@ namespace CMPM.Utils.RelicParsers {
             return str.ToLower() switch {
                 "gain-mana"       => EffectType.GainMana,
                 "gain-spellpower" => EffectType.GainSpellpower,
+                "random-boost"    => EffectType.RandomBoost,
                 _                 => throw new NotImplementedException($"Unknown effect type '{str}'")
             };
         }
 
         public override void WriteJson(JsonWriter writer, EffectType value, JsonSerializer serializer) {
-            throw new NotImplementedException();
+            string str = value switch {
+                EffectType.GainMana       => "gain-mana",
+                EffectType.GainSpellpower => "gain-spellpower",
+                EffectType.RandomBoost    => "random-boost",
+                _                         => throw new NotImplementedException($"Unknown effect type '{value}'")
+            };
+
+            writer.WriteValue(str);
         }
     }
 }

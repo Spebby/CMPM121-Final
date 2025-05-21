@@ -15,13 +15,22 @@ namespace CMPM.Utils.RelicParsers {
             return str.ToLower() switch {
                 "cast-spell" => EffectExpiration.CastSpell,
                 "move"       => EffectExpiration.Move,
+                "timer"      => EffectExpiration.Timer,
                 "none"       => EffectExpiration.None,
                 _            => throw new NotImplementedException($"Unknown condition type '{str}'")
             };
         }
 
         public override void WriteJson(JsonWriter writer, EffectExpiration value, JsonSerializer serializer) {
-            throw new NotImplementedException();
+            string str = value switch {
+                EffectExpiration.CastSpell => "cast-spell",
+                EffectExpiration.Move      => "move",
+                EffectExpiration.Timer     => "timer",
+                EffectExpiration.None      => "none",
+                _                          => throw new NotImplementedException($"Unknown condition type '{value}'")
+            };
+
+            writer.WriteValue(str);
         }
     }
 }

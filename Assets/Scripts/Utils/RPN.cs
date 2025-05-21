@@ -21,10 +21,6 @@ namespace CMPM.Utils {
             Variables = vars;
         }
 
-        public static implicit operator int(RPNString entry) {
-            return RPN.Evaluate(entry.String, entry.Variables);
-        }
-
         public static implicit operator string(RPNString entry) {
             return entry.String;
         }

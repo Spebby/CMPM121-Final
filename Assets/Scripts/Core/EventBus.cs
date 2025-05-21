@@ -1,7 +1,7 @@
 using System;
 using CMPM.DamageSystem;
 using CMPM.Movement;
-using CMPM.Spells;
+using CMPM.Relics;
 using UnityEngine;
 
 
@@ -17,7 +17,9 @@ namespace CMPM.Core {
         public event Action<Vector3, Damage, Hittable> OnDamage;
         public event Action<Vector3, int, Hittable> OnHeal;
         public event Action<EnemyController> OnEnemyDeath;
-        public event Action OnPlayerMove;
+        public event Action<float> OnPlayerMove;
+        public event Action OnPlayerStandstill;
+        public event Action<RelicData> OnRelicPickup;
         #endregion
 
         #region Callers
@@ -33,10 +35,17 @@ namespace CMPM.Core {
             OnEnemyDeath?.Invoke(which);
         }
 
-        public void DoPlayerMove() {
-            OnPlayerMove?.Invoke();
+        public void DoPlayerMove(float magnitude) {
+            OnPlayerMove?.Invoke(magnitude);
         }
-    
+
+        public void DoPlayerStandstill() {
+            OnPlayerStandstill?.Invoke();
+        }
+
+        public void DoRelicPickup(in RelicData data) {
+            OnRelicPickup?.Invoke(data);
+        }
         #endregion
     }
 }
