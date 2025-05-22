@@ -1,3 +1,6 @@
+using System;
+
+
 namespace CMPM.Relics {
     public abstract class RelicTrigger {
         protected readonly RelicEffect InnerEffect;
@@ -5,8 +8,11 @@ namespace CMPM.Relics {
         public RelicTrigger(RelicEffect innerEffect) {
             InnerEffect = innerEffect;
         }
-        
-        public virtual void OnTrigger() { InnerEffect.ApplyEffect(); }
+
+        public virtual void OnTrigger(Action callback) {
+            InnerEffect.ApplyEffect();
+            callback?.Invoke();
+        }
         public virtual void OnCancel() { InnerEffect.RevertEffect(); }
         public virtual bool Evaluate() => true;
     }

@@ -19,7 +19,7 @@ namespace CMPM.Core {
         public event Action<EnemyController> OnEnemyDeath;
         public event Action<float> OnPlayerMove;
         public event Action OnPlayerStandstill;
-        public event Action<RelicData> OnRelicPickup;
+        public event Action<Relic> OnRelicPickup;
         #endregion
 
         #region Callers
@@ -43,8 +43,8 @@ namespace CMPM.Core {
             OnPlayerStandstill?.Invoke();
         }
 
-        public void DoRelicPickup(in RelicData data) {
-            OnRelicPickup?.Invoke(data);
+        public void DoRelicPickup(in Relic relic) {
+            OnRelicPickup?.Invoke(relic);
         }
         #endregion
     }

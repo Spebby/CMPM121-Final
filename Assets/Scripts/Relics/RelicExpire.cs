@@ -1,3 +1,6 @@
+using System;
+
+
 namespace CMPM.Relics {
     public abstract class RelicExpire {
         protected readonly RelicEffect InnerEffect;
@@ -6,6 +9,9 @@ namespace CMPM.Relics {
             InnerEffect = innerEffect;
         }
         
-        public virtual void OnTrigger() { InnerEffect.RevertEffect(); }
+        public virtual void OnTrigger(Action callback) {
+            InnerEffect.RevertEffect();
+            callback?.Invoke();
+        }
     }
 }

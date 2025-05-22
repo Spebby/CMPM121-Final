@@ -11,8 +11,9 @@ namespace CMPM.Utils.RelicParsers {
                                            JsonSerializer serializer) {
             JObject obj = JObject.Load(reader);
 
-            string name   = obj["name"]?.ToString()        ?? throw new JsonException("Missing name");
-            int    sprite = obj["sprite"]?.ToObject<int>() ?? throw new JsonException("Missing sprite");
+            string name        = obj["name"]?.ToString()         ?? throw new JsonException("Missing name");
+            string description = obj["description"]?.ToString()  ?? throw new JsonException("Missing description");
+            uint   sprite      = obj["sprite"]?.ToObject<uint>() ?? throw new JsonException("Missing sprite");
 
             // Parse Precondition
             JObject pre = obj["precondition"]?.ToObject<JObject>() ?? throw new JsonException("Missing precondition");
@@ -33,7 +34,7 @@ namespace CMPM.Utils.RelicParsers {
                 pre["range"]?.ToObject<RPNRange>(serializer)
             );
 
-            return new RelicData(name, sprite, relicPrecondition, effect);
+            return new RelicData(name, description, sprite, relicPrecondition, effect);
         }
         
         public override void WriteJson(JsonWriter writer, RelicData value, JsonSerializer serializer) {

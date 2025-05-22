@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using CMPM.AI;
-using CMPM.AI.BehaviorTree;
+using CMPM.AI.BehaviourTree;
 using CMPM.Core;
 using CMPM.DamageSystem;
 using CMPM.Enemies;
@@ -27,8 +27,8 @@ namespace CMPM.Movement {
         [FormerlySerializedAs("strength_pip")] public GameObject strengthPip;
         List<GameObject> _pips;
 
-        public BehaviorType type;
-        public BehaviorTree Behavior;
+        public BehaviourType type;
+        public BehaviourTree Behaviour;
         #endregion
 
         void Start() {
@@ -58,29 +58,29 @@ namespace CMPM.Movement {
                 }
 
 
-                Behavior?.Run();
+                Behaviour?.Run();
             }
         }
 
-        public void AddAction(EnemyActionTypes type, EnemyAction action) {
+        public void AddAction(EnemyActionTypes actionType, EnemyAction action) {
             action.Enemy  =   this;
-            _actions[type] =   action;
+            _actions[actionType] =   action;
         }
 
-        public EnemyAction GetAction(EnemyActionTypes type) {
-            return _actions.GetValueOrDefault(type, null);
+        public EnemyAction GetAction(EnemyActionTypes actionType) {
+            return _actions.GetValueOrDefault(actionType, null);
         }
 
-        public void AddEffect(string name, int stacks) {
+        public void AddEffect(string effectName, int stacks) {
             _effects ??= new Dictionary<string, int>();
-            _effects.TryAdd(name, 0);
+            _effects.TryAdd(effectName, 0);
 
-            _effects[name] += stacks;
-            if (_effects[name] > 10) _effects[name] = 10;
+            _effects[effectName] += stacks;
+            if (_effects[effectName] > 10) _effects[effectName] = 10;
         }
 
-        public int GetEffect(string name) {
-            return _effects?.GetValueOrDefault(name, 0) ?? 0;
+        public int GetEffect(string effectName) {
+            return _effects?.GetValueOrDefault(effectName, 0) ?? 0;
         }
 
         void Die() {

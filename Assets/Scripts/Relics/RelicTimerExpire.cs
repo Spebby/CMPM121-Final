@@ -23,12 +23,13 @@ namespace CMPM.Relics {
         }
 
         // Attempt to run the coroutine. If one is already running, then restart the counter.
-        public override void OnTrigger() {
+        public override void OnTrigger(Action callback) {
             if (Runner != null) {
                 CoroutineManager.Instance.StopCoroutine(Runner);
             }
             
             Runner = CoroutineManager.Instance.StartCoroutine(WaitThenTrigger());
+            callback?.Invoke();
         }
 
         public void OnCancel() {

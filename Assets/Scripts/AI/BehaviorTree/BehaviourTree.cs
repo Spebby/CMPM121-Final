@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using CMPM.Movement;
 
 
-namespace CMPM.AI.BehaviorTree {
-    public class BehaviorTree {
+namespace CMPM.AI.BehaviourTree {
+    public class BehaviourTree {
         #region Publics
         public enum Result {
             SUCCESS,
@@ -14,8 +14,6 @@ namespace CMPM.AI.BehaviorTree {
         public EnemyController Agent;
         #endregion
 
-        public BehaviorTree() { }
-
         public virtual Result Run() {
             return Result.SUCCESS;
         }
@@ -24,11 +22,11 @@ namespace CMPM.AI.BehaviorTree {
             Agent = agent;
         }
 
-        public virtual IEnumerable<BehaviorTree> AllNodes() {
+        public virtual IEnumerable<BehaviourTree> AllNodes() {
             yield return this;
         }
 
-        public virtual BehaviorTree Copy() {
+        public virtual BehaviourTree Copy() {
             return null;
         }
     }

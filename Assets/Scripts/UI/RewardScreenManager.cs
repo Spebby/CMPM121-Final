@@ -1,43 +1,51 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using CMPM.Core;
 using CMPM.DamageSystem;
+using CMPM.Relics;
 using static CMPM.Core.GameManager.GameState;
 using CMPM.Spells;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 
+// This entire class will become redundant during the pivot :(
 namespace CMPM.UI {
     public class RewardScreenManager : MonoBehaviour {
-        [Header("Panels & Buttons")] [SerializeField]
-        GameObject panel;
+        [Header("Panels & Buttons")]
+        [SerializeField] GameObject panel;
 
         [SerializeField] GameObject regUI;
         [SerializeField] GameObject endUI;
         [SerializeField] GameObject nextButton;
         [SerializeField] Button acceptButton;
 
-        [Header("Spell UI")] [SerializeField] GameObject spellUI;
+        [Header("Spell UI")]
+        [SerializeField] GameObject spellUI;
         [SerializeField] SpellUI spellUIIcon;
         [SerializeField] TextMeshProUGUI spellText;
 
-        [Header("Discard UI")] [SerializeField]
-        GameObject discardSpellUI;
+        [Header("Relic UI")]
+        [SerializeField] GameObject relicUI;
+        [SerializeField] RelicSelector relicSelector;
+        
+        [Header("Discard UI")]
+        [SerializeField] GameObject discardSpellUI;
 
         [SerializeField] Transform discardSpellUIContainer;
         [SerializeField] Button discardSpellButton;
 
-        [Header("Stats")] [SerializeField] TextMeshProUGUI statsText;
+        [Header("Stats")]
+        [SerializeField] TextMeshProUGUI statsText;
 
         PlayerController _player;
         Spell _rewardSpell;
 
         [FormerlySerializedAs("OnPanelClose")]
         [Header("Unity Events")] // I don't like Unity Events that much, but they are convenient from time to time.
-        [SerializeField]
-        UnityEvent onPanelClose;
+        [SerializeField] UnityEvent onPanelClose;
 
         // Temporary stat collectors
         double _timeSpent;
@@ -46,6 +54,7 @@ namespace CMPM.UI {
 
         void Awake() {
             // Cache player reference
+            // Unfortunately can't just ask GameManager for it since GameManager might not have it yet if we get unlucky w/ load order
             _player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
         }
 
@@ -129,8 +138,9 @@ namespace CMPM.UI {
             nextButton.SetActive(true);
             acceptButton.gameObject.SetActive(true);
             spellUI.SetActive(true);
+            relicUI.SetActive(false);
             discardSpellUI.SetActive(false);
-
+            
             // Pick and display one random spell
             _rewardSpell ??= SpellBuilder.MakeRandomSpell(_player, 3);
             spellUIIcon.SetSpell(_rewardSpell);
@@ -140,6 +150,20 @@ namespace CMPM.UI {
 
             // Wire up the accept button
             acceptButton.onClick.AddListener(OnAcceptClicked);
+            
+            
+            // Wave isn't updated until the Enemy Spawner starts spawning.
+            int wave = GameManager.Instance.CurrentWave;
+            if (wave % 3 != 0) return;
+
+            BitArray set = _player.RelicOwnership;
+            Relic[] relics = RelicBuilder.CreateRelics(set, 3, out BitArray newSet);
+            if (relics.Length == 0) return;
+            relicUI.SetActive(true);
+            relicSelector.Set(relics, (r) => {
+                relicUI.SetActive(false);
+                _player.AddRelic(r);
+            });
         }
 
         void ShowDiscardMenu() {

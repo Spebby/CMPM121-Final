@@ -1,6 +1,7 @@
 [
     {
         "name": "Green Gem",
+        "description": "Looks edible.",
         "sprite": 0,
         "precondition": {
             "description": "Whenever you take damage",
@@ -14,6 +15,7 @@
     },
     {
         "name": "Jade Elephant",
+        "description": "Most likely not edible.",
         "sprite": 1,
         "precondition": {
             "description": "When you don't move for 3 seconds",
@@ -29,6 +31,7 @@
     },
     {
         "name": "Golden Mask",
+        "description": "May bite if eaten.",
         "sprite": 2,
         "precondition": {
             "description": "When you take damage",
@@ -43,6 +46,7 @@
     },
     {
         "name": "Cursed Scroll",
+        "Description": "May cut up your throat on the way down.",
         "sprite": 3,
         "precondition": {
             "description": "When you kill an enemy",
@@ -56,9 +60,10 @@
     },
 	{
 		"name": "Fungus",
+        "Description": "Could taste good.",
 		"sprite": 16,
 		"precondition": {
-			"description": "Every 2-4 seconds".
+			"description": "Every 2-4 seconds",
 			"type": "timer",
 			"range": {
 				"min": 2,

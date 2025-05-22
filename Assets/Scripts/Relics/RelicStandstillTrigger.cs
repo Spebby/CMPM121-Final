@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using CMPM.Core;
 using CMPM.Utils;
@@ -19,13 +20,14 @@ namespace CMPM.Relics {
         }
 
         // Attempt to run the coroutine. If one is already running, then restart the counter.
-        public override void OnTrigger() {
+        public override void OnTrigger(Action callback) {
             if (Runner != null) {
                 CoroutineManager.Instance.StopCoroutine(Runner);
             }
 
             float time = WaitDuration.Evaluate(GetRPNVariables());
             Runner = CoroutineManager.Instance.StartCoroutine(WaitThenTrigger(time));
+            callback?.Invoke();
         }
 
         public override bool Evaluate() {

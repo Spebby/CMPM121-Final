@@ -6,8 +6,8 @@ using CMPM.Movement;
 using UnityEngine;
 
 
-namespace CMPM.AI.BehaviorTree.Actions {
-    public class HealIfPossible : BehaviorTree {
+namespace CMPM.AI.BehaviourTree.Actions {
+    public class HealIfPossible : BehaviourTree {
         public HealIfPossible() : base() { }
 
         public override Result Run() {
@@ -31,7 +31,7 @@ namespace CMPM.AI.BehaviorTree.Actions {
             return success ? Result.SUCCESS : Result.FAILURE;
         }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new HealIfPossible();
         }
     }

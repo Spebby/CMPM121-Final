@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 
-namespace CMPM.AI.BehaviorTree {
+namespace CMPM.AI.BehaviourTree {
     public class Selector : InteriorNode {
         public override Result Run() {
             if (CurrentChild >= Children.Count) {
@@ -28,9 +28,9 @@ namespace CMPM.AI.BehaviorTree {
             return Result.IN_PROGRESS;
         }
 
-        public Selector(IEnumerable<BehaviorTree> children) : base(children) { }
+        public Selector(IEnumerable<BehaviourTree> children) : base(children) { }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new Selector(CopyChildren());
         }
     }

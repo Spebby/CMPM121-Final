@@ -4,8 +4,8 @@ using CMPM.Movement;
 using UnityEngine;
 
 
-namespace CMPM.AI.BehaviorTree.Actions {
-    public class MoveToPlayer : BehaviorTree {
+namespace CMPM.AI.BehaviourTree.Actions {
+    public class MoveToPlayer : BehaviourTree {
         #region Readonlys
         readonly float _arrivedDistance;
         #endregion
@@ -28,7 +28,7 @@ namespace CMPM.AI.BehaviorTree.Actions {
             // "can be blocked" check if an blocking enemy is infront of them ?
             
             // Original logic was skeletons and warlocks. For now just supports can be blocked.
-            if (Agent.GetComponent<EnemyController>().type == BehaviorType.Support) {
+            if (Agent.GetComponent<EnemyController>().type == BehaviourType.Support) {
                 List<GameObject> nearby = GameManager.Instance.GetEnemiesInRange(Agent.transform.position, 8f);
                 // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
                 foreach (GameObject enemy in nearby) {
@@ -48,7 +48,7 @@ namespace CMPM.AI.BehaviorTree.Actions {
             return Result.IN_PROGRESS;
         }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new MoveToPlayer(_arrivedDistance);
         }
     }

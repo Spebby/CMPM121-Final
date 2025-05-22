@@ -1,0 +1,96 @@
+using System.Collections;
+using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
+
+
+namespace CMPM.UI {
+    public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
+        [FormerlySerializedAs("Body")] [Header("Components")] 
+        public GameObject body;
+        public TMP_Text title;
+        public TMP_Text description;
+
+        
+        public bool IsHovering { get;  private set; }
+        public bool IsTriggerHovered { get;  private set; }
+
+
+        void Start() {
+            gameObject.SetActive(false);
+        }
+
+        protected virtual void Show(Vector3 pos, string title, string desc) {
+            this.title.text       = title;
+            this.description.text = desc;
+
+            Vector2 offset = new(10f, -10f);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                body.transform.parent as RectTransform,
+                pos + (Vector3)offset,
+                null, // assumes Screen Space - Overlay canvas
+                out Vector2 anchoredPosition
+            );
+
+            RectTransform rect = body.GetComponent<RectTransform>();
+            rect.anchoredPosition = anchoredPosition;
+
+            gameObject.SetActive(true);
+            transform.position = pos;
+            ClampToScreen(body, rect);
+        }
+        
+        protected virtual void Hide() {
+            gameObject.SetActive(false);
+        }
+
+        public void OnTriggerHoverChanged(bool hovering, string title, string desc) {
+            IsTriggerHovered = hovering;
+            if (hovering) {
+                Show(Input.mousePosition, title, desc);
+            } else {
+                StartCoroutine(DelayedHide());
+            }
+        }
+        
+        public void OnPointerEnter(PointerEventData eventData) {
+            IsHovering = true;
+        }
+
+        public void OnPointerExit(PointerEventData eventData) {
+            IsHovering = false;
+            StartCoroutine(DelayedHide());
+        }
+
+        IEnumerator DelayedHide() {
+            yield return new WaitForSeconds(0.1f);
+            if (!IsHovering && !IsTriggerHovered) {
+                Hide();
+            }
+        }
+
+        static void ClampToScreen(GameObject body, RectTransform rect) {
+            Vector3[]     corners     = new Vector3[4];
+            rect.GetWorldCorners(corners);
+
+            float screenWidth  = Screen.width;
+            float screenHeight = Screen.height;
+
+            Vector3 pos = body.transform.position;
+
+            float width  = corners[2].x - corners[0].x;
+            float height = corners[2].y - corners[0].y;
+
+            // Clamp right and top edges
+            if (pos.x + width > screenWidth)   pos.x   = screenWidth - width;
+            if (pos.y + height > screenHeight) pos.y = screenHeight - height;
+
+            // Clamp left and bottom edges
+            if (pos.x < 0) pos.x = 0;
+            if (pos.y < 0) pos.y = 0;
+
+            body.transform.position = pos;
+        } 
+    }
+}

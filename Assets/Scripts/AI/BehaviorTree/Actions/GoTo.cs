@@ -2,8 +2,8 @@ using CMPM.Movement;
 using UnityEngine;
 
 
-namespace CMPM.AI.BehaviorTree.Actions {
-    public class GoTo : BehaviorTree {
+namespace CMPM.AI.BehaviourTree.Actions {
+    public class GoTo : BehaviourTree {
         #region Readonlys
         readonly Transform _target;
         readonly float _arrivedDistance;
@@ -25,7 +25,7 @@ namespace CMPM.AI.BehaviorTree.Actions {
             return Result.IN_PROGRESS;
         }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new GoTo(_target, _arrivedDistance);
         }
     }

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 
 
-namespace CMPM.AI.BehaviorTree {
+namespace CMPM.AI.BehaviourTree {
     public class Sequence : InteriorNode {
-        public Sequence(IEnumerable<BehaviorTree> children) : base(children) { }
+        public Sequence(IEnumerable<BehaviourTree> children) : base(children) { }
 
         public override Result Run() {
             if (CurrentChild >= Children.Count) {
@@ -29,7 +29,7 @@ namespace CMPM.AI.BehaviorTree {
             return Result.IN_PROGRESS;
         }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new Sequence(CopyChildren());
         }
     }

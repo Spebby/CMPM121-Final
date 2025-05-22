@@ -2,26 +2,26 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace CMPM.AI.BehaviorTree {
-    public class InteriorNode : BehaviorTree {
+namespace CMPM.AI.BehaviourTree {
+    public class InteriorNode : BehaviourTree {
         #region Protected
-        protected readonly List<BehaviorTree> Children;
+        protected readonly List<BehaviourTree> Children;
         protected int CurrentChild;
         #endregion
 
-        public InteriorNode(IEnumerable<BehaviorTree> children) : base() {
-            Children = new List<BehaviorTree>();
+        public InteriorNode(IEnumerable<BehaviourTree> children) : base() {
+            Children = new List<BehaviourTree>();
             Children.AddRange(children);
             CurrentChild = 0;
         }
 
-        public List<BehaviorTree> CopyChildren() {
+        public List<BehaviourTree> CopyChildren() {
             return Children.Select(c => c.Copy()).ToList();
         }
 
-        public override IEnumerable<BehaviorTree> AllNodes() {
+        public override IEnumerable<BehaviourTree> AllNodes() {
             yield return this;
-            foreach (BehaviorTree n in Children.SelectMany(c => c.AllNodes())) {
+            foreach (BehaviourTree n in Children.SelectMany(c => c.AllNodes())) {
                 yield return n;
             }
         }

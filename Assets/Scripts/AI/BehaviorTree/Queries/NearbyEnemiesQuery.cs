@@ -3,8 +3,8 @@ using CMPM.Core;
 using UnityEngine;
 
 
-namespace CMPM.AI.BehaviorTree.Queries {
-    public class NearbyEnemiesQuery : BehaviorTree {
+namespace CMPM.AI.BehaviourTree.Queries {
+    public class NearbyEnemiesQuery : BehaviourTree {
         #region Readonlys
         readonly int _count;
         readonly float _distance;
@@ -20,7 +20,7 @@ namespace CMPM.AI.BehaviorTree.Queries {
             return nearby.Count >= _count ? Result.SUCCESS : Result.FAILURE;
         }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new NearbyEnemiesQuery(_count, _distance);
         }
     }

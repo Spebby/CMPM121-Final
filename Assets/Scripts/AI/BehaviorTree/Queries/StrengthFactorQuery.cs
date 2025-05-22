@@ -4,8 +4,8 @@ using CMPM.Movement;
 using UnityEngine;
 
 
-namespace CMPM.AI.BehaviorTree.Queries {
-    public class StrengthFactorQuery : BehaviorTree {
+namespace CMPM.AI.BehaviourTree.Queries {
+    public class StrengthFactorQuery : BehaviourTree {
         #region Readonlys
         readonly float _minStrengthFactor;
         #endregion
@@ -22,7 +22,7 @@ namespace CMPM.AI.BehaviorTree.Queries {
                 : Result.FAILURE;
         }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new StrengthFactorQuery(_minStrengthFactor);
         }
     }

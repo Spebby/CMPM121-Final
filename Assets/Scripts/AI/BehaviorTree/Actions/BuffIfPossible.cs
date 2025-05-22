@@ -5,8 +5,8 @@ using CMPM.Movement;
 using UnityEngine;
 
 
-namespace CMPM.AI.BehaviorTree.Actions {
-    public class BuffIfPossible : BehaviorTree {
+namespace CMPM.AI.BehaviourTree.Actions {
+    public class BuffIfPossible : BehaviourTree {
         public BuffIfPossible() : base() { }
 
         public override Result Run() {
@@ -29,7 +29,7 @@ namespace CMPM.AI.BehaviorTree.Actions {
             return success ? Result.SUCCESS : Result.FAILURE;
         }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new BuffIfPossible();
         }
     }

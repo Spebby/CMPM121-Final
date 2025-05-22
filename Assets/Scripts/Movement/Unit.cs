@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,7 +9,6 @@ namespace CMPM.Movement {
         public float speed;
 
         void FixedUpdate() {
-            movement = movement.normalized * speed;
             Move(new Vector2(movement.x, 0) * Time.fixedDeltaTime);
             Move(new Vector2(0, movement.y) * Time.fixedDeltaTime);
         }

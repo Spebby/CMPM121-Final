@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using CMPM.AI;
 using CMPM.Core;
 using CMPM.DamageSystem;
+using CMPM.Enemies;
 using CMPM.Movement;
 using CMPM.UI;
 using CMPM.Utils;
@@ -15,6 +17,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 
@@ -24,7 +27,7 @@ using Random = UnityEngine.Random;
 namespace CMPM.Level {
     public class EnemySpawner : MonoBehaviour {
         public GameObject button;
-        public GameObject enemy;
+        [FormerlySerializedAs("enemy")] public GameObject enemyPrefab;
         public SpawnPoint[] spawnPoints;
 
         // We may be able to get away w/ making this a static member for easier usage for parser,
@@ -52,43 +55,6 @@ namespace CMPM.Level {
                 msController.spawner = this;
                 msController.SetLevel(level.name);
             }
-        }
-
-        void LoadEnemiesJson(in TextAsset enemyText) {
-            enemyTypes = new SerializedDictionary<string, Enemy>();
-
-            foreach (JToken _ in JToken.Parse(enemyText.text)) {
-                Enemy e = _.ToObject<Enemy>();
-                enemyTypes[e.name] = e;
-            }
-        }
-
-        // I wrote some JsonConverters to make the parsing logic less cluttered.
-        // I may change more but for the moment this is acceptable.
-        void LoadLevelsJson(in TextAsset levelText, in SerializedDictionary<string, Enemy> enemies) {
-            // Set up a custom JsonConverter that includes the enemies dictionary
-            JsonSerializerSettings settings = new() {
-                Converters = new List<JsonConverter> {
-                    new SpawnEnemyParser(enemies)
-                }
-            };
-
-            levels = JsonConvert.DeserializeObject<List<Level>>(levelText.text, settings);
-            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator <-- Resharper is wrong
-            foreach (Level level in levels) {
-                foreach (ref Spawn spawn in level.spawns.AsSpan()) {
-                    ref Enemy fallback = ref spawn.enemy;
-                    FormulaFallback(ref spawn.HPFormula, fallback.baseHP);
-                    FormulaFallback(ref spawn.DamageFormula, fallback.damage);
-                    FormulaFallback(ref spawn.SpeedFormula, fallback.speed);
-                    spawn.sequence ??= new[] { 1 };
-                }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void FormulaFallback(ref RPNString str, int fallback) {
-            str = string.IsNullOrEmpty(str) ? new RPNString(Convert.ToString(fallback)) : str;
         }
 
         public void StartLevel(string levelName) {
@@ -176,9 +142,10 @@ namespace CMPM.Level {
                                                         { { "wave", wave }, { "base", spawn.enemy.speed } })
             };
 
-            //this was provided by Markus Eger's Lecture 5: Design Patterns in pseudocode
+            // Provided by Markus Eger's Lecture 5: Design Patterns in pseudocode
             while (n < count) {
                 int required = sequence![sequenceIndex];
+                // ++x does have a meaningful difference against x++ in this case. Prefix means that we increment then get, suffix means get then increment.
                 sequenceIndex = ++sequenceIndex % sequence.Length;
                 for (int i = 0; i < required; i++) {
                     if (n == count) {
@@ -198,19 +165,76 @@ namespace CMPM.Level {
             Vector2    offset = Random.insideUnitCircle * 1.8f;
 
             Vector3    initialPosition = p.transform.position + new Vector3(offset.x, offset.y, 0);
-            GameObject newEnemy        = Instantiate(enemy, initialPosition, Quaternion.identity);
+            GameObject newEnemy        = Instantiate(enemyPrefab, initialPosition, Quaternion.identity);
 
-            newEnemy.GetComponent<SpriteRenderer>().sprite =
-                GameManager.Instance.EnemySpriteManager.Get(spawn.enemy.sprite);
+            Enemy subject = spawn.enemy;
+            newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.EnemySpriteManager.Get(subject.sprite);
             EnemyController en = newEnemy.GetComponent<EnemyController>();
-            en.HP    = new Hittable(packet.HP, Hittable.Team.MONSTERS, newEnemy);
-            en.speed = packet.Speed;
+
+            switch (subject.type) {
+                case BehaviourType.Support:
+                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.cooldown, subject.range, subject.damage, subject.strengthFactor));
+                    en.AddAction(EnemyActionTypes.Heal, new EnemyHeal(10, 5, 15));
+                    en.AddAction(EnemyActionTypes.Buff, new EnemyBuff(8, 5, 3, 8));
+                    en.AddAction(EnemyActionTypes.Permabuff, new EnemyBuff(20, 5, 1));
+                    en.AddEffect("noheal", 1);
+                    break;
+                case BehaviourType.Swarmer:
+                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.cooldown, subject.range, subject.damage, subject.strengthFactor));
+                    break;
+                default:
+                    throw new NotImplementedException($"Behaviour Type {subject.type} not implemented!");
+            }
+
+            en.type = subject.type;
+            en.Behaviour = BehaviourBuilder.MakeTree(en);
+            en.HP        = new Hittable(packet.HP, Hittable.Team.MONSTERS, newEnemy);
+            en.speed     = packet.Speed;
 
             // I don't have the time to refactor the enemy rn to make the damage amount be different
             GameManager.Instance.AddEnemy(newEnemy);
         }
-    }
+        
+        
+        #region JSON
+        void LoadEnemiesJson(in TextAsset enemyText) {
+            enemyTypes = new SerializedDictionary<string, Enemy>();
 
+            foreach (JToken _ in JToken.Parse(enemyText.text)) {
+                Enemy e = _.ToObject<Enemy>();
+                enemyTypes[e.name] = e;
+            }
+        }
+
+        // I wrote some JsonConverters to make the parsing logic less cluttered.
+        // I may change more but for the moment this is acceptable.
+        void LoadLevelsJson(in TextAsset levelText, in SerializedDictionary<string, Enemy> enemies) {
+            // Set up a custom JsonConverter that includes the enemies dictionary
+            JsonSerializerSettings settings = new() {
+                Converters = new List<JsonConverter> {
+                    new SpawnEnemyParser(enemies)
+                }
+            };
+
+            levels = JsonConvert.DeserializeObject<List<Level>>(levelText.text, settings);
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator <-- Resharper is wrong
+            foreach (Level level in levels) {
+                foreach (ref Spawn spawn in level.spawns.AsSpan()) {
+                    ref Enemy fallback = ref spawn.enemy;
+                    FormulaFallback(ref spawn.HPFormula, fallback.baseHP);
+                    FormulaFallback(ref spawn.DamageFormula, fallback.damage);
+                    FormulaFallback(ref spawn.SpeedFormula, fallback.speed);
+                    spawn.sequence ??= new[] { 1 };
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void FormulaFallback(ref RPNString str, int fallback) {
+            str = string.IsNullOrEmpty(str) ? new RPNString(Convert.ToString(fallback)) : str;
+        }
+    }
+    
     [Serializable]
     public struct Enemy {
         public string name;
@@ -218,6 +242,10 @@ namespace CMPM.Level {
         [JsonProperty("hp")] public int baseHP;
         public int speed;
         public int damage;
+        public float cooldown;
+        public float range;
+        public float strengthFactor;
+        [JsonProperty("behaviour")] public BehaviourType type;
     }
 
     [Serializable]
@@ -259,4 +287,5 @@ namespace CMPM.Level {
         public int Damage;
         public int Speed;
     }
+    #endregion
 }

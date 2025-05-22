@@ -6,8 +6,8 @@ using CMPM.Movement;
 using UnityEngine;
 
 
-namespace CMPM.AI.BehaviorTree.Actions {
-    public class GoToClosestSupport : BehaviorTree {
+namespace CMPM.AI.BehaviourTree.Actions {
+    public class GoToClosestSupport : BehaviourTree {
         #region Readonlys
         readonly Transform _target;
         readonly float _arrivedDistance;
@@ -37,9 +37,9 @@ namespace CMPM.AI.BehaviorTree.Actions {
                 ApplyAction(Agent.GetAction(EnemyActionTypes.Heal));
 
                 EnemyController oEnemy     = closestEnemy.GetComponent<EnemyController>();
-                BehaviorType    type       = Agent.type;
-                int             order      = Agent.HP.HP  + (type == BehaviorType.Support ? 10000 : 0);
-                int             otherOrder = oEnemy.HP.HP + (type == BehaviorType.Support ? 10000 : 0);
+                BehaviourType    type       = Agent.type;
+                int             order      = Agent.HP.HP  + (type == BehaviourType.Support ? 10000 : 0);
+                int             otherOrder = oEnemy.HP.HP + (type == BehaviourType.Support ? 10000 : 0);
                 
                 //playerDirection is the distance from the player to the enemy, now we need to check the distance between the target and the player
                 Vector3 playerToTarget = GameManager.Instance.Player.transform.position - target;
@@ -81,7 +81,7 @@ namespace CMPM.AI.BehaviorTree.Actions {
             }
         }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new GoToClosestSupport(_arrivedDistance);
         }
     }

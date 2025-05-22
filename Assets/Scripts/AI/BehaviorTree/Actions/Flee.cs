@@ -3,8 +3,8 @@ using CMPM.Movement;
 using UnityEngine;
 
 
-namespace CMPM.AI.BehaviorTree.Actions {
-    public class Flee : BehaviorTree {
+namespace CMPM.AI.BehaviourTree.Actions {
+    public class Flee : BehaviourTree {
         #region Readonlys
         readonly float _escapedDistance;
         #endregion
@@ -26,7 +26,7 @@ namespace CMPM.AI.BehaviorTree.Actions {
             return Result.IN_PROGRESS;
         }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new Flee(_escapedDistance);
         }
     }

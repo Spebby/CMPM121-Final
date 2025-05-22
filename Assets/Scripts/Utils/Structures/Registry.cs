@@ -6,6 +6,7 @@ using System.Linq;
 namespace CMPM.Utils.Structures {
     public abstract class Registry<T> {
         protected static readonly Dictionary<int, T> REGISTRY = new();
+        protected static readonly Random RNG = new();
 
         public static void Register(int hash, T val) {
             REGISTRY[hash] = val;
@@ -20,11 +21,13 @@ namespace CMPM.Utils.Structures {
         }
 
         public static int GetRandomHash() {
-            return REGISTRY.Keys.ElementAt(new Random().Next(REGISTRY.Count));
+            return REGISTRY.Keys.ElementAt(RNG.Next(REGISTRY.Count));
         }
 
         public static Dictionary<int, T>.KeyCollection GetHashes() {
             return REGISTRY.Keys;
         }
+
+        public static int Count => REGISTRY.Count;
     }
 }

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 
 
-namespace CMPM.AI.BehaviorTree {
+namespace CMPM.AI.BehaviourTree {
     public class LockedSequence : InteriorNode {
-        public LockedSequence(IEnumerable<BehaviorTree> children) : base(children) { }
+        public LockedSequence(IEnumerable<BehaviourTree> children) : base(children) { }
         bool _locked;
 
         public void Lock() {
@@ -33,7 +33,7 @@ namespace CMPM.AI.BehaviorTree {
             return Result.IN_PROGRESS;
         }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new LockedSequence(CopyChildren());
         }
     }

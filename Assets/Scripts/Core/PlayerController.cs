@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CMPM.DamageSystem;
@@ -23,12 +24,10 @@ namespace CMPM.Core {
 
         #region UI
         // ReSharper disable once StringLiteralTypo
-        [SerializeField] [FormerlySerializedAs("healthui")]
-        HealthBar healthUI;
+        [SerializeField] [FormerlySerializedAs("healthui")] HealthBar healthUI;
 
         // ReSharper disable once StringLiteralTypo
-        [SerializeField] [FormerlySerializedAs("manaui")]
-        ManaBar manaUI;
+        [SerializeField] [FormerlySerializedAs("manaui")] ManaBar manaUI;
 
         // ReSharper disable once StringLiteralTypo
         [SerializeField] SpellUIContainer spellUI;
@@ -41,10 +40,11 @@ namespace CMPM.Core {
         #endregion
 
         void Start() {
-            unit                        = GetComponent<Unit>();
-            GameManager.Instance.Player = gameObject;
+            unit                                  = GetComponent<Unit>();
+            GameManager.Instance.Player           = gameObject;
             GameManager.Instance.PlayerController = this;
-            HP                          = new Hittable(100, Hittable.Team.PLAYER, gameObject);
+            HP                                    = new Hittable(100, Hittable.Team.PLAYER, gameObject);
+            RelicOwnership                       = new BitArray(RelicRegistry.Count);
         }
 
         public void StartLevel() {
@@ -141,10 +141,12 @@ namespace CMPM.Core {
         #endregion
 
         #region Relics
-        readonly public List<Relic> Relics;
+        public readonly List<Relic> Relics = new();
+        public BitArray RelicOwnership { get; private set; }
         
         public void AddRelic(Relic relic) {
             Relics.Add(relic);
+            RelicOwnership.Set(RelicRegistry.GetIndexFromRelic(relic), true);
             EventBus.Instance.DoRelicPickup(relic);
         } 
         #endregion

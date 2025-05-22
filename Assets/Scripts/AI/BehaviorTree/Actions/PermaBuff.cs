@@ -3,8 +3,8 @@ using CMPM.Enemies;
 using UnityEngine;
 
 
-namespace CMPM.AI.BehaviorTree.Actions {
-    public class PermaBuff : BehaviorTree {
+namespace CMPM.AI.BehaviourTree.Actions {
+    public class PermaBuff : BehaviourTree {
         public PermaBuff() : base() { }
 
         public override Result Run() {
@@ -16,7 +16,7 @@ namespace CMPM.AI.BehaviorTree.Actions {
             return success ? Result.SUCCESS : Result.FAILURE;
         }
 
-        public override BehaviorTree Copy() {
+        public override BehaviourTree Copy() {
             return new PermaBuff();
         }
     }
