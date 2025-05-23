@@ -33,6 +33,17 @@
        "behaviour": "support"
    },
    {
+       "name": "dryad",
+       "sprite": 25,
+       "hp": 35,
+       "speed": 9, 
+       "damage": 10,
+       "cooldown": 5,
+       "range": 6,
+       "strengthFactor": 0.5,
+       "behaviour": "support"
+   }, 
+   {
 		"name": "goat",
 		"sprite": 26,
 		"hp": 40,

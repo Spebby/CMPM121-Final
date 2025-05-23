@@ -8,6 +8,7 @@ using CMPM.Spells;
 using CMPM.UI;
 using CMPM.Utils;
 using CMPM.Utils.Structures;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -18,7 +19,38 @@ namespace CMPM.Core {
     public class PlayerController : MonoBehaviour {
         // ReSharper disable once InconsistentNaming
         public Hittable HP;
+        [SerializeField] SpriteRenderer spriteRenderer;
         SpellCaster _caster;
+
+        public readonly struct PlayerClass {
+            public readonly Type @Class;
+            public readonly uint Sprite;
+            public readonly RPNString Health;
+            public readonly RPNString MaxMana;
+            public readonly RPNString ManaRegen;
+            public readonly RPNString Spellpower;
+            public readonly RPNString Speed;
+
+            public PlayerClass(Type type, uint sprite, RPNString health, RPNString maxMana,
+                               RPNString manaRegen, RPNString spellpower, RPNString speed) {
+                @Class     = type;
+                Sprite     = sprite;
+                Health     = health;
+                MaxMana    = maxMana;
+                ManaRegen  = manaRegen;
+                Spellpower = spellpower;
+                Speed      = speed;
+            }
+
+            [JsonConverter(typeof(PlayerClassTypeParser))]
+            public enum Type {
+                Mage,
+                Warlock,
+                Battlemage
+            }
+        }
+        
+        public PlayerClass @class { get; private set; }
         public int Speed { get; private set; }
         [SerializeField] Unit unit;
 
@@ -37,6 +69,11 @@ namespace CMPM.Core {
         public bool IsMoving() => unit.movement.magnitude > Mathf.Epsilon;
         public void ModifySpeed(int c) => Speed = Mathf.Max(Speed + c, 1);
         public static implicit operator SpellCaster(PlayerController player) => player._caster;
+        public void UpdateClass(in PlayerClass c) {
+            @class                = c;
+            spriteRenderer.sprite = GameManager.Instance.PlayerSpriteManager.Get(@class.Sprite);
+            SetPlayerScale(GameManager.Instance.CurrentWave);
+        }
         #endregion
 
         void Start() {
@@ -44,7 +81,7 @@ namespace CMPM.Core {
             GameManager.Instance.Player           = gameObject;
             GameManager.Instance.PlayerController = this;
             HP                                    = new Hittable(100, Hittable.Team.PLAYER, gameObject);
-            RelicOwnership                       = new BitArray(RelicRegistry.Count);
+            RelicOwnership                        = new BitArray(RelicRegistry.Count);
         }
 
         public void StartLevel() {
@@ -67,14 +104,13 @@ namespace CMPM.Core {
         }
 
         void SetPlayerScale(int wave) {
-            HP.UpdateHPCap(RPN.Evaluate("95 wave 5 * +", new SerializedDictionary<string, int> { { "wave", wave } }));
-            _caster.MaxMana =
-                RPN.Evaluate("90 wave 10 * +", new SerializedDictionary<string, int> { { "wave", wave } });
-            _caster.ManaRegen =
-                RPN.Evaluate("10 wave +", new SerializedDictionary<string, int> { { "wave", wave } });
-            _caster.ModifySpellpower(
-                RPN.Evaluate("wave 10 *", new SerializedDictionary<string, int> { { "wave", wave } }));
-            Speed = 5;
+            if (_caster == null) return;
+            SerializedDictionary<string, int> table = new() { { "wave", wave } };
+            HP.UpdateHPCap(@class.Health.Evaluate(table));
+            _caster.MaxMana   = @class.MaxMana.Evaluate(table);
+            _caster.ManaRegen = @class.ManaRegen.Evaluate(table);
+            _caster.ModifySpellpower(@class.Spellpower.Evaluate(table));
+            Speed = @class.Speed.Evaluate(table);
         }
 
         #region Spells

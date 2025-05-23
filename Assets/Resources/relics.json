@@ -46,7 +46,7 @@
     },
     {
         "name": "Cursed Scroll",
-        "Description": "May cut up your throat on the way down.",
+        "description": "May cut up your throat on the way down.",
         "sprite": 3,
         "precondition": {
             "description": "When you kill an enemy",
@@ -60,7 +60,7 @@
     },
 	{
 		"name": "Fungus",
-        "Description": "Could taste good.",
+        "description": "Could taste good.",
 		"sprite": 16,
 		"precondition": {
 			"description": "Every 2-4 seconds",

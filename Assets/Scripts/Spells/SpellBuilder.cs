@@ -46,7 +46,7 @@ namespace CMPM.Spells {
         }
 
         public static Spell MakeRandomSpell(SpellCaster owner, int maxModifiers = 3) {
-            return BuildSpell(SpellRegistry.GetRandomHash(), owner, maxModifiers);
+            return BuildSpell(SpellRegistry.GetRandomKey(), owner, maxModifiers);
         }
 
         public static Spell BuildSpell(string spellName, SpellCaster owner, int maxModifiers = 3) {
@@ -62,7 +62,7 @@ namespace CMPM.Spells {
             if (maxModifiers > 0) {
                 modifiers = new int[Random.Range(0, maxModifiers)];
                 for (int i = 0; i < modifiers.Length; ++i) {
-                    modifiers[i] = SpellModifierRegistry.GetRandomHash();
+                    modifiers[i] = SpellModifierRegistry.GetRandomKey();
                 }
             }
 

@@ -18,7 +18,6 @@ namespace CMPM.UI {
         public void OnRelicPickup(Relic r) {
             // make a new Relic UI representation
             GameObject rui = Instantiate(relicUIPrefab, transform);
-            rui.transform.parent = transform;
             //rui.transform.localPosition = new Vector3(-450 + 40 * (player.Relics.Count - 1), 0, 0);
             RelicUI ruic = rui.GetComponent<RelicUI>();
             ruic.Init(r);

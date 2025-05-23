@@ -13,7 +13,10 @@ using UnityEngine;
 namespace CMPM.Relics {
     public static class RelicBuilder {
         static RelicBuilder() {
-            ParseRelicsJson(Resources.Load<TextAsset>("relics"));
+            TextAsset json = Resources.Load<TextAsset>("relics");
+            foreach (JToken token in JArray.Parse(json.text)) {
+                RelicRegistry.Register(token.ToObject<RelicData>());
+            }
         }
         
         public static Relic[] CreateRelics(BitArray flag, int count, out BitArray updatedFlag) {
@@ -35,9 +38,7 @@ namespace CMPM.Relics {
         }
 
         static void ParseRelicsJson(TextAsset relicsJson) {
-            foreach (JProperty _ in JObject.Parse(relicsJson.text).Properties()) {
-                RelicRegistry.Register(_.Value.ToObject<RelicData>());
-            }
+
         }
     }
 

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -7,6 +8,8 @@ using CMPM.DamageSystem;
 using CMPM.Relics;
 using static CMPM.Core.GameManager.GameState;
 using CMPM.Spells;
+using CMPM.Utils;
+using Newtonsoft.Json;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
@@ -17,11 +20,16 @@ namespace CMPM.UI {
         [Header("Panels & Buttons")]
         [SerializeField] GameObject panel;
 
-        [SerializeField] GameObject regUI;
         [SerializeField] GameObject endUI;
         [SerializeField] GameObject nextButton;
         [SerializeField] Button acceptButton;
 
+        [Header("Main Menu")]
+        [SerializeField] GameObject classSelector;
+
+        [SerializeField] GameObject classProfilePrefab;
+        [SerializeField] GameObject difficultySelector;
+        
         [Header("Spell UI")]
         [SerializeField] GameObject spellUI;
         [SerializeField] SpellUI spellUIIcon;
@@ -30,6 +38,8 @@ namespace CMPM.UI {
         [Header("Relic UI")]
         [SerializeField] GameObject relicUI;
         [SerializeField] RelicSelector relicSelector;
+        [SerializeField] int relicRewardFrequency = 3;
+        [SerializeField] int relicRewardAmount = 3;
         
         [Header("Discard UI")]
         [SerializeField] GameObject discardSpellUI;
@@ -56,6 +66,36 @@ namespace CMPM.UI {
             // Cache player reference
             // Unfortunately can't just ask GameManager for it since GameManager might not have it yet if we get unlucky w/ load order
             _player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+                
+            // This doesn't really belong here, but I can't think of a better spot to put it...
+            TextAsset json = Resources.Load<TextAsset>("classes");
+            Dictionary<PlayerController.PlayerClass.Type, PlayerController.PlayerClass> classMap =
+                JsonConvert
+                   .DeserializeObject<Dictionary<PlayerController.PlayerClass.Type, PlayerController.PlayerClass>>(
+                        json.text, new PlayerClassMapParser());
+            foreach (KeyValuePair<PlayerController.PlayerClass.Type, PlayerController.PlayerClass> kvp in classMap) {
+                ClassRegistry.Register(kvp.Key, kvp.Value);
+            }
+        }
+
+        void Start() {
+            Dictionary<PlayerController.PlayerClass.Type, PlayerController.PlayerClass>.KeyCollection classes = ClassRegistry.GetHashes();
+            foreach (PlayerController.PlayerClass.Type key in classes) {
+                PlayerController.PlayerClass c        = ClassRegistry.Get(key);
+                GameObject                   _        = Instantiate(classProfilePrefab, classSelector.transform);
+                ClassSelector                selector = _.GetComponent<ClassSelector>();
+                Button                       button   = _.GetComponent<Button>();
+                selector.Init(c);
+                
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => {
+                    GameManager.Instance.PlayerController.UpdateClass(c);
+                    classSelector.SetActive(false);
+                    difficultySelector.SetActive(true);
+                });
+            }
+            
+            HandleGameStateChanged(PREGAME);
         }
 
         void OnEnable() {
@@ -109,17 +149,23 @@ namespace CMPM.UI {
         #region Screens
         void ShowStartScreen() {
             panel.SetActive(true);
-            regUI.SetActive(true);
+            
+            classSelector.SetActive(true);
+            difficultySelector.SetActive(false);
+            
             endUI.SetActive(false);
             nextButton.SetActive(false);
+            acceptButton.gameObject.SetActive(false);
             spellUI.SetActive(false);
+            relicUI.SetActive(false);
             discardSpellUI.SetActive(false);
             statsText.text = string.Empty;
         }
 
         void ShowLossScreen() {
             panel.SetActive(true);
-            regUI.SetActive(false);
+            classSelector.SetActive(false);
+            difficultySelector.SetActive(false);
             endUI.SetActive(true);
             nextButton.SetActive(false);
             acceptButton.gameObject.SetActive(false);
@@ -133,7 +179,8 @@ namespace CMPM.UI {
 
         void ShowRewardScreen() {
             panel.SetActive(true);
-            regUI.SetActive(false);
+            classSelector.SetActive(false);
+            difficultySelector.SetActive(false);
             endUI.SetActive(true);
             nextButton.SetActive(true);
             acceptButton.gameObject.SetActive(true);
@@ -154,10 +201,10 @@ namespace CMPM.UI {
             
             // Wave isn't updated until the Enemy Spawner starts spawning.
             int wave = GameManager.Instance.CurrentWave;
-            if (wave % 3 != 0) return;
+            if (wave % relicRewardFrequency != 0) return;
 
             BitArray set = _player.RelicOwnership;
-            Relic[] relics = RelicBuilder.CreateRelics(set, 3, out BitArray newSet);
+            Relic[] relics = RelicBuilder.CreateRelics(set, relicRewardAmount, out BitArray newSet);
             if (relics.Length == 0) return;
             relicUI.SetActive(true);
             relicSelector.Set(relics, (r) => {

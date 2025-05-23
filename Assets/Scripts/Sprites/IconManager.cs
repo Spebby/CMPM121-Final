@@ -10,12 +10,8 @@ namespace CMPM.Sprites {
             target.sprite = sprites[which];
         }
 
-        public Sprite Get(int index) {
-            return sprites[index];
-        }
-
-        public int GetCount() {
-            return sprites.Length;
-        }
+        public Sprite Get(uint index) => sprites[index];
+        public Sprite Get(int index) => sprites[index];
+        public int GetCount() => sprites.Length;
     }
 }

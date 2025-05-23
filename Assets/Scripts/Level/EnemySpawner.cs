@@ -19,8 +19,6 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
-
-
 // This is the most imports I've ever had in my life.
 
 
@@ -114,7 +112,7 @@ namespace CMPM.Level {
                 _ = SpawnEnemies(spawn, wave);
             }
 
-            yield return new WaitWhile(() => GameManager.Instance.EnemiesLeft > 0);
+            yield return new WaitWhile(()  => GameManager.Instance.EnemiesLeft > 0);
             if (GameManager.Instance.State != GameManager.GameState.GAMEOVER) {
                 GameManager.Instance.SetState(GameManager.GameState.WAVEEND);
             }
@@ -147,19 +145,20 @@ namespace CMPM.Level {
                 int required = sequence![sequenceIndex];
                 // ++x does have a meaningful difference against x++ in this case. Prefix means that we increment then get, suffix means get then increment.
                 sequenceIndex = ++sequenceIndex % sequence.Length;
-                for (int i = 0; i < required; i++) {
-                    if (n == count) {
-                        break;
-                    }
-
+                for (int i = 0; i < required && n < count; i++, n++) {
                     SpawnEnemy(spawn, ep, validSpawns);
-                    n++;
                 }
 
                 await Task.Delay(delay);
             }
         }
 
+        // TOOD: Get rid of "packet". I don't remember why I seperated things this way and ideally we don't have
+        // multiple structs that provide values for the same thing (Ex packet and spawn both define a "HP"
+        
+        // I think packet was supposed to "simplify" the evaluation process by pre-computing all the RPN stuff.
+        // However there's legitimate reason for someone to want to re-evaluate RPN everytime it's accessed, so
+        // we'll want to do away with pre-computing it methinks.
         void SpawnEnemy(in Spawn spawn, in EnemyPacket packet, in SpawnPoint[] points) {
             SpawnPoint p      = points[Random.Range(0, points.Length)];
             Vector2    offset = Random.insideUnitCircle * 1.8f;
@@ -173,7 +172,7 @@ namespace CMPM.Level {
 
             switch (subject.type) {
                 case BehaviourType.Support:
-                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.cooldown, subject.range, subject.damage, subject.strengthFactor));
+                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.cooldown, subject.range, packet.Damage, subject.strengthFactor));
                     en.AddAction(EnemyActionTypes.Heal, new EnemyHeal(10, 5, 15));
                     en.AddAction(EnemyActionTypes.Buff, new EnemyBuff(8, 5, 3, 8));
                     en.AddAction(EnemyActionTypes.Permabuff, new EnemyBuff(20, 5, 1));
