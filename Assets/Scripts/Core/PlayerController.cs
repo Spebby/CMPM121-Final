@@ -24,6 +24,7 @@ namespace CMPM.Core {
 
         public readonly struct PlayerClass {
             public readonly Type @Class;
+            public readonly string Description;
             public readonly uint Sprite;
             public readonly RPNString Health;
             public readonly RPNString MaxMana;
@@ -31,15 +32,16 @@ namespace CMPM.Core {
             public readonly RPNString Spellpower;
             public readonly RPNString Speed;
 
-            public PlayerClass(Type type, uint sprite, RPNString health, RPNString maxMana,
+            public PlayerClass(Type type, string description, uint sprite, RPNString health, RPNString maxMana,
                                RPNString manaRegen, RPNString spellpower, RPNString speed) {
-                @Class     = type;
-                Sprite     = sprite;
-                Health     = health;
-                MaxMana    = maxMana;
-                ManaRegen  = manaRegen;
-                Spellpower = spellpower;
-                Speed      = speed;
+                @Class      = type;
+                Description = description;
+                Sprite      = sprite;
+                Health      = health;
+                MaxMana     = maxMana;
+                ManaRegen   = manaRegen;
+                Spellpower  = spellpower;
+                Speed       = speed;
             }
 
             [JsonConverter(typeof(PlayerClassTypeParser))]

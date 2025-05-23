@@ -16,14 +16,9 @@ namespace CMPM.UI {
         public bool IsHovering { get;  private set; }
         public bool IsTriggerHovered { get;  private set; }
 
-
-        void Start() {
-            gameObject.SetActive(false);
-        }
-
-        protected virtual void Show(Vector3 pos, string title, string desc) {
-            this.title.text       = title;
-            this.description.text = desc;
+        protected virtual void Show(Vector3 pos, string label, string desc) {
+            title.text       = label;
+            description.text = desc;
 
             Vector2 offset = new(10f, -10f);
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -40,17 +35,11 @@ namespace CMPM.UI {
             transform.position = pos;
             ClampToScreen(body, rect);
         }
-        
-        protected virtual void Hide() {
-            gameObject.SetActive(false);
-        }
 
-        public void OnTriggerHoverChanged(bool hovering, string title, string desc) {
+        public void OnTriggerHoverChanged(bool hovering, string label, string desc) {
             IsTriggerHovered = hovering;
             if (hovering) {
-                Show(Input.mousePosition, title, desc);
-            } else {
-                StartCoroutine(DelayedHide());
+                Show(Input.mousePosition, label, desc);
             }
         }
         
@@ -60,14 +49,6 @@ namespace CMPM.UI {
 
         public void OnPointerExit(PointerEventData eventData) {
             IsHovering = false;
-            StartCoroutine(DelayedHide());
-        }
-
-        IEnumerator DelayedHide() {
-            yield return new WaitForSeconds(0.1f);
-            if (!IsHovering && !IsTriggerHovered) {
-                Hide();
-            }
         }
 
         static void ClampToScreen(GameObject body, RectTransform rect) {

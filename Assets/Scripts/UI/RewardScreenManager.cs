@@ -34,10 +34,12 @@ namespace CMPM.UI {
         [SerializeField] GameObject spellUI;
         [SerializeField] SpellUI spellUIIcon;
         [SerializeField] TextMeshProUGUI spellText;
+        [SerializeField] int maxSpellModifiers = 3;
 
         [Header("Relic UI")]
         [SerializeField] GameObject relicUI;
-        [SerializeField] RelicSelector relicSelector;
+        [SerializeField] RelicSelectorManager relicSelectorManager;
+        [SerializeField] GameObject relicSelectorPrefab;
         [SerializeField] int relicRewardFrequency = 3;
         [SerializeField] int relicRewardAmount = 3;
         
@@ -75,6 +77,10 @@ namespace CMPM.UI {
                         json.text, new PlayerClassMapParser());
             foreach (KeyValuePair<PlayerController.PlayerClass.Type, PlayerController.PlayerClass> kvp in classMap) {
                 ClassRegistry.Register(kvp.Key, kvp.Value);
+            }
+
+            for (int i = 0; i < relicRewardAmount; i++) {
+                Instantiate(relicSelectorPrefab, relicUI.transform);
             }
         }
 
@@ -189,7 +195,7 @@ namespace CMPM.UI {
             discardSpellUI.SetActive(false);
             
             // Pick and display one random spell
-            _rewardSpell ??= SpellBuilder.MakeRandomSpell(_player, 3);
+            _rewardSpell ??= SpellBuilder.MakeRandomSpell(_player, maxSpellModifiers);
             spellUIIcon.SetSpell(_rewardSpell);
             spellText.text = $"{_rewardSpell.GetName()}\n{_rewardSpell.GetDescription()}";
 
@@ -204,12 +210,13 @@ namespace CMPM.UI {
             if (wave % relicRewardFrequency != 0) return;
 
             BitArray set = _player.RelicOwnership;
-            Relic[] relics = RelicBuilder.CreateRelics(set, relicRewardAmount, out BitArray newSet);
+            RelicData[] relics = RelicBuilder.GetRelicSet(set, relicRewardAmount, out BitArray newSet);
             if (relics.Length == 0) return;
             relicUI.SetActive(true);
-            relicSelector.Set(relics, (r) => {
+            relicSelectorManager.Set(relics, r => {
                 relicUI.SetActive(false);
-                _player.AddRelic(r);
+                _player.AddRelic(RelicBuilder.CreateRelic(r));
+                set.Set(RelicRegistry.GetIndexFromRelic(r), true);
             });
         }
 

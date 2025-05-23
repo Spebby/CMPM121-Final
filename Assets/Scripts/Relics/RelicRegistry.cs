@@ -16,10 +16,12 @@ namespace CMPM.Relics {
         }
 
         public static RelicData GetRandom() {
+            RelicBuilder.Initialise();
             return REGISTRY[RNG.Next(REGISTRY.Count)];
         }
 
         public static int GetRandomUnique(in BitArray flags, out RelicData? relic) {
+            RelicBuilder.Initialise();
             List<int> unsetIndices = new();
             for (int i = 0; i < flags.Length; i++) {
                 if (!flags[i]) unsetIndices.Add(i);
@@ -32,10 +34,16 @@ namespace CMPM.Relics {
             return index;
         }
 
-        public static int GetIndexFromRelic(in Relic relic) {
+        public static int GetIndexFromRelic(in RelicData relic) {
+            RelicBuilder.Initialise();
             return REGISTRY.IndexOf(relic);
         }
-        
-        public static int Count => REGISTRY.Count; 
+
+        public static int Count {
+            get {
+                RelicBuilder.Initialise();
+                return REGISTRY.Count;
+            }
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace CMPM.Relics {
 	public class GainSpellpowerEffect : RelicEffect, IRPNEvaluator {
 		protected readonly RPNString Amount;
 
-		Stack<int> _stack;
+		readonly Stack<int> _stack = new();
 		
 		public GainSpellpowerEffect(SpellCaster caster, RPNString amount) : base(caster) {
 			Amount = amount;

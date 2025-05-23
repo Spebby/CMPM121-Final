@@ -231,7 +231,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 352259780221901942}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
@@ -284,6 +284,7 @@ GameObject:
   - component: {fileID: 6266040773567556220}
   - component: {fileID: 1812429329671246508}
   - component: {fileID: 5654963535559844082}
+  - component: {fileID: 8839071095119340613}
   m_Layer: 5
   m_Name: icon
   m_TagString: Untagged
@@ -348,6 +349,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8839071095119340613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7717990351664953834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0967414473964148bb510e38b5217379, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltip: {fileID: 7110267865108753726, guid: 04269070262e543a1be3560480db6642, type: 3}
+  tooltipUser: {fileID: 7468806418505594266}
 --- !u!1 &8332632202649287807
 GameObject:
   m_ObjectHideFlags: 0

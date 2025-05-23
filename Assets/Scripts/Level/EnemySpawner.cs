@@ -131,6 +131,12 @@ namespace CMPM.Level {
                 validSpawns = spawnPoints.Where(point => point.kind == spawn.location).ToArray();
             }
 
+            // Fallback
+            if (validSpawns.Length == 0) {
+                Debug.LogWarning("No valid spawn points found. Using fallback.");
+                validSpawns = new[] { spawnPoints[0] };
+            }
+
             EnemyPacket ep = new() {
                 HP = spawn.HPFormula.Evaluate(new SerializedDictionary<string, int>()
                                                   { { "wave", wave }, { "base", spawn.enemy.baseHP } }),

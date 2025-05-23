@@ -66,8 +66,8 @@
 			"description": "Every 2-4 seconds",
 			"type": "timer",
 			"range": {
-				"min": 2,
-				"max": 4
+				"min": "2",
+				"max": "4"
 			}
 		},
 		"effect": {
@@ -76,8 +76,8 @@
 			"amount": "0.2",
 			"until": "timer",
 			"range": {
-				"min": 2,
-				"max": 4
+				"min": "2",
+				"max": "4"
 			}
 		}
 	}

@@ -19,15 +19,16 @@ namespace CMPM.Utils {
 
                 JObject data = (JObject)prop.Value;
 
-                uint spriteIndex = data["sprite"]?.Value<uint>() ?? 0;
+                string description = data["description"]?.Value<string>() ?? throw new JsonSerializationException($"Class {prop.Name} is missing description!");
+                uint spriteIndex   = data["sprite"]?.Value<uint>()        ?? throw new JsonSerializationException($"Class {prop.Name} is missing sprite!");
 
-                RPNString health     = new(data["health"]?.Value<string>() ?? "0");
-                RPNString mana       = new(data["mana"]?.Value<string>() ?? "0");
-                RPNString manaRegen  = new(data["mana_regeneration"]?.Value<string>() ?? "0");
-                RPNString spellpower = new(data["spellpower"]?.Value<string>() ?? "0");
-                RPNString speed      = new(data["speed"]?.Value<string>() ?? "0");
+                RPNString health     = data["health"]?.ToObject<RPNString>() ?? throw new JsonSerializationException($"Class {prop.Name} is missing health");
+                RPNString mana       = data["mana"]?.ToObject<RPNString>()   ?? throw new JsonSerializationException($"Class {prop.Name} is missing mana");
+                RPNString manaRegen  = data["mana_regeneration"]?.ToObject<RPNString>() ?? throw new JsonSerializationException($"Class {prop.Name} is missing mana_regeneration");
+                RPNString spellpower = data["spellpower"]?.ToObject<RPNString>() ?? throw new JsonSerializationException($"Class {prop.Name} is missing spellpower");
+                RPNString speed      = data["speed"]?.ToObject<RPNString>()      ?? throw new JsonSerializationException($"Class {prop.Name} is missing speed");
 
-                PlayerClass playerClass = new(type, spriteIndex, health, mana, manaRegen, spellpower, speed);
+                PlayerClass playerClass = new(type, description, spriteIndex, health, mana, manaRegen, spellpower, speed);
                 result[type] = playerClass;
             }
 

@@ -12,6 +12,8 @@ using UnityEngine;
 
 namespace CMPM.Relics {
     public static class RelicBuilder {
+        static bool _initialised;
+        
         static RelicBuilder() {
             TextAsset json = Resources.Load<TextAsset>("relics");
             foreach (JToken token in JArray.Parse(json.text)) {
@@ -19,7 +21,30 @@ namespace CMPM.Relics {
             }
         }
         
-        public static Relic[] CreateRelics(BitArray flag, int count, out BitArray updatedFlag) {
+        public static void Initialise() {
+            if (_initialised) return;
+            _initialised = true;
+        }
+
+        public static RelicData[] GetRelicSet(in BitArray flag, int count, out BitArray updatedFlag) {
+            if (count == 0) {
+                updatedFlag = null;
+                return null;
+            }
+
+            updatedFlag = flag.Clone() as BitArray;
+            List<RelicData> relics = new();
+            for (int i = 0; i < count; i++) {
+                int index = RelicRegistry.GetRandomUnique(updatedFlag, out RelicData? relic);
+                if (index == -1) break;
+                updatedFlag![index] = true;
+                relics.Add(relic!.Value);
+            }
+
+            return relics.ToArray(); 
+        }
+        
+        public static Relic[] CreateRelics(in BitArray flag, int count, out BitArray updatedFlag) {
             if (count == 0) {
                 updatedFlag = null;
                 return null;
@@ -37,9 +62,15 @@ namespace CMPM.Relics {
             return relics.ToArray();
         }
 
-        static void ParseRelicsJson(TextAsset relicsJson) {
-
+        public static Relic[] CreateRelics(in RelicData[] relics) {
+            Relic[] relicArray = new Relic[relics.Length];
+            for (int i = 0; i < relics.Length; i++) {
+                relicArray[i] = new Relic(GameManager.Instance.PlayerController, relics[i]);
+            }
+            return relicArray;
         }
+
+        public static Relic CreateRelic(in RelicData relic) => new (GameManager.Instance.PlayerController, relic);
     }
 
     public class Relic {
@@ -128,7 +159,7 @@ namespace CMPM.Relics {
         #region APIs
         public string Name => _data.Name;
         public string Description => _data.Description;
-        public uint Sprite => _data.SpriteIndex;
+        public uint Sprite => _data.Sprite;
         public PreconditionType PreconditionType => _data.Precondition.Type;
         public string PreconditionDescription => _data.Precondition.Description;
         public EffectType EffectType => _data.Effect.Type;
@@ -196,7 +227,7 @@ namespace CMPM.Relics {
     public readonly struct RelicData : IEquatable<RelicData> {
         public readonly string Name;
         public readonly string Description;
-        public readonly uint SpriteIndex;
+        public readonly uint Sprite;
 
         public readonly RelicPreconditionData Precondition;
         public readonly RelicEffectData Effect;
@@ -246,15 +277,15 @@ namespace CMPM.Relics {
                          RelicEffectData effect) {
             Name         = name;
             Description  = description;
-            SpriteIndex  = sprite;
+            Sprite  = sprite;
             Precondition = precondition;
             Effect       = effect;
         }
 
         #region Equality Helpers
-        public bool Equals(RelicData other) => Name == other.Name && Description == other.Description && SpriteIndex == other.SpriteIndex && Precondition.Equals(other.Precondition) && Effect.Equals(other.Effect);
+        public bool Equals(RelicData other) => Name == other.Name && Description == other.Description && Sprite == other.Sprite && Precondition.Equals(other.Precondition) && Effect.Equals(other.Effect);
         public override bool Equals(object obj) => obj is RelicData other && Equals(other);
-        public override int GetHashCode() => HashCode.Combine(Name, Description, SpriteIndex, Precondition, Effect);
+        public override int GetHashCode() => HashCode.Combine(Name, Description, Sprite, Precondition, Effect);
         #endregion
     }
     #endregion
