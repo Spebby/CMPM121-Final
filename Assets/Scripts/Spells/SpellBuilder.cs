@@ -98,6 +98,13 @@ namespace CMPM.Spells {
                     return new MysticRiver(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
                                            projectile.Speed, data.Cooldown, projectile.Lifetime, data.Icon,
                                            data.Count.Value, data.Spray.Value, modifiers);
+                case "Ice Bolt":
+                    if (data.SlowFactor == null) throw new Exception($"{name} has no slow_factor defined");
+                    if (data.TimeSlowed == null) throw new Exception($"{name} has no time_slowed defined");
+                    return new IceBolt(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
+                                       projectile.Speed, data.Cooldown, projectile.Lifetime,
+                                       data.SlowFactor, data.TimeSlowed, data.Icon, modifiers);
+
                 //then it is a modifier spell, by recursively calling the BuildSpell method
                 default: {
                     throw new Exception($"Unknown spell name: {data.Name}");
@@ -111,7 +118,8 @@ namespace CMPM.Spells {
     // Though that would be bad for performance lol
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [JsonConverter(typeof(SpellDataParser))]
-    public struct SpellData {
+    public struct SpellData
+    {
         #region Metadata
         public string Name;
         public string Description;
@@ -128,6 +136,9 @@ namespace CMPM.Spells {
 
         public RPNString? Count;
         public RPNString? Spray;
+
+        public float? SlowFactor;
+        public int? TimeSlowed;
         #endregion
     }
 

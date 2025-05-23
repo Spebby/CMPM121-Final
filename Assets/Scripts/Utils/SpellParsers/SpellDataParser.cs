@@ -58,6 +58,16 @@ namespace CMPM.Utils.SpellParsers {
                 ? new RPNString(sprayToken.ToString())
                 : null;
 
+            JToken slowFactorToken = obj["slow_factor"];
+            result.SlowFactor = slowFactorToken != null && slowFactorToken.Type != JTokenType.Null
+                ? slowFactorToken.ToObject<float>()
+                : null;
+
+            JToken timeSlowedToken = obj["time_slowed"];
+            result.TimeSlowed = timeSlowedToken != null && timeSlowedToken.Type != JTokenType.Null
+                ? timeSlowedToken.ToObject<int>()
+                : null;
+
             return result;
         }
 
@@ -84,8 +94,11 @@ namespace CMPM.Utils.SpellParsers {
                 obj["secondary_projectile"] = JToken.FromObject(value.SecondaryProjectile.Value, serializer);
             }
 
-            if (value.Count != null) obj["N"]     = JToken.FromObject(value.Count, serializer);
-            if (value.Spray != null) obj["spray"] = JToken.FromObject(value.Spray, serializer);
+            if (value.Count != null) obj["N"]                = JToken.FromObject(value.Count, serializer);
+            if (value.Spray != null) obj["spray"]            = JToken.FromObject(value.Spray, serializer);
+            
+            if (value.SlowFactor != null) obj["slow_factor"] = JToken.FromObject(value.SlowFactor, serializer);
+            if (value.TimeSlowed != null) obj["time_slowed"] = JToken.FromObject(value.TimeSlowed, serializer);
 
             obj.WriteTo(writer);
         }
