@@ -7,8 +7,7 @@ namespace CMPM.Spells.Modifiers {
                                  RPNString? manaModifier = null,
                                  RPNString? speedModifier = null,
                                  RPNString? cooldownModifier = null,
-                                 RPNString? lifetimeModifier = null,
-                                 RPNString? countModifier = null)
-            : base(damageModifier, manaModifier, speedModifier, cooldownModifier, lifetimeModifier, countModifier) { }
+                                 RPNString? lifetimeModifier = null)
+            : base(damageModifier, manaModifier, speedModifier, cooldownModifier, lifetimeModifier) { }
     }
 }

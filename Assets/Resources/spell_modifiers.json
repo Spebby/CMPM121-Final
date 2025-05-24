@@ -49,11 +49,5 @@
 		"mana_multiplier": "0.75",
 		"count": "wave 2 / 1 +",
 		"projectile_trajectory": "sine"
-   },
-   "splintering": {
-        "name": "splintering",
-        "description": "Increase number of 'pellet' type projectiles.",
-        "mana_multiplier": "1.25",
-        "N_multiplier": "2"
    }
 }

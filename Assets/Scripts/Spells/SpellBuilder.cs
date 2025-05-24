@@ -37,8 +37,6 @@ namespace CMPM.Spells {
                     "homing" => new SpellProjectileModifier(ProjectileType.HOMING, s.DamageModifier,
                                                             s.ManaCostModifier),
                     "waver" => new SpellProjectileModifier(ProjectileType.SINE, null, s.ManaCostModifier),
-                    "splintering" => new SpellStatModifier(null, s.ManaCostModifier, null, null, null,
-                                                           s.Count),
                     _       => throw new NotImplementedException($"{_.Name} is not implemented")
                 };
 
@@ -191,19 +189,18 @@ namespace CMPM.Spells {
 
         public SpellModifierData(string name, string description, RPNString damageModifier, RPNString manaCostModifier,
                                  RPNString speedModifier, RPNString cooldownModifier, RPNString lifetimeModifier,
-                                 ProjectileType? type, RPNString angle, RPNString delay, RPNString count)
-        {
-            Name = name;
-            Description = description;
-            DamageModifier = damageModifier;
+                                 ProjectileType? type, RPNString angle, RPNString delay, RPNString count) {
+            Name             = name;
+            Description      = description;
+            DamageModifier   = damageModifier;
             ManaCostModifier = manaCostModifier;
-            SpeedModifier = speedModifier;
+            SpeedModifier    = speedModifier;
             CooldownModifier = cooldownModifier;
             LifetimeModifier = lifetimeModifier;
-            Type = type;
-            Angle = angle;
-            Delay = delay;
-            Count = count;
+            Type             = type;
+            Angle            = angle;
+            Delay            = delay;
+            Count            = count;
         }
         #endregion
     }

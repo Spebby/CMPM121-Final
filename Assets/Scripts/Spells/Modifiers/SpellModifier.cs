@@ -13,21 +13,18 @@ namespace CMPM.Spells.Modifiers {
         protected readonly RPNString? SpeedModifier;
         protected readonly RPNString? CooldownModifier;
         protected readonly RPNString? LifetimeModifier;
-        protected readonly RPNString? CountModifier;
         #endregion
 
         public SpellModifier(RPNString? damageModifier = null,
                              RPNString? manaModifier = null,
                              RPNString? speedModifier = null,
                              RPNString? cooldownModifier = null,
-                             RPNString? lifetimeModifier = null,
-                             RPNString? countModifier = null) {
-            DamageModifier = damageModifier;
-            ManaModifier = manaModifier;
-            SpeedModifier = speedModifier;
+                             RPNString? lifetimeModifier = null) {
+            DamageModifier   = damageModifier;
+            ManaModifier     = manaModifier;
+            SpeedModifier    = speedModifier;
             CooldownModifier = cooldownModifier;
             LifetimeModifier = lifetimeModifier;
-            CountModifier = countModifier;
         }
 
         public virtual void ModifyCast(Spell spell, ref Action<ProjectileType, Vector3, Vector3> original) { }
@@ -59,10 +56,6 @@ namespace CMPM.Spells.Modifiers {
 
         public virtual float ModifyLifetime(Spell spell, float lifetime) {
             return ApplyModifier(spell, LifetimeModifier, lifetime, spell.GetRPNVariables());
-        }
-        
-        public virtual float ModifyCount(Spell spell, float count) {
-            return ApplyModifier(spell, CountModifier, count, spell.GetRPNVariables());
         }
     }
 }
