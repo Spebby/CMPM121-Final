@@ -12,13 +12,13 @@ namespace CMPM.Spells {
         public MysticRiver(SpellCaster owner, string name, RPNString manaCost, RPNString damage, Damage.Type damageType,
                            RPNString speed, RPNString cooldown, RPNString? lifetime, uint icon,
                            RPNString countFormula, RPNString spreadFormula, int[] modifiers = null) : base(
-            owner, name, manaCost, damage, damageType, speed, cooldown, lifetime, icon, countFormula, spreadFormula,
+            owner, name, manaCost, damage, damageType, speed, cooldown, lifetime, countFormula, icon, countFormula, spreadFormula,
             modifiers) { }
 
         public override IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {
             Team = team;
             Action<ProjectileType, Vector3, Vector3> castAction = (type, w, t) => {
-                int   count = (int)Count.Evaluate(GetRPNVariables());
+                int   count = GetCount();
                 float delay = GetCooldown() * 0.75f / count;
                 CoroutineManager.Instance.Run(CastHelper(type, w, t, count, delay));
             };

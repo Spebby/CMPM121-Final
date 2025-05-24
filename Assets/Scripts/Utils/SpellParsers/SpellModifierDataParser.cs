@@ -52,6 +52,14 @@ namespace CMPM.Utils.SpellParsers {
                     : $"value {lifetimeMultiplier} * {lifetimeAdder} +"
             );
 
+            string countMultiplier = obj.Value<string>("count_multiplier") ?? "1";
+            string countAdder      = obj.Value<string>("count_adder") ?? "0";
+            RPNString countModifier = new(
+                string.IsNullOrEmpty(countAdder)
+                    ? $"value {countMultiplier} *"
+                    : $"value {countMultiplier} * {countAdder} +"
+            );
+
             RPNString count = new(obj.Value<string>("count") ?? "1");
             RPNString angle = new(obj.Value<string>("angle") ?? "0");
             RPNString delay = new(obj.Value<string>("delay") ?? "0");
@@ -70,6 +78,7 @@ namespace CMPM.Utils.SpellParsers {
                 speedModifier,
                 cooldownModifier,
                 lifetimeModifier,
+                countModifier,
                 type,
                 angle,
                 delay,

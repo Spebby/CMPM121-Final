@@ -61,8 +61,8 @@ namespace CMPM.Spells.Modifiers {
             return ApplyModifier(spell, LifetimeModifier, lifetime, spell.GetRPNVariables());
         }
         
-        public virtual float ModifyCount(Spell spell, float count) {
-            return ApplyModifier(spell, CountModifier, count, spell.GetRPNVariables());
+        public virtual int ModifyCount(Spell spell, float count) {
+            return (int)ApplyModifier(spell, CountModifier, count, spell.GetRPNVariables());
         }
     }
 }

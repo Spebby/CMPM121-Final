@@ -16,9 +16,10 @@ namespace CMPM.Spells {
 
         public IceBolt(SpellCaster owner, string name, RPNString manaCost, RPNString damage,
                        Damage.Type damageDamageType, RPNString speed, RPNString cooldown, RPNString? lifetime,
+                       RPNString? count,
                        float? slowFactor, int? timeSlowed,
                        uint icon, int[] modifiers = null) : base(owner, name, manaCost, damage, damageDamageType,
-                                                                 speed, cooldown, lifetime, icon, modifiers)
+                                                                 speed, cooldown, lifetime, count, icon, modifiers)
         {
             SlowFactor = (float)slowFactor;
             TimeSlowed = (int)timeSlowed;                                                 

@@ -14,7 +14,7 @@ namespace CMPM.Spells {
         public readonly Hittable.Team Team;
         
         public Spell Spell;
-        const string DEFAULT_SPELL = "Arcane Bolt";
+        const string DEFAULT_SPELL = "Arcane Blast";
 
         // ReSharper disable once UnassignedField.Global
         public Action OnCast;

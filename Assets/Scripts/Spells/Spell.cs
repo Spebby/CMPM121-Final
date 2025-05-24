@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using CMPM.Core;
 using CMPM.DamageSystem;
 using CMPM.Spells.Modifiers;
@@ -24,6 +25,7 @@ namespace CMPM.Spells {
         protected RPNString Speed;
         protected RPNString Cooldown; // In Miliseconds
         protected RPNString? Lifetime;
+        protected RPNString? Count;
         readonly uint _iconIndex;
         #endregion
 
@@ -50,6 +52,7 @@ namespace CMPM.Spells {
                      RPNString speed,
                      RPNString cooldown,
                      RPNString? lifetime,
+                     RPNString? count,
                      uint icon,
                      int[] modifiers = null) {
             Owner         = owner;
@@ -60,6 +63,7 @@ namespace CMPM.Spells {
             Speed         = speed;
             Cooldown      = cooldown;
             Lifetime      = lifetime;
+            Count         = count;
             _iconIndex    = icon;
 
             Team     = owner.Team;
@@ -112,20 +116,29 @@ namespace CMPM.Spells {
         }
 
         public virtual float GetSpeed() {
-            return ApplyModifiers(Speed.Evaluate(GetRPNVariablesSafe()), (mod, val) => mod.ModifySpeed(this, val));
+            return ApplyModifiers(Speed.Evaluate(GetRPNVariablesSafe()),
+                                  (mod, val) => mod.ModifySpeed(this, val));
         }
 
         public virtual float GetCooldown() {
-            return ApplyModifiers(Cooldown.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyCooldown(this, val));
+            return ApplyModifiers(Cooldown.Evaluate(GetRPNVariables()),
+                                  (mod, val) => mod.ModifyCooldown(this, val));
         }
 
         public virtual float GetLifetime() {
             return ApplyModifiers(Lifetime?.Evaluate(GetRPNVariables()) ?? 9999f,
                                   (mod, val) => mod.ModifyLifetime(this, val));
         }
+
+        public virtual int GetCount()
+        {
+            return Mathf.RoundToInt(ApplyModifiers(Count?.Evaluate(GetRPNVariables()) ?? 0,
+                                       (mod, val) => mod.ModifyCount(this, (float)val)));
+        } 
         #endregion
 
-        public uint GetIcon() {
+        public uint GetIcon()
+        {
             return _iconIndex;
         }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Threading;
 using CMPM.Core;
 using CMPM.DamageSystem;
 using CMPM.Spells.Modifiers;
@@ -11,8 +12,9 @@ namespace CMPM.Spells {
     public class ArcaneBolt : Spell {
         public ArcaneBolt(SpellCaster owner, string name, RPNString manaCost, RPNString damage,
                           Damage.Type damageDamageType, RPNString speed, RPNString cooldown, RPNString? lifetime,
+                          RPNString? count,
                           uint icon, int[] modifiers = null) : base(owner, name, manaCost, damage, damageDamageType,
-                                                                    speed, cooldown, lifetime, icon, modifiers) { }
+                                                                    speed, cooldown, lifetime, count, icon, modifiers) { }
 
         public override IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {
             Team = team;

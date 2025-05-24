@@ -13,6 +13,6 @@ namespace CMPM.Spells.Modifiers {
         float ModifySpeed(Spell spell, float baseSpeed);
         float ModifyCooldown(Spell spell, float cooldown);
         float ModifyLifetime(Spell spell, float lifetime);
-        float ModifyCount(Spell spell, float count);
+        int ModifyCount(Spell spell, float count);
     }
 }
