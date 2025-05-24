@@ -1,13 +1,13 @@
 using CMPM.Core;
 using CMPM.Spells;
+using CMPM.UI.Tooltips;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 
 namespace CMPM.UI {
-    public class SpellUI : MonoBehaviour {
+    public class SpellUI : MonoBehaviour, ITooltipUser {
         public GameObject icon;
         public RectTransform cooldown;
         public TextMeshProUGUI manacost;
@@ -16,14 +16,18 @@ namespace CMPM.UI {
         Spell _spell;
         float _lastTextUpdate;
         const float UPDATE_DELAY = 1;
-        [FormerlySerializedAs("dropbutton")] public GameObject dropButton;
+        public Button dropButton;
 
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        Tooltip _internalTooltip;
+        
         void Start() {
             _lastTextUpdate = 0;
             if (highlight) highlight.SetActive(false);
             manacost.text = "";
             damage.text   = "";
+            dropButton?.onClick.AddListener(() => {
+                GameManager.Instance.PlayerController.DropSpell(transform.GetSiblingIndex());
+            });
         }
 
         public void SetSpell(Spell spell) {
@@ -53,5 +57,21 @@ namespace CMPM.UI {
             float ratio     = sinceLast > _spell.GetCooldown() ? 0 : 1 - sinceLast / _spell.GetCooldown();
             cooldown.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 48 * ratio);
         }
+        
+        public void ShowTooltip(Tooltip tooltip) {
+            if (_spell == null) return;
+            if (_internalTooltip) {
+                Destroy(_internalTooltip.gameObject);
+            }
+            
+            _internalTooltip = Instantiate(tooltip, GameObject.FindWithTag("Canvas").transform, true);
+            _internalTooltip.OnTriggerHoverChanged(true, _spell.Name, _spell.GetDescription());
+        }
+        
+        public void HideTooltip() {
+            if (!_internalTooltip) return;
+            Destroy(_internalTooltip.gameObject);
+            _internalTooltip = null;
+        } 
     }
 }

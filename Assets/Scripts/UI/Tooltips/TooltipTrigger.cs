@@ -3,10 +3,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 
-namespace CMPM.UI {
+
+
+namespace CMPM.UI.Tooltips {
     public class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
         [SerializeField] Tooltip tooltip;
         [SerializeField, Tooltip("Ensure 'Tooltip User' has a component that implements ITooltipUser.")] GameObject tooltipUser;
+        [SerializeField, Range(0, 2f)] float hoverGrace = 0.15f;
         ITooltipUser _user;
         bool _isHovering;
         
@@ -26,7 +29,7 @@ namespace CMPM.UI {
         }
 
         IEnumerator DelayedHide() {
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(hoverGrace);
             if (!_isHovering && !tooltip.IsHovering) {
                 _user.HideTooltip();
             }

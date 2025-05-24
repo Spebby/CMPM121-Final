@@ -10,8 +10,8 @@ namespace CMPM.UI {
         public Vector3 initialPosition, finalPosition; //position to drift to, relative to the gameObject's local origin
         public float fadeDuration;
         float _fadeStartTime;
-        [FormerlySerializedAs("font_i")] public int fontI;
-        [FormerlySerializedAs("font_f")] public int fontF;
+        public int fontI;
+        public int fontF;
         public string dmg;
         float _timeOffset;
 

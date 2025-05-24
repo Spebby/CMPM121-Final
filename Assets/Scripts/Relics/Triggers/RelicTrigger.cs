@@ -1,11 +1,12 @@
 using System;
+using CMPM.Relics.Effects;
 
 
-namespace CMPM.Relics {
+namespace CMPM.Relics.Triggers {
     public abstract class RelicTrigger {
-        protected readonly RelicEffect InnerEffect;
+        protected readonly IRelicEffect InnerEffect;
 
-        public RelicTrigger(RelicEffect innerEffect) {
+        protected RelicTrigger(IRelicEffect innerEffect) {
             InnerEffect = innerEffect;
         }
 

@@ -1,4 +1,5 @@
 using CMPM.Core;
+using CMPM.UI.Tooltips;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

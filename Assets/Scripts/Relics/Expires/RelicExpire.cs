@@ -1,11 +1,12 @@
 using System;
+using CMPM.Relics.Effects;
 
 
-namespace CMPM.Relics {
+namespace CMPM.Relics.Expires {
     public abstract class RelicExpire {
-        protected readonly RelicEffect InnerEffect;
+        protected readonly IRelicEffect InnerEffect;
 
-        public RelicExpire(RelicEffect innerEffect) {
+        public RelicExpire(IRelicEffect innerEffect) {
             InnerEffect = innerEffect;
         }
         

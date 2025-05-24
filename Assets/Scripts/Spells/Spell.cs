@@ -13,7 +13,7 @@ namespace CMPM.Spells {
     [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
     public abstract class Spell : IRPNEvaluator {
         public float LastCast { get; protected set; }
-        public readonly SpellCaster Owner;
+        protected readonly SpellCaster Owner;
         protected Hittable.Team Team;
 
         #region Values
@@ -22,7 +22,7 @@ namespace CMPM.Spells {
         protected RPNString DamageFormula;
         public readonly Damage.Type DamageType;
         protected RPNString Speed;
-        protected RPNString Cooldown; // In Miliseconds
+        protected RPNString Cooldown; // In Milliseconds
         protected RPNString? Lifetime;
         readonly uint _iconIndex;
         #endregion
@@ -42,16 +42,16 @@ namespace CMPM.Spells {
         /// <param name="lifetime">RPN Formula for calculating projectile lifetime.</param>
         /// <param name="icon">Index of the icon.</param>
         /// <param name="modifiers">List of modifier hashes. Null by default.</param>
-        public Spell(SpellCaster owner,
-                     string name,
-                     RPNString manaCost,
-                     RPNString damage,
-                     Damage.Type damageDamageType,
-                     RPNString speed,
-                     RPNString cooldown,
-                     RPNString? lifetime,
-                     uint icon,
-                     int[] modifiers = null) {
+        protected Spell(SpellCaster owner,
+                        string name,
+                        RPNString manaCost,
+                        RPNString damage,
+                        Damage.Type damageDamageType,
+                        RPNString speed,
+                        RPNString cooldown,
+                        RPNString? lifetime,
+                        uint icon,
+                        int[] modifiers = null) {
             Owner         = owner;
             Name          = name;
             ManaCost      = manaCost;
@@ -70,7 +70,7 @@ namespace CMPM.Spells {
 
         public string GetName() {
             string baseStr = Name;
-            foreach (int modifier in Modifiers) {
+            foreach (int modifier in Modifiers ?? Array.Empty<int>()) {
                 SpellModifierData data    = SpellModifierDataRegistry.Get(modifier);
                 char[]            adjName = data.Name.ToCharArray();
                 adjName[0] = char.ToUpper(adjName[0]);
@@ -82,7 +82,7 @@ namespace CMPM.Spells {
 
         public string GetDescription() {
             string baseStr = $"base: {SpellRegistry.Get(Name.GetHashCode()).Description}\n";
-            foreach (int modifier in Modifiers) {
+            foreach (int modifier in Modifiers ?? Array.Empty<int>()) {
                 SpellModifierData data = SpellModifierDataRegistry.Get(modifier);
                 baseStr += $"{data.Name}: {data.Description}\n";
             }
@@ -153,7 +153,7 @@ namespace CMPM.Spells {
 
         protected virtual void OnHit(Hittable other, Vector3 impact) {
             if (other.team == Team) return;
-            Action<Hittable, Vector3, Damage.Type> hitAction = (o, i, type) => {
+            Action<Hittable, Vector3, Damage.Type> hitAction = (o, _, type) => {
                 o.Damage(new Damage(GetDamage(), type));
             };
 

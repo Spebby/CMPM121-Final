@@ -2,6 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using CMPM.Core;
+using CMPM.Relics.Effects;
+using CMPM.Relics.Expires;
+using CMPM.Relics.Triggers;
 using CMPM.Spells;
 using CMPM.Utils;
 using CMPM.Utils.RelicParsers;
@@ -44,6 +47,8 @@ namespace CMPM.Relics {
             return relics.ToArray(); 
         }
         
+        public static Relic CreateRelic(in RelicData relic) => new (GameManager.Instance.PlayerController, relic);
+        
         public static Relic[] CreateRelics(in BitArray flag, int count, out BitArray updatedFlag) {
             if (count == 0) {
                 updatedFlag = null;
@@ -56,7 +61,7 @@ namespace CMPM.Relics {
                 int index = RelicRegistry.GetRandomUnique(updatedFlag, out RelicData? relic);
                 if (index == -1) break;
                 updatedFlag![index] = true;
-                relics.Add(new Relic(GameManager.Instance.PlayerController, relic!.Value));
+                relics.Add(CreateRelic(relic!.Value));
             }
 
             return relics.ToArray();
@@ -65,18 +70,16 @@ namespace CMPM.Relics {
         public static Relic[] CreateRelics(in RelicData[] relics) {
             Relic[] relicArray = new Relic[relics.Length];
             for (int i = 0; i < relics.Length; i++) {
-                relicArray[i] = new Relic(GameManager.Instance.PlayerController, relics[i]);
+                relicArray[i] = CreateRelic(relics[i]);
             }
             return relicArray;
         }
-
-        public static Relic CreateRelic(in RelicData relic) => new (GameManager.Instance.PlayerController, relic);
     }
 
     public class Relic {
         #region Privates
         readonly RelicData _data;
-        readonly RelicEffect _effect;
+        readonly IRelicEffect _effect;
         public bool IsActive { get; private set; }
         #endregion
 
@@ -85,17 +88,26 @@ namespace CMPM.Relics {
             _data  = data;
             
             RelicData.RelicEffectData effect = data.Effect;
+            RelicData.RelicPreconditionData precondition = _data.Precondition;
+            
             _effect = effect.Type switch {
-                EffectType.GainMana       => new GainManaEffect(caster, effect.Amount),
-                EffectType.GainSpellpower => new GainSpellpowerEffect(caster, effect.Amount),
+                EffectType.GainMana       => new GainStatEffect(effect.Amount, caster.AddMana),
+                EffectType.GainSpellpower => new GainStatEffect(effect.Amount, caster.AddSpellpower),
                 EffectType.RandomBoost    => new GainRandomBuff(player, effect.Amount),
                 _                         => throw new NotImplementedException($"Effect type {effect.Type} is not implemented")
             };
             
-            // todo: this is all well and good, but I want to support more complicated pre-conditions
-            // Would be good to speak with others about this.
-            RelicData.RelicPreconditionData precondition = _data.Precondition;
-            RelicTrigger                    trigger      = null;
+            RelicTrigger trigger = precondition.Type switch {
+                PreconditionType.TakeDamage => null,
+                PreconditionType.StandStill => new RelicStandstill(_effect, precondition.Amount ?? new RPNString("0.5")),
+                PreconditionType.Timer => new RelicTimer(_effect,
+                                                         precondition.Range ??
+                                                         throw new Exception($"{Name} must define a range for precondition {precondition.Type}!")),
+                PreconditionType.OnKill => null,
+                _ => throw new NotImplementedException($"Precondition type {precondition.Type} is not implemented")
+            };
+            
+            // Hook up trigger event
             switch (precondition.Type) {
                 case PreconditionType.TakeDamage:
                     EventBus.Instance.OnDamage += (_, _, h) => {
@@ -104,8 +116,7 @@ namespace CMPM.Relics {
                     };
                     break;
                 case PreconditionType.StandStill:
-                    trigger = new RelicStandstillTrigger(_effect, precondition.Amount ?? new RPNString("0.5"));
-                    EventBus.Instance.OnPlayerStandstill += () => trigger.OnTrigger(() => IsActive = true);
+                    EventBus.Instance.OnPlayerStandstill += () => trigger!.OnTrigger(() => IsActive = true);
                     // This is kind of bad, so I'd prefer a way of doing this that's cleaner.
                     break;
                 case PreconditionType.OnKill:
@@ -118,64 +129,72 @@ namespace CMPM.Relics {
                      *
                      * This should really be handled by the expiration switch but im a bit too tired to think it through rn
                      */
-                    bool shouldOverwrite = effect.Type == EffectType.RandomBoost;
-                    trigger = new RelicTimerTrigger(_effect, _data.Precondition.Range ?? throw new Exception($"{Name} must define a range for precondition {precondition.Type}!"), shouldOverwrite);
-                    trigger.OnTrigger(() => IsActive = true);
+                    RelicTimer t = trigger as RelicTimer;
+                    t!.OnTrigger(null);
+                    t!.OnTriggered += OnActivate;
                     break;
                 default:
                     throw new NotImplementedException($"Precondition type {precondition.Type} is not implemented");
             }
-
+            
+            // This is less smooth than I'd like. I would prefer effects handle when they expire as the JSON would
+            // suggest, but then it would have to know about the precondition, and then we're back to where we started.
+            // So, this is a bit messy, likely the best way to do it.
             RelicExpire expire;
             switch (effect.Expiration) {
                 case EffectExpiration.Move:
                     EventBus.Instance.OnPlayerMove += f => {
                         if (f > Mathf.Epsilon) return;
-                        OnCancel();
+                        OnDeactivate();
                     };
                     break;
                 case EffectExpiration.CastSpell:
-                    caster.OnCast += OnCancel;
+                    caster.OnCast += OnDeactivate;
                     break;
                 case EffectExpiration.Timer:
-                    if (trigger is RelicTimerTrigger timerTrigger) {
-                        timerTrigger.OnTriggered += OnCancel;
+                    expire = new RelicTimerExpire(
+                        _effect,
+                        effect.Range ?? throw new Exception($"{Name} must define a range for effect expiration {effect.Expiration}!"));
+
+                    if (trigger is RelicTimer timerTrigger) {
+                        timerTrigger.OnTriggered += () => expire.OnTrigger(() => IsActive = false);
                         break;
                     }
 
-                    expire = new RelicTimerExpire(
-                        _effect,
-                        effect.Range ??
-                        throw new Exception($"{Name} must define a range for effect expiration {effect.Expiration}!"));
                     expire.OnTrigger(() => IsActive = false);
                     break;
+
+                case EffectExpiration.Overwrite:
                 case EffectExpiration.None:
+                    // Nothing to wire
                     break;
+
                 default:
                     throw new NotImplementedException($"Effect cancellation condition {effect.Expiration} is not implemented");
-            }
+            } 
         }
 
         #region APIs
         public string Name => _data.Name;
-        public string Description => _data.Description;
+        public string Description => _data.GetFullDescription();
         public uint Sprite => _data.Sprite;
         public PreconditionType PreconditionType => _data.Precondition.Type;
-        public string PreconditionDescription => _data.Precondition.Description;
         public EffectType EffectType => _data.Effect.Type;
         public EffectExpiration EffectExpiration => _data.Effect.Expiration;
-        public string EffectDescription => _data.Effect.Description;
         public new int GetHashCode => Name.GetHashCode();
         public static implicit operator RelicData(Relic relic) => relic._data;
         public RelicData Data => _data;
         #endregion
         
         void OnActivate() {
+            if (Data.Effect.Expiration == EffectExpiration.Overwrite && IsActive) {
+                OnDeactivate();
+            }
             _effect.ApplyEffect();
             IsActive = true;
         }
 
-        void OnCancel() {
+        void OnDeactivate() {
             _effect.RevertEffect();
             IsActive = false;
         }
@@ -202,6 +221,7 @@ namespace CMPM.Relics {
         None,
         Move,
         Timer,
+        Overwrite,
         CastSpell
     }
 
@@ -280,6 +300,12 @@ namespace CMPM.Relics {
             Sprite  = sprite;
             Precondition = precondition;
             Effect       = effect;
+        }
+
+        public string GetFullDescription() {
+            bool hasPrecondition = !string.IsNullOrEmpty(Precondition.Description);
+            bool hasEffect = !string.IsNullOrEmpty(Effect.Description);
+            return $"{Description}{(hasEffect || hasPrecondition ? '\n' : "")}{(hasPrecondition ? '\n' : $"\n{Precondition.Type.ToString()}: {Precondition.Description}")}{(hasEffect ? '\n' : $"\n{Effect.Type.ToString()}: {Effect.Description}")}";
         }
 
         #region Equality Helpers

@@ -1,11 +1,10 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
 
-namespace CMPM.UI {
+namespace CMPM.UI.Tooltips {
     public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
         [FormerlySerializedAs("Body")] [Header("Components")] 
         public GameObject body;

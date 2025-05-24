@@ -1,6 +1,6 @@
 using CMPM.Core;
 using CMPM.Relics;
-using Unity.VisualScripting;
+using CMPM.UI.Tooltips;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,13 +25,11 @@ namespace CMPM.UI {
             }
             
             _internalTooltip = Instantiate(tooltip, GameObject.FindWithTag("Canvas").transform, true);
-            bool hasPrecondition = !string.IsNullOrEmpty(_relic.Precondition.Description);
-            bool hasEffect = !string.IsNullOrEmpty(_relic.Effect.Description);
-            string body = $"{_relic.Description}{(hasEffect || hasPrecondition ? '\n' : "")}{(hasPrecondition ? '\n' : $"\n{_relic.Precondition.Type.ToString()}: {_relic.Precondition.Description}")}{(hasEffect ? '\n' : $"\n{_relic.Effect.Type.Description()}: {_relic.Effect.Description}")}";
-            _internalTooltip.OnTriggerHoverChanged(true, _relic.Name, body);
+            _internalTooltip.OnTriggerHoverChanged(true, _relic.Name, _relic.GetFullDescription());
         }
         
         public void HideTooltip() {
+            if (!_internalTooltip) return;
             Destroy(_internalTooltip.gameObject);
             _internalTooltip = null;
         }

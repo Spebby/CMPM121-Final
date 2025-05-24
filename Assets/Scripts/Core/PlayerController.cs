@@ -111,7 +111,7 @@ namespace CMPM.Core {
             HP.UpdateHPCap(@class.Health.Evaluate(table));
             _caster.MaxMana   = @class.MaxMana.Evaluate(table);
             _caster.ManaRegen = @class.ManaRegen.Evaluate(table);
-            _caster.ModifySpellpower(@class.Spellpower.Evaluate(table));
+            _caster.AddSpellpower(@class.Spellpower.Evaluate(table));
             Speed = @class.Speed.Evaluate(table);
         }
 

@@ -210,7 +210,7 @@ namespace CMPM.UI {
             if (wave % relicRewardFrequency != 0) return;
 
             BitArray set = _player.RelicOwnership;
-            RelicData[] relics = RelicBuilder.GetRelicSet(set, relicRewardAmount, out BitArray newSet);
+            RelicData[] relics = RelicBuilder.GetRelicSet(set, relicRewardAmount, out BitArray _);
             if (relics.Length == 0) return;
             relicUI.SetActive(true);
             relicSelectorManager.Set(relics, r => {

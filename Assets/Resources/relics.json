@@ -74,11 +74,7 @@
 			"description": "A temporary random stat boost.",
 			"type": "random-boost",
 			"amount": "0.2",
-			"until": "timer",
-			"range": {
-				"min": "2",
-				"max": "4"
-			}
+			"until": "overwrite"
 		}
 	}
 ]

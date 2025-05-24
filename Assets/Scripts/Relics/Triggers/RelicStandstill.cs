@@ -1,0 +1,37 @@
+using System.Collections;
+using CMPM.Core;
+using CMPM.Relics.Effects;
+using CMPM.Utils;
+using CMPM.Utils.Structures;
+using UnityEngine;
+
+
+namespace CMPM.Relics.Triggers {
+    public class RelicStandstill : RelicCoroutineTrigger, IRPNEvaluator {
+        protected RPNString WaitDuration;
+        
+        public RelicStandstill(IRelicEffect innerEffect, RPNString waitDuration) : base(innerEffect) {
+            WaitDuration = waitDuration;
+        }
+
+        public override bool Evaluate() => !GameManager.Instance.PlayerController.IsMoving();
+
+        
+        protected override IEnumerator RunCoroutine() {
+            float time = WaitDuration.Evaluate(GetRPNVariables());
+            yield return new WaitForSeconds(time);
+
+            if (!GameManager.Instance.PlayerController.IsMoving()) {
+                InnerEffect.ApplyEffect();
+            }
+
+            Runner = null;
+        }
+
+        public SerializedDictionary<string, float> GetRPNVariables() {
+            return new SerializedDictionary<string, float> {
+                { "wave", GameManager.Instance.CurrentWave }
+            };
+        }
+    }
+}
