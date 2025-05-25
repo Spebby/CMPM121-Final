@@ -11,14 +11,14 @@ namespace CMPM.Relics.Expires {
     public class RelicTimerExpire : RelicCoroutineExpire, IRPNEvaluator {
         protected RPNRange Range;
         
-        public RelicTimerExpire(IRelicEffect innerEffect, RPNRange range) : base(innerEffect) {
+        public RelicTimerExpire(in Relic parent, RPNRange range) : base(parent) {
             Range = range;
         }
 
         protected override IEnumerator RunCoroutine() {
             SerializedDictionary<string, float> table = GetRPNVariables();
             yield return new WaitForSeconds(Random.Range(Range.Min.Evaluate(table), Range.Max.Evaluate(table)));
-            InnerEffect.RevertEffect();
+            Parent.OnDeactivate();
         }
 
         public SerializedDictionary<string, float> GetRPNVariables() {

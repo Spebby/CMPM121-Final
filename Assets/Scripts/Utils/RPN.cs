@@ -49,7 +49,8 @@ namespace CMPM.Utils {
         public readonly int Evaluate(SerializedDictionary<string, int> variables) {
             return RPN.Evaluate(String, variables);
         }
-
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly float Evaluate(SerializedDictionary<string, float> variables) {
             return RPN.Evaluate(String, variables);
         }

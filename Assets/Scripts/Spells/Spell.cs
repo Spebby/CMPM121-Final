@@ -27,7 +27,7 @@ namespace CMPM.Spells {
         readonly uint _iconIndex;
         #endregion
 
-        protected readonly int[] Modifiers;
+        protected int[] Modifiers;
 
         /// <summary>
         /// Spell Constructor
@@ -83,7 +83,7 @@ namespace CMPM.Spells {
         public string GetDescription() {
             string baseStr = $"base: {SpellRegistry.Get(Name.GetHashCode()).Description}\n";
             foreach (int modifier in Modifiers ?? Array.Empty<int>()) {
-                SpellModifierData data = SpellModifierDataRegistry.Get(modifier);
+                if (!SpellModifierDataRegistry.TryGet(modifier, out SpellModifierData data)) continue;
                 baseStr += $"{data.Name}: {data.Description}\n";
             }
 
@@ -131,6 +131,39 @@ namespace CMPM.Spells {
 
         public bool IsReady() {
             return LastCast + GetCooldown() < Time.time;
+        }
+
+        public void AddModifiers(int[] additions) {
+            int[] newModifiers = new int[Modifiers.Length + additions.Length];
+            Array.Copy(Modifiers, 0, newModifiers, 0, Modifiers.Length);
+            Array.Copy(additions, 0, newModifiers, Modifiers.Length, additions.Length);
+            Modifiers = newModifiers;
+        }
+
+        public void RemoveModifiers(int[] removals) {
+            int[]  temp    = new int[Modifiers.Length];
+            bool[] removed = new bool[removals.Length];
+
+            int write = 0;
+
+            foreach (int t in Modifiers) {
+                bool matched = false;
+                for (int j = 0; j < removals.Length; j++) {
+                    if (removed[j] || t != removals[j]) continue;
+                    removed[j] = true;
+                    matched    = true;
+                    break;
+                }
+
+                if (matched) continue;
+                temp[write++] = t;
+            }
+
+            // If nothing was removed, return.
+            if (write == Modifiers.Length) return;
+            int[] newModifiers = new int[write];
+            Array.Copy(temp, newModifiers, write);
+            Modifiers = newModifiers;
         }
 
         public virtual IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {

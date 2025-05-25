@@ -4,14 +4,14 @@ using CMPM.Relics.Effects;
 
 namespace CMPM.Relics.Expires {
     public abstract class RelicExpire {
-        protected readonly IRelicEffect InnerEffect;
+        protected readonly Relic Parent;
 
-        public RelicExpire(IRelicEffect innerEffect) {
-            InnerEffect = innerEffect;
+        public RelicExpire(in Relic parent) {
+            Parent = parent;
         }
         
         public virtual void OnTrigger(Action callback) {
-            InnerEffect.RevertEffect();
+            Parent.OnDeactivate();
             callback?.Invoke();
         }
     }

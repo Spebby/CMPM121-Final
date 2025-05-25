@@ -16,6 +16,10 @@ namespace CMPM.Utils.Structures {
             return REGISTRY.GetValueOrDefault(key);
         }
 
+        public static bool TryGet(S key, out T val) {
+            return REGISTRY.TryGetValue(key, out val);
+        }
+
         public static T GetRandom() {
             return REGISTRY[GetRandomKey()];
         }

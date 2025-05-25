@@ -10,7 +10,7 @@ namespace CMPM.Relics.Triggers {
     public class RelicStandstill : RelicCoroutineTrigger, IRPNEvaluator {
         protected RPNString WaitDuration;
         
-        public RelicStandstill(IRelicEffect innerEffect, RPNString waitDuration) : base(innerEffect) {
+        public RelicStandstill(in Relic parent, in RPNString waitDuration) : base(parent) {
             WaitDuration = waitDuration;
         }
 
@@ -22,7 +22,7 @@ namespace CMPM.Relics.Triggers {
             yield return new WaitForSeconds(time);
 
             if (!GameManager.Instance.PlayerController.IsMoving()) {
-                InnerEffect.ApplyEffect();
+                Parent.OnActivate();
             }
 
             Runner = null;

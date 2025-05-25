@@ -35,7 +35,7 @@ namespace CMPM.Relics.Effects {
 		#endregion	
 
 		// It would be nice to generalise this to "any entity that can cast a spell"
-		public GainRandomBuff(PlayerController player, RPNString factor) {
+		public GainRandomBuff(in PlayerController player, in RPNString factor) {
 			MaxFactor = factor;
 			Player = player;
 			SpellCaster caster = player;

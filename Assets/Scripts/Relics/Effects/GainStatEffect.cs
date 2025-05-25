@@ -12,7 +12,7 @@ namespace CMPM.Relics.Effects {
         protected readonly Action<int> ModifierCallback;
         readonly Stack<int> _stack = new();
 
-        public GainStatEffect(RPNString amount, Action<int> modifierCallback) {
+        public GainStatEffect(in RPNString amount, Action<int> modifierCallback) {
             Amount           = amount;
             ModifierCallback = modifierCallback;
         }
@@ -32,7 +32,8 @@ namespace CMPM.Relics.Effects {
 
         public SerializedDictionary<string, float> GetRPNVariables() {
             return new SerializedDictionary<string, float> {
-                { "wave", GameManager.Instance.CurrentWave }
+                { "baseHP", GameManager.Instance.PlayerController.HP.HP },
+                { "wave",   GameManager.Instance.CurrentWave }
             };
         }
     }

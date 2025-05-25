@@ -14,7 +14,7 @@ namespace CMPM.Relics.Triggers {
         public Action OnTriggered;
         bool _ran = false;
         
-        public RelicTimer(IRelicEffect innerEffect, RPNRange range) : base(innerEffect) {
+        public RelicTimer(in Relic parent, in RPNRange range) : base(parent) {
             Range = range;
         }
 
@@ -36,7 +36,7 @@ namespace CMPM.Relics.Triggers {
             yield return new WaitForSeconds(Random.Range(Range.Min.Evaluate(vars), Range.Max.Evaluate(vars)));
             _ran = true;
             
-            InnerEffect.ApplyEffect();
+            Parent.OnActivate();
             OnTriggered?.Invoke();
         }
 

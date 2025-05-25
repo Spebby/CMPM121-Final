@@ -34,7 +34,6 @@ namespace CMPM.Spells.Modifiers {
                                               SerializedDictionary<string, float> table) {
             // The RPN Strings themselves have "value" worked into them in this case, this step is done during parsing.
             table["value"] = value;
-
             return modifier?.Evaluate(table) ?? value;
         }
 

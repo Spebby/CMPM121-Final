@@ -4,17 +4,17 @@ using CMPM.Relics.Effects;
 
 namespace CMPM.Relics.Triggers {
     public abstract class RelicTrigger {
-        protected readonly IRelicEffect InnerEffect;
+        protected readonly Relic Parent;
 
-        protected RelicTrigger(IRelicEffect innerEffect) {
-            InnerEffect = innerEffect;
+        protected RelicTrigger(in Relic parent) {
+            Parent = parent;
         }
 
         public virtual void OnTrigger(Action callback) {
-            InnerEffect.ApplyEffect();
+            Parent.OnActivate();
             callback?.Invoke();
         }
-        public virtual void OnCancel() { InnerEffect.RevertEffect(); }
+        public virtual void OnCancel() { Parent.OnDeactivate(); }
         public virtual bool Evaluate() => true;
     }
 }

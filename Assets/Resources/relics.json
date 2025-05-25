@@ -7,11 +7,13 @@
             "description": "Whenever you take damage",
             "type": "take-damage"
         },
-        "effect": {
-            "description": "you gain 5 mana",
-            "type": "gain-mana",
-            "amount": "5"
-        }
+        "effect": [
+			{
+				"description": "you gain 5 mana",
+				"type": "gain-mana",
+				"amount": "5"
+			}
+		]
     },
     {
         "name": "Jade Elephant",
@@ -22,12 +24,14 @@
             "type": "stand-still",
             "amount": "3"
         },
-        "effect": {
-            "description": "you gain 10 spellpower (+5/wave)",
-            "type": "gain-spellpower",
-            "amount": "10 wave 5 * +",
-            "until": "move"
-        }
+        "effect": [
+			{
+				"description": "you gain 10 spellpower (+5/wave)",
+				"type": "gain-spellpower",
+				"amount": "10 wave 5 * +",
+				"until": "move"
+			}
+		]
     },
     {
         "name": "Golden Mask",
@@ -37,12 +41,14 @@
             "description": "When you take damage",
             "type": "take-damage"
         },
-        "effect": {
-            "description": "your next spell gains 100 additional spellpower.",
-            "type": "gain-spellpower",
-            "amount": "100",
-            "until": "cast-spell"
-        }
+        "effect": [
+			{
+			    "description": "your next spell gains 100 additional spellpower.",
+		        "type": "gain-spellpower",
+	            "amount": "100",
+				"until": "cast-spell"
+			}
+		]
     },
     {
         "name": "Cursed Scroll",
@@ -52,11 +58,13 @@
             "description": "When you kill an enemy",
             "type": "on-kill"
         },
-        "effect": {
-            "description": "you gain 25 mana.",
-            "type": "gain-mana",
-            "amount": "25"
-        }
+        "effect": [
+			{
+				"description": "you gain 25 mana.",
+				"type": "gain-mana",
+				"amount": "25"
+			}
+		]
     },
 	{
 		"name": "Fungus",
@@ -70,11 +78,49 @@
 				"max": "4"
 			}
 		},
-		"effect": {
-			"description": "A temporary random stat boost.",
-			"type": "random-boost",
-			"amount": "0.2",
-			"until": "overwrite"
-		}
+		"effect": [
+			{
+				"description": "A temporary random stat boost.",
+				"type": "random-boost",
+				"amount": "0.2",
+				"until": "overwrite"
+			}
+		]
+	},
+	{
+		"name": "Battle Tendency",
+		"description": "Could give you an ear infection".
+		"sprite": 22,
+		"precondition": {
+			"description": "When you kill an enemy",
+			"type": "on-kill"
+		},
+		"effect": [
+			{
+				"description": "Gain 5% health",
+				"type": "gain-health",
+				"amount": "baseHP 0.05 *"
+			}
+		]
+	},
+	{
+		"name": "Rigor Mortis",
+		"description": "Cracking!",
+		"sprite": 33,
+		"precondition": {
+			"type": "None"
+		},
+		"effect": [
+			{
+				"description": "Halves spell",
+				"type": "modify-spell-cooldown%",
+				"amount": "0.5"
+			},
+			{
+				"description": "Doubles spell mana cost",
+				"type": "modify-spell-cost%",
+				"amount": "2"
+			}
+		]
 	}
 ]

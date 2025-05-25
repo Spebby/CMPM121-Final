@@ -9,7 +9,7 @@ namespace CMPM.Relics.Expires {
     public abstract class RelicCoroutineExpire : RelicExpire {
         protected Coroutine Runner;
 
-        protected RelicCoroutineExpire(IRelicEffect innerEffect) : base(innerEffect) { }
+        protected RelicCoroutineExpire(in Relic parent) : base(parent) { }
         ~RelicCoroutineExpire() => OnCancel();
         
         public override void OnTrigger(Action callback) {
@@ -22,7 +22,7 @@ namespace CMPM.Relics.Expires {
             if (Runner == null) return;
             CoroutineManager.Instance.StopCoroutine(Runner);
             Runner = null;
-            InnerEffect.RevertEffect();
+            Parent.OnDeactivate();
         }
 
         protected abstract IEnumerator RunCoroutine();

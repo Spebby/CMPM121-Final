@@ -2,16 +2,21 @@
 
 ## Effect Types
 
-|       Type       |                                                |
-| :--------------: | :--------------------------------------------- |
-|    Gain Mana     | Restores the player's mana by some ammount.    |
-| Gain Spellpower  | Boosts the player's spellpower by some amount. |
-| Gain Random Buff | Boosts a random stat by some amount.           |
+|               Type                |                                                                           |
+| :-------------------------------: | :------------------------------------------------------------------------ |
+|             Gain Mana             | Restores the player's mana by some amount.                                |
+|          Gain Spellpower          | Boosts the player's spellpower by some amount.                            |
+|            Gain Health            | Restores the player's health by some amount.                              |
+|         Gain Random Buff          | Boosts a random stat by some amount.                                      |
+|   Modify Spell Cost Percentage    | Modifies the cost of every spell to be a factor of the base cost.         |
+| Modifiy Spell Cooldown Percentage | Modifies the cooldown of every spell to be a factor of the base cooldown. |
 
 **Gain Stat** is an effect that boosts the corresponding stat. Under the hood,
 all of these boosts are essentially the same code, so this was consolidated into
 a singular implementation. Each type simply maps to a different preset of the
-same class.
+same class. It should be noted that some effects, namely _Gain Health_ are
+intended to use variables embedded into the RPN to have access to more nuanced
+evaluations. In these cases, the variable table must be revised.
 
 **Gain Random Buff** is an effect that boosts a random stat. All effects are
 revertible, even gaining mana or health.
@@ -26,11 +31,17 @@ Gain Spell
 | Stand Still | When the player stands still for a set amount of time. |
 |   On Kill   | When the player kills an enemy.                        |
 |    Timer    | After a set amount of time. Repeats forever.           |
+|    None     | There is no precondition!                              |
 
 **Timer** has an associated property, `range`. A `range` is a pair of RPNStrings
 representing the min and max range the timer can be. The amount time an effect
 lasts will be within this range. If a set range is desired, simply set
 `min == max`.
+
+**None** is interesting as any effect is immediately applied upon gaining the
+relic. The rationale here is that the type will be used on passive items, whose
+effects are constant and irrevocable. _Rigor Mortis_ is a good example or a
+passive relic.
 
 ## Expire Types
 

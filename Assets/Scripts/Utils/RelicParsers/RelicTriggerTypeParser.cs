@@ -17,6 +17,7 @@ namespace CMPM.Utils.RelicParsers {
                 "stand-still" => PreconditionType.StandStill,
                 "take-damage" => PreconditionType.TakeDamage,
                 "timer"       => PreconditionType.Timer,
+                "none"        => PreconditionType.None,
                 _             => throw new NotImplementedException($"Unknown trigger type '{str}'")
             };
         }

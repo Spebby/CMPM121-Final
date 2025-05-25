@@ -9,7 +9,7 @@ namespace CMPM.Relics.Triggers {
     public abstract class RelicCoroutineTrigger : RelicTrigger {
         protected Coroutine Runner;
 
-        protected RelicCoroutineTrigger(IRelicEffect innerEffect) : base(innerEffect) { }
+        protected RelicCoroutineTrigger(in Relic parent) : base(parent) { }
         ~RelicCoroutineTrigger() {
             OnCancel();
         }
@@ -24,7 +24,6 @@ namespace CMPM.Relics.Triggers {
             if (Runner == null) return;
             CoroutineManager.Instance.StopCoroutine(Runner);
             Runner = null;
-            InnerEffect.RevertEffect();
         }
 
         protected abstract IEnumerator RunCoroutine();
