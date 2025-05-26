@@ -12,7 +12,7 @@ namespace CMPM.Spells {
         public MagicMissile(SpellCaster owner, string name, RPNString manaCost, RPNString damage,
                             Damage.Type damageDamageType, RPNString speed, RPNString cooldown, RPNString? lifetime,
                             uint icon, int[] modifiers = null) : base(owner, name, manaCost, damage, damageDamageType,
-                                                                       speed, cooldown, lifetime, icon, modifiers) { }
+                                                                      speed, cooldown, lifetime, icon, modifiers) { }
 
         public override IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {
             Team = team;
@@ -25,7 +25,7 @@ namespace CMPM.Spells {
                 ISpellModifier mod = SpellModifierRegistry.Get(hash);
                 mod?.ModifyCast(this, ref castAction);
             }
-            
+
             castAction(ProjectileType.HOMING, where, target);
 
             LastCast = Time.time;

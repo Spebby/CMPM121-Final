@@ -29,7 +29,7 @@ namespace CMPM.Spells {
                 GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
                                                                         t - w, GetSpeed(), OnHit, GetLifetime());
             };
-            
+
             // This is insanely dumb but you have to love it
             _splitModifier.ModifyCast(this, ref castAction);
             foreach (int hash in Modifiers ?? Array.Empty<int>()) {
@@ -38,7 +38,7 @@ namespace CMPM.Spells {
             }
 
             castAction(ProjectileType.STRAIGHT, where, target);
-            
+
             LastCast = Time.time;
             yield return new WaitForEndOfFrame();
         }

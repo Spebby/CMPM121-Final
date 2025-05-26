@@ -8,12 +8,12 @@ namespace CMPM.Spells.Modifiers {
         protected readonly ProjectileType Type;
 
         public SpellProjectileModifier(ProjectileType type,
-                                       RPNString? damageModifier   = null,
-                                       RPNString? manaModifier     = null,
-                                       RPNString? speedModifier    = null,
+                                       RPNString? damageModifier = null,
+                                       RPNString? manaModifier = null,
+                                       RPNString? speedModifier = null,
                                        RPNString? cooldownModifier = null,
-                                       RPNString? lifetimeModifier = null) 
-            : base(damageModifier, manaModifier, 
+                                       RPNString? lifetimeModifier = null)
+            : base(damageModifier, manaModifier,
                    speedModifier, cooldownModifier,
                    lifetimeModifier) {
             Type = type;
@@ -21,9 +21,7 @@ namespace CMPM.Spells.Modifiers {
 
         public override void ModifyCast(Spell spell, ref Action<ProjectileType, Vector3, Vector3> original) {
             Action<ProjectileType, Vector3, Vector3> prev = original;
-            original = (type, where, target) => {
-                prev (Type, where, target);
-            };
+            original = (type, where, target) => { prev(Type, where, target); };
         }
     }
 }

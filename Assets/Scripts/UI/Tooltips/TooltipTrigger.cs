@@ -1,0 +1,37 @@
+using System.Collections;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+
+
+
+namespace CMPM.UI.Tooltips {
+    public class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
+        [SerializeField] Tooltip tooltip;
+        [SerializeField, Tooltip("Ensure 'Tooltip User' has a component that implements ITooltipUser.")] GameObject tooltipUser;
+        [SerializeField, Range(0, 2f)] float hoverGrace = 0.15f;
+        ITooltipUser _user;
+        bool _isHovering;
+        
+        void Start() {
+            _user = tooltipUser ? tooltipUser.GetComponent<ITooltipUser>() : GetComponent<ITooltipUser>();
+        }
+
+        public void OnPointerEnter(PointerEventData eventData) {
+            _isHovering = true;
+            _user.ShowTooltip(tooltip);
+        }
+        
+        public void OnPointerExit(PointerEventData eventData) {
+            _isHovering = false;
+            StartCoroutine(DelayedHide());
+        }
+
+        IEnumerator DelayedHide() {
+            yield return new WaitForSeconds(hoverGrace);
+            if (!_isHovering) { // && !_user.IsHovering() <-- this requires a refactor im too tired to do rn
+                _user.HideTooltip();
+            }
+        } 
+    }
+}

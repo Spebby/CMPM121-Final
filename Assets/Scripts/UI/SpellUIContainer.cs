@@ -11,18 +11,19 @@ namespace CMPM.UI {
 
         void Awake() {
             spellUIs = GetComponentsInChildren<SpellUI>();
-            
+
             foreach (SpellUI spellUI in spellUIs) {
                 spellUI.highlight.SetActive(false);
             }
+
             spellUIs[0].highlight.SetActive(true);
         }
-        
+
         public void SetSpellAsActive(int index) {
             int length = spellUIs.Length;
             if (length == 0) return;
 
-            index = ((index % length) + length) % length;
+            index = (index % length + length) % length;
             List<SpellUI> rotated = new(length);
 
             // visually rotate 
@@ -30,7 +31,7 @@ namespace CMPM.UI {
                 int rotatedIndex = (i + index) % length;
                 rotated.Add(spellUIs[rotatedIndex]);
             }
-            
+
             int siblingIndex = 0;
             foreach (SpellUI spell in rotated) {
                 spell.highlight.SetActive(false);
@@ -38,12 +39,13 @@ namespace CMPM.UI {
                     spell.transform.SetAsLastSibling();
                     continue;
                 }
+
                 spell.transform.SetSiblingIndex(siblingIndex++);
             }
 
             rotated[0].highlight.SetActive(true);
         }
-        
+
         // im too tired to do this right rn
         void FixedUpdate() {
             int activeCount = 0;
@@ -56,9 +58,9 @@ namespace CMPM.UI {
                     break;
                 }
             }
-            
-            foreach (SpellUI spellUI in spellUIs) { 
-                spellUI.dropButton.SetActive(activeCount >= spellUIs.Length);
+
+            foreach (SpellUI spellUI in spellUIs) {
+                spellUI.dropButton.gameObject.SetActive(activeCount >= spellUIs.Length);
             }
         }
 

@@ -1,5 +1,7 @@
 using System;
+using CMPM.Core;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 namespace CMPM.DamageSystem {
@@ -13,36 +15,55 @@ namespace CMPM.DamageSystem {
         // ReSharper disable once InconsistentNaming
         public Team team;
 
-        public int Hp;
-        public int MaxHp;
+        [FormerlySerializedAs("Hp")] public int HP;
+        [FormerlySerializedAs("MaxHp")] public int MaxHP;
+        [FormerlySerializedAs("MinHp")] public int MinHP;
 
         public readonly GameObject Owner;
 
         public void Damage(Damage damage) {
             EventBus.Instance.DoDamage(Owner.transform.position, damage, this);
-            Hp -= damage.Amount;
-            if (Hp > 0) return;
-            Hp = 0;
+            HP -= damage.Amount;
+            if (HP < MinHP) MinHP = HP;
+            if (HP > 0) return;
+            HP = 0;
             OnDeath?.Invoke();
+        }
+
+        public void Heal(int amount) {
+            // no resurrection
+            if (HP <= 0) return;
+
+            // no overhealing
+            if (MaxHP - HP < amount) amount = MaxHP - HP;
+            EventBus.Instance.DoHeal(Owner.transform.position, amount, this);
+            if (amount == 0) return;
+            HP += amount;
         }
 
         public event Action OnDeath;
 
         public Hittable(int hp, Team team, GameObject owner) {
-            Hp        = hp;
-            MaxHp     = hp;
+            HP        = hp;
+            MaxHP     = hp;
+            MinHP     = hp;
             this.team = team;
             Owner     = owner;
         }
 
-        public void SetMaxHp(int maxHp) {
-            float ratio = Hp * 1.0f / MaxHp;
-            MaxHp = maxHp;
-            Hp    = Mathf.RoundToInt(ratio * maxHp);
+        public void AddHPCap(int amount) {
+            UpdateHPCap(MaxHP + amount);
+        }
+        
+        public void UpdateHPCap(int max) {
+            float ratio = HP * 1.0f / MaxHP;
+            MaxHP = max;
+            MinHP = max;
+            HP    = Mathf.RoundToInt(ratio * max);
         }
 
-        public void ResetHealth() {
-            Hp = MaxHp;
+        public void HealToMax() {
+            HP = MaxHP;
         }
     }
 }

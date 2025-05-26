@@ -44,7 +44,8 @@ namespace CMPM.Internal {
                         int        y     = i / _perRow;
 
                         newSv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
-                        newSv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.SpellIconManager.Get(i));
+                        newSv.GetComponent<SpriteView>()
+                             .Apply(i.ToString(), GameManager.Instance.SpellIconManager.Get(i));
                         _views.Add(newSv);
                     }
 
@@ -69,7 +70,8 @@ namespace CMPM.Internal {
                         int        x     = i % _perRow;
                         int        y     = i / _perRow;
                         newSv.transform.Translate(x * 80, -y * 100, 0, Space.Self);
-                        newSv.GetComponent<SpriteView>().Apply(i.ToString(), GameManager.Instance.RelicIconManager.Get(i));
+                        newSv.GetComponent<SpriteView>()
+                             .Apply(i.ToString(), GameManager.Instance.RelicIconManager.Get(i));
                         _views.Add(newSv);
                     }
 
