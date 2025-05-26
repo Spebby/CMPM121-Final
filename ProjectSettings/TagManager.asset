@@ -9,6 +9,7 @@ TagManager:
   - UIPanelPopup
   - EnemySpawner
   - Canvas
+  - Environment
   layers:
   - Default
   - TransparentFX

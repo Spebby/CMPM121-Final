@@ -55,5 +55,11 @@
         "description": "Increase number of 'pellet' type projectiles.",
         "mana_multiplier": "1.25",
         "count_multiplier": "2"
+   },
+   "piercing": {
+        "name": "piercing",
+        "description": "Increase number of enemies the projectiles can hit.",
+        "hitcap_adder": "wave",
+        "damage_multiplier": "0.9"
    }
 }

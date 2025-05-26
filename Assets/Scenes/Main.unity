@@ -1619,7 +1619,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 364.79996, y: -44.146667}
+  m_AnchoredPosition: {x: 364.79996, y: -44.14673}
   m_SizeDelta: {x: 729.5999, y: 88.293335}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &262679915
@@ -3379,7 +3379,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 15.694445
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -10348,7 +10348,7 @@ GameObject:
   - component: {fileID: 1861520035}
   m_Layer: 0
   m_Name: Tilemap
-  m_TagString: Untagged
+  m_TagString: Environment
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -60487,7 +60487,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 176.6001, y: 59.19995}
+  m_AnchoredPosition: {x: 176.6001, y: 59.200195}
   m_SizeDelta: {x: 280, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1982188285

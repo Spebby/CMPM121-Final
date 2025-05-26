@@ -13,12 +13,15 @@ namespace CMPM.Spells {
         // protected readonly RPNString Count;
         protected readonly RPNString Spread;
 
-        readonly SpellSplitModifier _splitModifier;
+        // readonly SpellSplitModifier _splitModifier;
 
-        public ArcaneSpray(SpellCaster owner, string name, RPNString manaCost, RPNString damage, Damage.Type damageType,
-                           RPNString speed, RPNString cooldown, RPNString? lifetime, RPNString? count, uint icon,
-                           RPNString countFormula, RPNString spreadFormula, int[] modifiers = null) : base(
-            owner, name, manaCost, damage, damageType, speed, cooldown, lifetime, countFormula, icon, modifiers) {
+        public ArcaneSpray(SpellCaster owner, string name, RPNString manaCost, RPNString damage,
+                           Damage.Type damageType, RPNString speed, RPNString hitcap,
+                           RPNString cooldown, RPNString? lifetime,
+                           uint icon, RPNString countFormula, RPNString spreadFormula,
+                           int[] modifiers = null) : base(owner, name, manaCost, damage,
+                                                          damageType, speed, hitcap, cooldown,
+                                                          lifetime, countFormula, icon, modifiers) {
             Count          = countFormula;
             Spread         = spreadFormula;
             // _splitModifier = new SpellSplitModifier(Count, Spread);
@@ -28,7 +31,7 @@ namespace CMPM.Spells {
             Team = team;
             Action<ProjectileType, Vector3, Vector3> castAction = (type, w, t) => {
                 GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
-                                                                        t - w, GetSpeed(), OnHit, GetLifetime());
+                                                                        t - w, GetSpeed(), OnHit, GetHitCap(), GetLifetime());
             };
 
             // This is insanely dumb but you have to love it

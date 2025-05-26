@@ -60,6 +60,14 @@ namespace CMPM.Utils.SpellParsers {
                     : $"value {countMultiplier} * {countAdder} +"
             );
 
+            string hitCapMultiplier = obj.Value<string>("hitcap_multiplier") ?? "1";
+            string hitCapAdder      = obj.Value<string>("hitcap_adder") ?? "0";
+            RPNString hitCapModifier = new(
+                string.IsNullOrEmpty(hitCapAdder)
+                    ? $"value {hitCapMultiplier} *"
+                    : $"value {hitCapMultiplier} * {hitCapAdder} +"
+            );
+
             RPNString count = new(obj.Value<string>("count") ?? "1");
             RPNString angle = new(obj.Value<string>("angle") ?? "0");
             RPNString delay = new(obj.Value<string>("delay") ?? "0");
@@ -76,6 +84,7 @@ namespace CMPM.Utils.SpellParsers {
                 damageModifier,
                 manaModifier,
                 speedModifier,
+                hitCapModifier,
                 cooldownModifier,
                 lifetimeModifier,
                 countModifier,

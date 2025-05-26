@@ -12,6 +12,7 @@
        "projectile": {
 			"trajectory": "straight",
 			"speed": "8 power 5 / +",
+            "hitcap": "1",
 			"sprite": 0
 		}
    },
@@ -28,6 +29,7 @@
        "projectile": {
             "trajectory": "straight",
             "speed": "6 power 5 / +",
+            "hitcap": "1",
             "sprite": 0
         },
        "slow_factor": "0.6",
@@ -46,6 +48,7 @@
        "projectile": {
 			"trajectory": "homing",
 			"speed": "10",
+            "hitcap": "1",
 			"sprite": 0
 		}
    },
@@ -64,11 +67,13 @@
        "projectile": {
 			"trajectory": "straight",
 			"speed": "12",
+            "hitcap": "1",
 			"sprite": 0
 		},
        "secondary_projectile": {
 			"trajectory": "straight",
 			"speed": "20",
+            "hitcap": "1",
 			"lifetime": "0.1",
 			"sprite": 0
 		}
@@ -88,6 +93,7 @@
        "projectile": {
 			"trajectory": "straight",
 			"speed": "8",
+            "hitcap": "1",
 			"sprite": 0,
 			"lifetime": "0.2 power 100 / +"
 		}
@@ -107,6 +113,7 @@
 		"projectile": {
 			"trajectory": "sine",
 			"speed": "10",
+            "hitcap": "1",
 			"sprite": 0,
 			"lifetime": "0.75 power 100 / +"
 		}

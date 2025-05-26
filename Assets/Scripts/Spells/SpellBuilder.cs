@@ -14,7 +14,6 @@ namespace CMPM.Spells {
     public static class SpellBuilder {
         static SpellBuilder()
         {
-            // ParseSpellsJson(Resources.Load<TextAsset>("spells"), Resources.Load<TextAsset>("spell_modifiers"));
             ParseSpellsJson(Resources.Load<TextAsset>("spells"), Resources.Load<TextAsset>("spell_modifiers"));
         }
 
@@ -41,6 +40,7 @@ namespace CMPM.Spells {
                     "waver" => new SpellProjectileModifier(ProjectileType.SINE, null, s.ManaCostModifier),
                     "bursting" => new SpellStatModifier(null, s.ManaCostModifier, null, null, null,
                                                            s.CountModifier),
+                    "piercing" => new SpellStatModifier(s.DamageModifier, null, null, s.HitCapModifier),
                     _       => throw new NotImplementedException($"{_.Name} is not implemented")
                 };
 
@@ -77,36 +77,36 @@ namespace CMPM.Spells {
             switch (data.Name) {
                 case "Arcane Bolt":
                     return new ArcaneBolt(owner, data.Name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
-                                          projectile.Speed, data.Cooldown, projectile.Lifetime, data.Count,
+                                          projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime, data.Count,
                                           data.Icon, modifiers);
                 case "Magic Missile":
                     return new MagicMissile(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
-                                            projectile.Speed, data.Cooldown, projectile.Lifetime, data.Count,
+                                            projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime, data.Count,
                                             data.Icon, modifiers);
                 case "Arcane Blast": {
                     if (secondary == null) throw new Exception($"{name} has no secondary projectile");
                     if (data.Count == null) throw new Exception($"{name} has no count defined");
                     return new ArcaneBlast(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
-                                           projectile.Speed, data.Cooldown, projectile.Lifetime,
+                                           projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime,
                                            data.Count.Value, secondary.Value, data.Icon, modifiers);
                 }
                 case "Arcane Spray":
                     if (data.Count == null) throw new Exception($"{name} has no count defined");
                     if (data.Spray == null) throw new Exception($"{name} has no spray defined");
                     return new ArcaneSpray(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
-                                           projectile.Speed, data.Cooldown, projectile.Lifetime, data.Count,
+                                           projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime,
                                            data.Icon, data.Count.Value, data.Spray.Value, modifiers);
                 case "Mystic River":
                     if (data.Count == null) throw new Exception($"{name} has no count defined");
                     if (data.Spray == null) throw new Exception($"{name} has no spray defined");
                     return new MysticRiver(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
-                                           projectile.Speed, data.Cooldown, projectile.Lifetime,
+                                           projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime,
                                            data.Icon, data.Count.Value, data.Spray.Value, modifiers);
                 case "Ice Bolt":
                     if (data.SlowFactor == null) throw new Exception($"{name} has no slow_factor defined");
                     if (data.TimeSlowed == null) throw new Exception($"{name} has no time_slowed defined");
                     return new IceBolt(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
-                                       projectile.Speed, data.Cooldown, projectile.Lifetime, data.Count,
+                                       projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime, data.Count,
                                        data.SlowFactor, data.TimeSlowed, data.Icon, modifiers);
 
                 //then it is a modifier spell, by recursively calling the BuildSpell method
@@ -161,12 +161,14 @@ namespace CMPM.Spells {
     public readonly struct ProjectileData {
         public readonly ProjectileType Trajectory;
         public readonly RPNString Speed;
+        public readonly RPNString HitCap;
         public readonly RPNString? Lifetime;
         public readonly int Sprite;
 
-        public ProjectileData(ProjectileType trajectory, RPNString speed, int sprite, RPNString? lifetime) {
+        public ProjectileData(ProjectileType trajectory, RPNString speed, RPNString hitcap, int sprite, RPNString? lifetime) {
             Trajectory = trajectory;
             Speed      = speed;
+            HitCap     = hitcap;
             Lifetime   = lifetime;
             Sprite     = sprite;
         }
@@ -183,6 +185,7 @@ namespace CMPM.Spells {
         public readonly RPNString DamageModifier;
         public readonly RPNString ManaCostModifier;
         public readonly RPNString SpeedModifier;
+        public readonly RPNString HitCapModifier;
         public readonly RPNString CooldownModifier;
         public readonly RPNString LifetimeModifier;
         public readonly RPNString CountModifier;
@@ -193,19 +196,20 @@ namespace CMPM.Spells {
         public readonly RPNString Count;
 
         public SpellModifierData(string name, string description, RPNString damageModifier, RPNString manaCostModifier,
-                                 RPNString speedModifier, RPNString cooldownModifier, RPNString lifetimeModifier,
-                                 RPNString countModifier, ProjectileType? type, RPNString angle, RPNString delay,
-                                 RPNString count)
+                                 RPNString speedModifier, RPNString hitCapModifier, RPNString cooldownModifier,
+                                 RPNString lifetimeModifier, RPNString countModifier, ProjectileType? type,
+                                 RPNString angle, RPNString delay, RPNString count)
         {
             Name = name;
-            Description = description;
-            DamageModifier = damageModifier;
+            Description      = description;
+            DamageModifier   = damageModifier;
             ManaCostModifier = manaCostModifier;
-            SpeedModifier = speedModifier;
+            SpeedModifier    = speedModifier;
+            HitCapModifier   = hitCapModifier;
             CooldownModifier = cooldownModifier;
             LifetimeModifier = lifetimeModifier;
-            CountModifier = countModifier;
-            Type = type;
+            CountModifier    = countModifier;
+            Type  = type;
             Angle = angle;
             Delay = delay;
             Count = count;

@@ -23,6 +23,7 @@ namespace CMPM.Spells {
         protected RPNString DamageFormula;
         public readonly Damage.Type DamageType;
         protected RPNString Speed;
+        protected RPNString HitCap;
         protected RPNString Cooldown; // In Miliseconds
         protected RPNString? Lifetime;
         protected RPNString? Count;
@@ -40,6 +41,7 @@ namespace CMPM.Spells {
         /// <param name="damage">RPN Formula for calculating damage.</param>
         /// <param name="damageDamageType">Damage Type used for the projectile.</param>
         /// <param name="speed">RPN Formula for calculating projectile speed.</param>
+        /// <param name="hitcap">Number of enemies projectiles can pierce.</param>
         /// <param name="cooldown">RPN Formula for calculating usage cooldown.</param>
         /// <param name="lifetime">RPN Formula for calculating projectile lifetime.</param>
         /// <param name="icon">Index of the icon.</param>
@@ -50,6 +52,7 @@ namespace CMPM.Spells {
                      RPNString damage,
                      Damage.Type damageDamageType,
                      RPNString speed,
+                     RPNString hitcap,
                      RPNString cooldown,
                      RPNString? lifetime,
                      RPNString? count,
@@ -61,6 +64,7 @@ namespace CMPM.Spells {
             DamageFormula = damage;
             DamageType    = damageDamageType;
             Speed         = speed;
+            HitCap        = hitcap;
             Cooldown      = cooldown;
             Lifetime      = lifetime;
             Count         = count;
@@ -119,8 +123,14 @@ namespace CMPM.Spells {
             return ApplyModifiers(Speed.Evaluate(GetRPNVariablesSafe()),
                                   (mod, val) => mod.ModifySpeed(this, val));
         }
+        
+        public virtual int GetHitCap() {
+            return (int)ApplyModifiers(HitCap.Evaluate(GetRPNVariablesSafe()),
+                                  (mod, val) => mod.ModifyHitCap(this, (int)val));
+        }
 
-        public virtual float GetCooldown() {
+        public virtual float GetCooldown()
+        {
             return ApplyModifiers(Cooldown.Evaluate(GetRPNVariables()),
                                   (mod, val) => mod.ModifyCooldown(this, val));
         }
@@ -130,11 +140,10 @@ namespace CMPM.Spells {
                                   (mod, val) => mod.ModifyLifetime(this, val));
         }
 
-        public virtual int GetCount()
-        {
+        public virtual int GetCount(){
             return Mathf.RoundToInt(ApplyModifiers(Count?.Evaluate(GetRPNVariables()) ?? 0,
-                                       (mod, val) => mod.ModifyCount(this, (float)val)));
-        } 
+                                    (mod, val) => mod.ModifyCount(this, (float)val)));
+        }
         #endregion
 
         public uint GetIcon()
@@ -150,7 +159,7 @@ namespace CMPM.Spells {
             Team = team;
             Action<ProjectileType, Vector3, Vector3> castAction = (type, w, t) => {
                 GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
-                                                                        t - w, GetSpeed(), OnHit);
+                                                                        t - w, GetSpeed(), OnHit, GetHitCap());
             };
 
             foreach (int hash in Modifiers ?? Array.Empty<int>()) {

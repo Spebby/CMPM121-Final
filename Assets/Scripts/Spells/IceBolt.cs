@@ -15,24 +15,40 @@ namespace CMPM.Spells {
         protected readonly int TimeSlowed;
 
         public IceBolt(SpellCaster owner, string name, RPNString manaCost, RPNString damage,
-                       Damage.Type damageDamageType, RPNString speed, RPNString cooldown, RPNString? lifetime,
-                       RPNString? count,
+                       Damage.Type damageDamageType, RPNString speed, RPNString hitcap,
+                       RPNString cooldown, RPNString? lifetime, RPNString? count,
                        float? slowFactor, int? timeSlowed,
                        uint icon, int[] modifiers = null) : base(owner, name, manaCost, damage, damageDamageType,
-                                                                 speed, cooldown, lifetime, count, icon, modifiers)
+                                                                 speed, hitcap, cooldown, lifetime, count, icon, modifiers)
         {
             SlowFactor = (float)slowFactor;
             TimeSlowed = (int)timeSlowed;                                                 
         }
 
-        public virtual float GetSlowFactor()
-        {
+        public virtual float GetSlowFactor() {
             return SlowFactor;
         }
 
-        public virtual int GetTimeSlowed()
-        {
+        public virtual int GetTimeSlowed() {
             return TimeSlowed;
+        }
+
+        public override IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {
+            Team = team;
+            Action<ProjectileType, Vector3, Vector3> castAction = (type, w, t) => {
+                GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
+                                                                        t - w, GetSpeed(), OnHit, GetHitCap());
+            };
+
+            foreach (int hash in Modifiers ?? Array.Empty<int>()) {
+                ISpellModifier mod = SpellModifierRegistry.Get(hash);
+                mod?.ModifyCast(this, ref castAction);
+            }
+
+            castAction(ProjectileType.STRAIGHT, where, target);
+
+            LastCast = Time.time;
+            yield return new WaitForEndOfFrame();
         }
 
         IEnumerator ApplySlow (Hittable other)

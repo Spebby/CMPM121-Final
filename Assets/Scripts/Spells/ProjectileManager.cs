@@ -24,24 +24,27 @@ namespace CMPM.Spells {
 
         public void CreateProjectile(
             int which, ProjectileType trajectory, Vector3 where, Vector3 direction, float speed,
-            Action<Hittable, Vector3> onHit) {
+            Action<Hittable, Vector3> onHit, int hitcap)
+        {
             GameObject newProjectile = Instantiate(projectiles[which], where + direction.normalized * 1.1f,
                                                    Quaternion.Euler(
                                                        0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg));
-            newProjectile.GetComponent<ProjectileController>().Movement =  MakeMovement(trajectory, speed);
-            newProjectile.GetComponent<ProjectileController>().OnHit    += onHit;
+            newProjectile.GetComponent<ProjectileController>().Movement = MakeMovement(trajectory, speed);
+            newProjectile.GetComponent<ProjectileController>().OnHit += onHit;
+            newProjectile.GetComponent<ProjectileController>().HitCap = hitcap;
         }
 
         // Always pass 0 for which, for now, may change later
         public void CreateProjectile(
             int which, ProjectileType trajectory, Vector3 where, Vector3 direction, float speed,
-            Action<Hittable, Vector3> onHit,
+            Action<Hittable, Vector3> onHit, int hitcap,
             float lifetime) {
             GameObject newProjectile = Instantiate(projectiles[which], where + direction.normalized * 1.1f,
                                                    Quaternion.Euler(
                                                        0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg));
             newProjectile.GetComponent<ProjectileController>().Movement =  MakeMovement(trajectory, speed);
             newProjectile.GetComponent<ProjectileController>().OnHit    += onHit;
+            newProjectile.GetComponent<ProjectileController>().HitCap = hitcap;
             newProjectile.GetComponent<ProjectileController>().SetLifetime(lifetime);
         }
 

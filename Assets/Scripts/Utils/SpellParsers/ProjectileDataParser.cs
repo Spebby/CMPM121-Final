@@ -12,6 +12,7 @@ namespace CMPM.Utils.SpellParsers {
 
             ProjectileType trajectory  = ProjectileManager.StringToProjectileType(obj["trajectory"]?.ToString());
             string         speedStr    = obj["speed"]?.ToString() ?? throw new JsonException("Missing 'speed'");
+            string         hitCapStr   = obj["hitcap"]?.ToString() ?? throw new JsonException("Missing 'hitcap'");
             int            sprite      = obj["sprite"]?.ToObject<int>() ?? throw new JsonException("Missing 'sprite'");
             string         lifetimeStr = obj["lifetime"]?.ToString();
 
@@ -20,9 +21,10 @@ namespace CMPM.Utils.SpellParsers {
             }
 
             RPNString  speed    = new(speedStr);
+            RPNString  hitcap   = new(hitCapStr);
             RPNString? lifetime = string.IsNullOrEmpty(lifetimeStr) ? null : new RPNString(lifetimeStr);
 
-            return new ProjectileData(trajectory, speed, sprite, lifetime);
+            return new ProjectileData(trajectory, speed, hitcap, sprite, lifetime);
         }
 
         public override void WriteJson(JsonWriter writer, ProjectileData value, JsonSerializer serializer) {
@@ -31,6 +33,8 @@ namespace CMPM.Utils.SpellParsers {
             writer.WriteValue(value.Trajectory);
             writer.WritePropertyName("speed");
             writer.WriteValue(value.Speed.String);
+            writer.WritePropertyName("hitcap");
+            writer.WriteValue(value.HitCap.String);
             writer.WritePropertyName("sprite");
             writer.WriteValue(value.Sprite);
             if (value.Lifetime.HasValue) {
