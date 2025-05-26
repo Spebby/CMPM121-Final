@@ -1,3 +1,4 @@
+using System;
 using CMPM.Core;
 using CMPM.Relics;
 using CMPM.UI.Tooltips;
@@ -8,10 +9,16 @@ using UnityEngine.UI;
 namespace CMPM.UI {
     public class RelicIcon : MonoBehaviour, ITooltipUser {
         RelicData _relic;
-
-        public Image icon;
-
+        [SerializeField] Image icon;
         Tooltip _internalTooltip;
+
+        void OnDestroy() {
+            if (_internalTooltip) Destroy(_internalTooltip);
+        }
+
+        void OnDisable() {
+            if (_internalTooltip) Destroy(_internalTooltip);
+        }
 
         public void Init(RelicData relic) {
             _relic  = relic;
@@ -33,5 +40,7 @@ namespace CMPM.UI {
             Destroy(_internalTooltip.gameObject);
             _internalTooltip = null;
         }
+        
+        public bool IsHovering() => _internalTooltip?.IsHovering ?? false;
     }
 }

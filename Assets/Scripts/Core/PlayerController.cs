@@ -125,7 +125,7 @@ namespace CMPM.Core {
          * the pointer cannot be changed--so you cannot reallocate the array. But you *can* still change
          * the value of what the reference is pointing to. */
 
-        public void AddSpell(Spell spell, int replaceIndex = 0) {
+        public void AddSpell(in Spell spell, int replaceIndex = 0) {
             if (replaceIndex < 0) throw new ArgumentOutOfRangeException(nameof(replaceIndex));
             for (int i = 0; i < _spells.Length; ++i) {
                 if (_spells[i] != null) continue;
@@ -136,12 +136,13 @@ namespace CMPM.Core {
 
             spell.AddModifiers(_baseSpellModifiers.ToArray());
             _spells[replaceIndex] = spell;
+            spellUI.AddSpell(_spells[replaceIndex], replaceIndex);
         }
 
         public void AddBaseSpellModifiers(int[] modifiers) {
             _baseSpellModifiers.AddRange(modifiers);
             foreach (Spell spell in _spells) {
-                spell.AddModifiers(modifiers);
+                spell?.AddModifiers(modifiers);
             }
         }
 

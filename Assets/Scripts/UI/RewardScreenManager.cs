@@ -21,7 +21,7 @@ namespace CMPM.UI {
         [SerializeField] GameObject panel;
 
         [SerializeField] GameObject endUI;
-        [SerializeField] GameObject nextButton;
+        [SerializeField] Button nextButton;
         [SerializeField] Button acceptButton;
 
         [Header("Main Menu")]
@@ -47,7 +47,7 @@ namespace CMPM.UI {
         [SerializeField] GameObject discardSpellUI;
 
         [SerializeField] Transform discardSpellUIContainer;
-        [SerializeField] Button discardSpellButton;
+        [FormerlySerializedAs("discardSpellButton")] [SerializeField] Button discardSpellBackButton;
 
         [Header("Stats")]
         [SerializeField] TextMeshProUGUI statsText;
@@ -63,6 +63,14 @@ namespace CMPM.UI {
         double _timeSpent;
         int _damageDone;
         int _damageTaken;
+
+        enum RelicClaimed {
+            None,
+            Generated,
+            Claimed
+        }
+        RelicClaimed _relicClaimed;
+        bool _spellClaimed;
 
         void Awake() {
             // Cache player reference
@@ -101,6 +109,8 @@ namespace CMPM.UI {
                 });
             }
             
+            nextButton.onClick.AddListener(ClosePanel);
+            discardSpellBackButton.onClick.AddListener(ShowRewardScreen);
             HandleGameStateChanged(PREGAME);
         }
 
@@ -121,8 +131,9 @@ namespace CMPM.UI {
 
         void HandleGameStateChanged(GameManager.GameState newState) {
             acceptButton.onClick.RemoveAllListeners();
-            discardSpellButton.onClick.RemoveAllListeners();
-
+            _relicClaimed = RelicClaimed.None;
+            _spellClaimed = false;
+            
             switch (newState) {
                 case PREGAME:
                     ShowStartScreen();
@@ -160,7 +171,7 @@ namespace CMPM.UI {
             difficultySelector.SetActive(false);
             
             endUI.SetActive(false);
-            nextButton.SetActive(false);
+            nextButton.gameObject.SetActive(false);
             acceptButton.gameObject.SetActive(false);
             spellUI.SetActive(false);
             relicUI.SetActive(false);
@@ -173,7 +184,7 @@ namespace CMPM.UI {
             classSelector.SetActive(false);
             difficultySelector.SetActive(false);
             endUI.SetActive(true);
-            nextButton.SetActive(false);
+            nextButton.gameObject.SetActive(false);
             acceptButton.gameObject.SetActive(false);
             spellUI.SetActive(false);
             discardSpellUI.SetActive(false);
@@ -188,42 +199,53 @@ namespace CMPM.UI {
             classSelector.SetActive(false);
             difficultySelector.SetActive(false);
             endUI.SetActive(true);
-            nextButton.SetActive(true);
+            nextButton.gameObject.SetActive(true);
             acceptButton.gameObject.SetActive(true);
             spellUI.SetActive(true);
             relicUI.SetActive(false);
             discardSpellUI.SetActive(false);
             
             // Pick and display one random spell
-            _rewardSpell ??= SpellBuilder.MakeRandomSpell(_player, maxSpellModifiers);
-            spellUIIcon.SetSpell(_rewardSpell);
-            spellText.text = $"{_rewardSpell.GetName()}\n{_rewardSpell.GetDescription()}";
+            if (_rewardSpell == null) {
+                _rewardSpell = SpellBuilder.MakeRandomSpell(_player, maxSpellModifiers);
+                spellUIIcon.SetSpell(_rewardSpell);
+                spellText.text = $"{_rewardSpell.GetName()}\n{_rewardSpell.GetDescription()}";
+            } else {
+                spellUI.SetActive(false);
+                acceptButton.gameObject.SetActive(false);
+            }
 
             UpdateStatsText();
 
             // Wire up the accept button
             acceptButton.onClick.AddListener(OnAcceptClicked);
-            
+            if (_relicClaimed == RelicClaimed.Generated) {
+                relicUI.SetActive(true);
+            }
             
             // Wave isn't updated until the Enemy Spawner starts spawning.
             int wave = GameManager.Instance.CurrentWave;
-            if (wave % relicRewardFrequency != 0) return;
-
+            if (_relicClaimed != RelicClaimed.None || wave % relicRewardFrequency != 0) return;
+            relicUI.SetActive(true);
+            _relicClaimed = RelicClaimed.Generated;
+            
             BitArray set = _player.RelicOwnership;
             RelicData[] relics = RelicBuilder.GetRelicSet(set, relicRewardAmount, out BitArray _);
             if (relics.Length == 0) return;
-            relicUI.SetActive(true);
             relicSelectorManager.Set(relics, r => {
+                _relicClaimed = RelicClaimed.Claimed;
                 relicUI.SetActive(false);
                 _player.AddRelic(RelicBuilder.CreateRelic(r));
                 set.Set(RelicRegistry.GetIndexFromRelic(r), true);
+                if (_spellClaimed) {
+                    ClosePanel();
+                }
             });
         }
 
         void ShowDiscardMenu() {
             endUI.SetActive(false);
             discardSpellUI.SetActive(true);
-            discardSpellButton.onClick.AddListener(ClosePanel);
 
             Spell[]   spells = _player.GetSpells();
             SpellUI[] slots  = discardSpellUIContainer.GetComponentsInChildren<SpellUI>();
@@ -239,7 +261,11 @@ namespace CMPM.UI {
                     int idx = i;
                     btn.onClick.AddListener(() => {
                         _player.AddSpell(_rewardSpell, idx);
-                        ClosePanel();
+                        if (_relicClaimed == RelicClaimed.Claimed) {
+                            ClosePanel();
+                        } else {
+                            ShowRewardScreen();
+                        }
                     });
                 } else {
                     slot.gameObject.SetActive(false);
@@ -253,9 +279,14 @@ namespace CMPM.UI {
         #endregion
 
         void OnAcceptClicked() {
+            _spellClaimed = true;
             if (_player.HasSpellRoom()) {
                 _player.AddSpell(_rewardSpell);
-                ClosePanel();
+                spellUI.gameObject.SetActive(false);
+                acceptButton.gameObject.SetActive(false);
+                if (_relicClaimed == RelicClaimed.Claimed) {
+                    ClosePanel();
+                }
             } else {
                 ShowDiscardMenu();
             }
@@ -263,7 +294,7 @@ namespace CMPM.UI {
 
         void ClosePanel() {
             panel.SetActive(false);
-            nextButton.SetActive(false);
+            nextButton.gameObject.SetActive(false);
             acceptButton.onClick.RemoveAllListeners();
             _rewardSpell = null;
             onPanelClose?.Invoke();
@@ -275,7 +306,7 @@ namespace CMPM.UI {
             string waveInfo = $"\tWave: {cur}" + (tot > 0 ? $"/{tot}" : "");
 
             if (tot > 0 && cur == tot)
-                nextButton.SetActive(false);
+                nextButton.gameObject.SetActive(false);
 
             statsText.text =
                 $"Time Spent: {_timeSpent:F2}\t" +
@@ -290,5 +321,13 @@ namespace CMPM.UI {
                 _damageDone += damage.Amount;
             }
         }
+        
+        #region Debug
+        public void DebugAddSpell() {
+            _rewardSpell ??= SpellBuilder.MakeRandomSpell(_player, maxSpellModifiers);
+            _player.AddSpell(_rewardSpell, 3);
+            _rewardSpell = null;
+        }
+        #endregion
     }
 }

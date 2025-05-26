@@ -1,3 +1,4 @@
+using System;
 using CMPM.Core;
 using CMPM.Spells;
 using CMPM.UI.Tooltips;
@@ -19,7 +20,15 @@ namespace CMPM.UI {
         public Button dropButton;
 
         Tooltip _internalTooltip;
-        
+
+        void OnDestroy() {
+            if (_internalTooltip) Destroy(_internalTooltip);
+        }
+
+        void OnDisable() {
+            if (_internalTooltip) Destroy(_internalTooltip);
+        }
+
         void Start() {
             _lastTextUpdate = 0;
             if (highlight) highlight.SetActive(false);
@@ -72,6 +81,8 @@ namespace CMPM.UI {
             if (!_internalTooltip) return;
             Destroy(_internalTooltip.gameObject);
             _internalTooltip = null;
-        } 
+        }
+        
+        public bool IsHovering() => _internalTooltip?.IsHovering ?? false;
     }
 }

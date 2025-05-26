@@ -6,8 +6,8 @@ namespace CMPM.Relics.Effects {
     public class BaseSpellModifierEffect : IRelicEffect {
         protected readonly PlayerController Player;
         protected readonly int[] Hashes;
+        readonly bool _applyOnce;
         bool _hasAdded;
-        bool _applyOnce;
         
         public BaseSpellModifierEffect(in PlayerController player, in int[] hashes, bool applyOnce = true) {
             Player = player;

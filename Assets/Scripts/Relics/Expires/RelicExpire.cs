@@ -1,5 +1,4 @@
 using System;
-using CMPM.Relics.Effects;
 
 
 namespace CMPM.Relics.Expires {
@@ -10,7 +9,7 @@ namespace CMPM.Relics.Expires {
             Parent = parent;
         }
         
-        public virtual void OnTrigger(Action callback) {
+        public virtual void OnTrigger(Action callback = null) {
             Parent.OnDeactivate();
             callback?.Invoke();
         }

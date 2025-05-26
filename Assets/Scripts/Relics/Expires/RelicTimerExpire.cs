@@ -1,6 +1,5 @@
 using System.Collections;
 using CMPM.Core;
-using CMPM.Relics.Effects;
 using CMPM.Utils;
 using CMPM.Utils.Structures;
 using UnityEngine;

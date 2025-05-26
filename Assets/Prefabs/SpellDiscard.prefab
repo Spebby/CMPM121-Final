@@ -568,7 +568,7 @@ MonoBehaviour:
   manacost: {fileID: 8208405733665623520}
   damage: {fileID: 6895728366762356171}
   highlight: {fileID: 0}
-  dropButton: {fileID: 2913066323816142982}
+  dropButton: {fileID: 0}
 --- !u!114 &83752280184948000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -583,6 +583,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tooltip: {fileID: 7110267865108753726, guid: 04269070262e543a1be3560480db6642, type: 3}
   tooltipUser: {fileID: 6753168924915223995}
+  hoverGrace: 0.15
 --- !u!1 &7101096851247257358
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,11 +10,19 @@ namespace CMPM.UI {
     public class ClassSelector : MonoBehaviour, ITooltipUser {
         PlayerController.PlayerClass _class;
 
-        public Image icon;
-        public TextMeshProUGUI label;
+        [SerializeField] Image icon;
+        [SerializeField] TextMeshProUGUI label;
 
         Button _button;
         Tooltip _internalTooltip;
+
+        void OnDestroy() {
+            if (_internalTooltip) Destroy(_internalTooltip);
+        }
+
+        void OnDisable() {
+            if (_internalTooltip) Destroy(_internalTooltip);
+        }
 
         public void Start() {
             _button = GetComponent<Button>();
@@ -40,5 +48,7 @@ namespace CMPM.UI {
             Destroy(_internalTooltip.gameObject);
             _internalTooltip = null;
         }
+        
+        public bool IsHovering() => _internalTooltip?.IsHovering ?? false;
     }
 }

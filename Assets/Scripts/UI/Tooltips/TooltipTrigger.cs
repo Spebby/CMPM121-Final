@@ -14,7 +14,6 @@ namespace CMPM.UI.Tooltips {
         bool _isHovering;
         
         void Start() {
-            tooltip ??= GetComponent<Tooltip>();
             _user = tooltipUser ? tooltipUser.GetComponent<ITooltipUser>() : GetComponent<ITooltipUser>();
         }
 
@@ -30,7 +29,7 @@ namespace CMPM.UI.Tooltips {
 
         IEnumerator DelayedHide() {
             yield return new WaitForSeconds(hoverGrace);
-            if (!_isHovering && !tooltip.IsHovering) {
+            if (!_isHovering) { // && !_user.IsHovering() <-- this requires a refactor im too tired to do rn
                 _user.HideTooltip();
             }
         } 

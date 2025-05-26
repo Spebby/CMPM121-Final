@@ -58,7 +58,7 @@ namespace CMPM.Relics.Effects {
 
 			_stack.Push(new Tuple<Action<int>, int>(rule.Modify, increment));
 			rule.Modify(increment);
-			Debug.Log($"{buff.ToString()} +{increment}");
+			//Debug.Log($"{buff.ToString()} +{increment}");
 		}
 
 		public void RevertEffect() {
@@ -66,7 +66,7 @@ namespace CMPM.Relics.Effects {
 			
 			Tuple<Action<int>, int> x = _stack.Pop();
 			x.Item1(-x.Item2);
-			Debug.Log($"{x.Item1.ToString()} -{x.Item2}");
+			//Debug.Log($"{x.Item1.ToString()} -{x.Item2}");
 		}
 
 		public bool CanCancel() => _stack.Count > 0;

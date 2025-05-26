@@ -18,9 +18,11 @@ namespace CMPM.Utils.RelicParsers {
 
             // Parse Precondition
             JObject pre = obj["precondition"]?.ToObject<JObject>() ?? throw new JsonException("Missing precondition");
+            PreconditionType type = pre["type"]?.ToObject<PreconditionType>(serializer) ??
+                                    throw new JsonException("Invalid precondition.type");
             RelicData.RelicPreconditionData relicPrecondition = new(
-                pre["description"]?.ToString() ?? throw new JsonException("Missing precondition.description"),
-                pre["type"]?.ToObject<PreconditionType>(serializer) ?? throw new JsonException("Invalid precondition.type"),
+                pre["description"]?.ToString() ?? (type == PreconditionType.None ? "" : throw new JsonException("Missing precondition.description")),
+                type,
                 pre["amount"]?.ToObject<RPNString>(serializer),
                 pre["range"]?.ToObject<RPNRange>(serializer)
             );

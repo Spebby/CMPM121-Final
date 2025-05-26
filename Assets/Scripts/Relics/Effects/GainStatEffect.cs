@@ -32,7 +32,7 @@ namespace CMPM.Relics.Effects {
 
         public SerializedDictionary<string, float> GetRPNVariables() {
             return new SerializedDictionary<string, float> {
-                { "baseHP", GameManager.Instance.PlayerController.HP.HP },
+                { "baseHP", GameManager.Instance.PlayerController.HP.MaxHP },
                 { "wave",   GameManager.Instance.CurrentWave }
             };
         }

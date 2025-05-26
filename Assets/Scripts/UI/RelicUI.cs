@@ -9,15 +9,22 @@ using UnityEngine.UI;
 namespace CMPM.UI {
     public class RelicUI : MonoBehaviour, ITooltipUser {
         Relic _relic;
-
-        public Image icon;
-        public GameObject highlight;
-        public TextMeshProUGUI label;
-
         Tooltip _internalTooltip;
 
+        [SerializeField] Image icon;
+        [SerializeField] GameObject highlight;
+        [SerializeField] TextMeshProUGUI label;
+
+        void OnDestroy() {
+            if (_internalTooltip) Destroy(_internalTooltip);
+        }
+        
         void OnEnable() {
             label.gameObject.SetActive(false);
+        }
+
+        void OnDisable() {
+            if (_internalTooltip) Destroy(_internalTooltip);
         }
 
         public void Init(Relic relic) {
@@ -28,7 +35,9 @@ namespace CMPM.UI {
         }
 
         void Update() {
-            highlight.SetActive(_relic.IsActive);
+            if (_relic.ShouldHighlight) {
+                highlight.SetActive(_relic.IsActive);
+            }
         }
 
         public void ShowTooltip(Tooltip tooltip) {
@@ -45,5 +54,7 @@ namespace CMPM.UI {
             Destroy(_internalTooltip.gameObject);
             _internalTooltip = null;
         }
+
+        public bool IsHovering() => _internalTooltip?.IsHovering ?? false;
     }
 }

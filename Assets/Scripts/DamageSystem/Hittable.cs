@@ -36,8 +36,8 @@ namespace CMPM.DamageSystem {
 
             // no overhealing
             if (MaxHP - HP < amount) amount = MaxHP - HP;
-            if (amount == 0) return;
             EventBus.Instance.DoHeal(Owner.transform.position, amount, this);
+            if (amount == 0) return;
             HP += amount;
         }
 
@@ -51,6 +51,10 @@ namespace CMPM.DamageSystem {
             Owner     = owner;
         }
 
+        public void AddHPCap(int amount) {
+            UpdateHPCap(MaxHP + amount);
+        }
+        
         public void UpdateHPCap(int max) {
             float ratio = HP * 1.0f / MaxHP;
             MaxHP = max;

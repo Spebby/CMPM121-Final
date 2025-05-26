@@ -394,3 +394,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltip: {fileID: 7110267865108753726, guid: 04269070262e543a1be3560480db6642, type: 3}
+  tooltipUser: {fileID: 7557543120329724951}
+  hoverGrace: 0.15

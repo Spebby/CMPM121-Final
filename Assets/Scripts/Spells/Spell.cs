@@ -41,7 +41,7 @@ namespace CMPM.Spells {
         /// <param name="cooldown">RPN Formula for calculating usage cooldown.</param>
         /// <param name="lifetime">RPN Formula for calculating projectile lifetime.</param>
         /// <param name="icon">Index of the icon.</param>
-        /// <param name="modifiers">List of modifier hashes. Null by default.</param>
+        /// <param name="modifiers">List of modifier hashes.</param>
         protected Spell(SpellCaster owner,
                         string name,
                         RPNString manaCost,
@@ -65,16 +65,17 @@ namespace CMPM.Spells {
             Team     = owner.Team;
             LastCast = 0;
 
-            Modifiers = modifiers;
+            Modifiers = modifiers ?? Array.Empty<int>();
         }
 
         public string GetName() {
             string baseStr = Name;
             foreach (int modifier in Modifiers ?? Array.Empty<int>()) {
-                SpellModifierData data    = SpellModifierDataRegistry.Get(modifier);
-                char[]            adjName = data.Name.ToCharArray();
-                adjName[0] = char.ToUpper(adjName[0]);
-                baseStr    = $"{new string(adjName)} {baseStr}";
+                SpellModifierData data = SpellModifierDataRegistry.Get(modifier);
+                if (data.Name == null) continue;
+                char[] adjName = data.Name.ToCharArray();
+                adjName[0]     = char.ToUpper(adjName[0]);
+                baseStr        = $"{new string(adjName)} {baseStr}";
             }
 
             return baseStr;

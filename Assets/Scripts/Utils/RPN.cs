@@ -12,7 +12,7 @@ namespace CMPM.Utils {
     // I figured a wrapper for RPN Strings was fitting to make the use case clear & keep associated data together
     // + reduce user error.
     [JsonConverter(typeof(RPNStringParser))]
-    public struct RPNString : IEquatable<RPNString> {
+    public readonly struct RPNString : IEquatable<RPNString> {
         public readonly string String;
         [CanBeNull] public readonly SerializedDictionary<string, int> Variables;
 

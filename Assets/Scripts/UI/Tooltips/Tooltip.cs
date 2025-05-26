@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,8 +11,11 @@ namespace CMPM.UI.Tooltips {
         public GameObject body;
         public TMP_Text title;
         public TMP_Text description;
-
         
+        void OnDestroy() {
+            Destroy(gameObject);
+        }
+
         public bool IsHovering { get;  private set; }
         public bool IsTriggerHovered { get;  private set; }
 

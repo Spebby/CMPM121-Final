@@ -15,6 +15,8 @@ namespace CMPM.Utils.RelicParsers {
             return str.ToLower() switch {
                 "gain-mana"              => EffectType.GainMana,
                 "gain-spellpower"        => EffectType.GainSpellpower,
+                "gain-health"            => EffectType.GainHealth,
+                "gain-max-health"        => EffectType.GainMaxHealth,
                 "random-boost"           => EffectType.RandomBoost,
                 "modify-spell-cooldown%" => EffectType.ModifySpellCooldownP,
                 "modify-spell-cost%"     => EffectType.ModifySpellCostP,
@@ -26,6 +28,8 @@ namespace CMPM.Utils.RelicParsers {
             string str = value switch {
                 EffectType.GainMana             => "gain-mana",
                 EffectType.GainSpellpower       => "gain-spellpower",
+                EffectType.GainHealth           => "gain-health",
+                EffectType.GainMaxHealth        => "gain-max-health",
                 EffectType.RandomBoost          => "random-boost",
                 EffectType.ModifySpellCooldownP => "modify-spell-cooldown%",
                 EffectType.ModifySpellCostP     => "modify-spell-cost%",

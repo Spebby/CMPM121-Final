@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using CMPM.Core;
-using CMPM.Relics.Effects;
 using CMPM.Utils;
 using CMPM.Utils.Structures;
 using UnityEngine;
@@ -12,7 +11,7 @@ namespace CMPM.Relics.Triggers {
     public class RelicTimer : RelicCoroutineTrigger, IRPNEvaluator {
         protected RPNRange Range;
         public Action OnTriggered;
-        bool _ran = false;
+        bool _ran;
         
         public RelicTimer(in Relic parent, in RPNRange range) : base(parent) {
             Range = range;
@@ -21,7 +20,7 @@ namespace CMPM.Relics.Triggers {
         // tbh I'm not sure what this should really signify. Revisit this when less tired
         public override bool Evaluate() => _ran;
 
-        public override void OnTrigger(Action callback) {
+        public override void OnTrigger(Action callback = null) {
             _ran = false;
             base.OnTrigger(callback);
         }
@@ -30,14 +29,18 @@ namespace CMPM.Relics.Triggers {
             _ran = false;
             base.OnCancel();
         }
-        
+       
+        // TODO: review if this is actually what we want. It's a bit messy but should be fine?
         protected override IEnumerator RunCoroutine() {
-            SerializedDictionary<string, float> vars = GetRPNVariables();
-            yield return new WaitForSeconds(Random.Range(Range.Min.Evaluate(vars), Range.Max.Evaluate(vars)));
-            _ran = true;
-            
-            Parent.OnActivate();
-            OnTriggered?.Invoke();
+            while (true) {
+                SerializedDictionary<string, float> vars = GetRPNVariables();
+                yield return new WaitForSeconds(Random.Range(Range.Min.Evaluate(vars), Range.Max.Evaluate(vars)));
+                _ran = true;
+
+                Parent.OnActivate();
+                OnTriggered?.Invoke();
+            }
+            // ReSharper disable once IteratorNeverReturns
         }
 
         public SerializedDictionary<string, float> GetRPNVariables() {

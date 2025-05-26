@@ -20,13 +20,13 @@
         "description": "Most likely not edible.",
         "sprite": 1,
         "precondition": {
-            "description": "When you don't move for 3 seconds",
+            "description": "When you don't move for 3 seconds...",
             "type": "stand-still",
             "amount": "3"
         },
         "effect": [
 			{
-				"description": "you gain 10 spellpower (+5/wave)",
+				"description": "You gain 10 spellpower (+5/wave)",
 				"type": "gain-spellpower",
 				"amount": "10 wave 5 * +",
 				"until": "move"
@@ -38,12 +38,12 @@
         "description": "May bite if eaten.",
         "sprite": 2,
         "precondition": {
-            "description": "When you take damage",
+            "description": "When you take damage...",
             "type": "take-damage"
         },
         "effect": [
 			{
-			    "description": "your next spell gains 100 additional spellpower.",
+			    "description": "Your next spell gains 100 additional spellpower.",
 		        "type": "gain-spellpower",
 	            "amount": "100",
 				"until": "cast-spell"
@@ -55,12 +55,12 @@
         "description": "May cut up your throat on the way down.",
         "sprite": 3,
         "precondition": {
-            "description": "When you kill an enemy",
+            "description": "When you kill an enemy...",
             "type": "on-kill"
         },
         "effect": [
 			{
-				"description": "you gain 25 mana.",
+				"description": "Regain 25 mana.",
 				"type": "gain-mana",
 				"amount": "25"
 			}
@@ -71,16 +71,16 @@
         "description": "Could taste good.",
 		"sprite": 16,
 		"precondition": {
-			"description": "Every 2-4 seconds",
+			"description": "Every 6-8 seconds...",
 			"type": "timer",
 			"range": {
-				"min": "2",
-				"max": "4"
+				"min": "6",
+				"max": "8"
 			}
 		},
 		"effect": [
 			{
-				"description": "A temporary random stat boost.",
+				"description": "Gain a temporary random stat boost.",
 				"type": "random-boost",
 				"amount": "0.2",
 				"until": "overwrite"
@@ -88,16 +88,16 @@
 		]
 	},
 	{
-		"name": "Battle Tendency",
-		"description": "Could give you an ear infection".
-		"sprite": 22,
+		"name": "Rations",
+		"description": "Most probably edible.",
+		"sprite": 11,
 		"precondition": {
-			"description": "When you kill an enemy",
+			"description": "When you kill an enemy...",
 			"type": "on-kill"
 		},
 		"effect": [
 			{
-				"description": "Gain 5% health",
+				"description": "Regain 5% health",
 				"type": "gain-health",
 				"amount": "baseHP 0.05 *"
 			}
@@ -106,20 +106,37 @@
 	{
 		"name": "Rigor Mortis",
 		"description": "Cracking!",
-		"sprite": 33,
+		"sprite": 18,
 		"precondition": {
-			"type": "None"
+			"type": "none"
 		},
 		"effect": [
 			{
-				"description": "Halves spell",
+				"description": "Halves spell cooldowns.",
 				"type": "modify-spell-cooldown%",
 				"amount": "0.5"
 			},
 			{
-				"description": "Doubles spell mana cost",
+				"description": "But doubles spell mana cost.",
 				"type": "modify-spell-cost%",
 				"amount": "2"
+			}
+		]
+	},
+	{
+		"name": "Phantom Blood",
+		"description": "May give you a disease.",
+		"sprite": 17,
+		"precondition": {
+			"description": "For every 10 enemies killed...",
+			"type":   "on-kill",
+			"amount": "10"
+		},
+		"effect": [
+			{
+				"description": "Gain 10 health capacity.",
+				"type": "gain-max-health",
+				"amount": "10"
 			}
 		]
 	}
