@@ -1,18 +1,21 @@
-using System.Collections;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
 
-namespace CMPM.UI {
+namespace CMPM.UI.Tooltips {
     public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
         [FormerlySerializedAs("Body")] [Header("Components")] 
         public GameObject body;
         public TMP_Text title;
         public TMP_Text description;
-
         
+        void OnDestroy() {
+            Destroy(gameObject);
+        }
+
         public bool IsHovering { get;  private set; }
         public bool IsTriggerHovered { get;  private set; }
 

@@ -16,6 +16,7 @@ namespace CMPM.Utils.RelicParsers {
                 "cast-spell" => EffectExpiration.CastSpell,
                 "move"       => EffectExpiration.Move,
                 "timer"      => EffectExpiration.Timer,
+                "overwrite"  => EffectExpiration.Overwrite,
                 "none"       => EffectExpiration.None,
                 _            => throw new NotImplementedException($"Unknown condition type '{str}'")
             };
@@ -26,6 +27,7 @@ namespace CMPM.Utils.RelicParsers {
                 EffectExpiration.CastSpell => "cast-spell",
                 EffectExpiration.Move      => "move",
                 EffectExpiration.Timer     => "timer",
+                EffectExpiration.Overwrite => "overwrite",
                 EffectExpiration.None      => "none",
                 _                          => throw new NotImplementedException($"Unknown condition type '{value}'")
             };

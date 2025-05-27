@@ -56,9 +56,9 @@ namespace CMPM.Core {
         public void RemoveEnemy(GameObject enemy) {
             lock (ENEMY_LOCK) {
                 _enemies.Remove(enemy);
+                Object.Destroy(enemy);
+                EnemiesLeft--;
             }
-
-            EnemiesLeft--;
         }
 
         public GameObject GetClosestEnemy(Vector3 point) {

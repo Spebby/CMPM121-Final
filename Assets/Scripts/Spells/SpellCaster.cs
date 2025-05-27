@@ -45,20 +45,20 @@ namespace CMPM.Spells {
             yield return Spell.Cast(where, target, Team);
         }
 
-        public void ModifyMana(int c) {
+        public void AddMana(int c) {
             Mana = Mathf.Clamp(Mana + c, 0, MaxMana);
         }
 
-        public void ModifyMaxMana(int c) {
+        public void AddMaxMana(int c) {
             MaxMana = Mathf.Max(MaxMana + c, 0);
         }
 
         // Arguably we may want "negative" mana regen as a feature but for the moment I don't see any value in that.
-        public void ModifyManaRegen(int c) {
+        public void AddManaRegen(int c) {
             ManaRegen = Mathf.Max(ManaRegen + c, 0); 
         }
         
-        public void ModifySpellpower(int c) {
+        public void AddSpellpower(int c) {
             SpellPower = Mathf.Max(SpellPower + c, 1);
         }
     }

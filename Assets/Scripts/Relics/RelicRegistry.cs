@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.Rendering;
 
 
 namespace CMPM.Relics {
@@ -30,7 +29,7 @@ namespace CMPM.Relics {
             relic = null;
             if (unsetIndices.Count == 0) return -1;
             int index = RNG.Next(0, unsetIndices.Count);
-            relic = REGISTRY[index];
+            relic = REGISTRY[unsetIndices[index]];
             return index;
         }
 

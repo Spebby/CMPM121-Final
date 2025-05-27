@@ -60,7 +60,7 @@ namespace CMPM.UI {
             }
 
             foreach (SpellUI spellUI in spellUIs) {
-                spellUI.dropButton.SetActive(activeCount >= spellUIs.Length);
+                spellUI.dropButton.gameObject.SetActive(activeCount >= spellUIs.Length);
             }
         }
 

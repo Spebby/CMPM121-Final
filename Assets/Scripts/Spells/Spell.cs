@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using CMPM.Core;
 using CMPM.DamageSystem;
 using CMPM.Spells.Modifiers;
@@ -14,7 +13,7 @@ namespace CMPM.Spells {
     [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
     public abstract class Spell : IRPNEvaluator {
         public float LastCast { get; protected set; }
-        public readonly SpellCaster Owner;
+        protected readonly SpellCaster Owner;
         protected Hittable.Team Team;
 
         #region Values
@@ -23,14 +22,14 @@ namespace CMPM.Spells {
         protected RPNString DamageFormula;
         public readonly Damage.Type DamageType;
         protected RPNString Speed;
+        protected RPNString Cooldown; // In Milliseconds
         protected RPNString HitCap;
-        protected RPNString Cooldown; // In Miliseconds
         protected RPNString? Lifetime;
         protected RPNString? Count;
         readonly uint _iconIndex;
         #endregion
 
-        protected readonly int[] Modifiers;
+        protected int[] Modifiers;
 
         /// <summary>
         /// Spell Constructor
@@ -73,16 +72,17 @@ namespace CMPM.Spells {
             Team     = owner.Team;
             LastCast = 0;
 
-            Modifiers = modifiers;
+            Modifiers = modifiers ?? Array.Empty<int>();
         }
 
         public string GetName() {
             string baseStr = Name;
-            foreach (int modifier in Modifiers) {
-                SpellModifierData data    = SpellModifierDataRegistry.Get(modifier);
-                char[]            adjName = data.Name.ToCharArray();
-                adjName[0] = char.ToUpper(adjName[0]);
-                baseStr    = $"{new string(adjName)} {baseStr}";
+            foreach (int modifier in Modifiers ?? Array.Empty<int>()) {
+                SpellModifierData data = SpellModifierDataRegistry.Get(modifier);
+                if (data.Name == null) continue;
+                char[] adjName = data.Name.ToCharArray();
+                adjName[0]     = char.ToUpper(adjName[0]);
+                baseStr        = $"{new string(adjName)} {baseStr}";
             }
 
             return baseStr;
@@ -90,8 +90,8 @@ namespace CMPM.Spells {
 
         public string GetDescription() {
             string baseStr = $"base: {SpellRegistry.Get(Name.GetHashCode()).Description}\n";
-            foreach (int modifier in Modifiers) {
-                SpellModifierData data = SpellModifierDataRegistry.Get(modifier);
+            foreach (int modifier in Modifiers ?? Array.Empty<int>()) {
+                if (!SpellModifierDataRegistry.TryGet(modifier, out SpellModifierData data)) continue;
                 baseStr += $"{data.Name}: {data.Description}\n";
             }
 
@@ -129,8 +129,7 @@ namespace CMPM.Spells {
                                   (mod, val) => mod.ModifyHitCap(this, (int)val));
         }
 
-        public virtual float GetCooldown()
-        {
+        public virtual float GetCooldown() {
             return ApplyModifiers(Cooldown.Evaluate(GetRPNVariables()),
                                   (mod, val) => mod.ModifyCooldown(this, val));
         }
@@ -146,13 +145,45 @@ namespace CMPM.Spells {
         }
         #endregion
 
-        public uint GetIcon()
-        {
+        public uint GetIcon() {
             return _iconIndex;
         }
 
         public bool IsReady() {
             return LastCast + GetCooldown() < Time.time;
+        }
+
+        public void AddModifiers(int[] additions) {
+            int[] newModifiers = new int[Modifiers.Length + additions.Length];
+            Array.Copy(Modifiers, 0, newModifiers, 0, Modifiers.Length);
+            Array.Copy(additions, 0, newModifiers, Modifiers.Length, additions.Length);
+            Modifiers = newModifiers;
+        }
+
+        public void RemoveModifiers(int[] removals) {
+            int[]  temp    = new int[Modifiers.Length];
+            bool[] removed = new bool[removals.Length];
+
+            int write = 0;
+
+            foreach (int t in Modifiers) {
+                bool matched = false;
+                for (int j = 0; j < removals.Length; j++) {
+                    if (removed[j] || t != removals[j]) continue;
+                    removed[j] = true;
+                    matched    = true;
+                    break;
+                }
+
+                if (matched) continue;
+                temp[write++] = t;
+            }
+
+            // If nothing was removed, return.
+            if (write == Modifiers.Length) return;
+            int[] newModifiers = new int[write];
+            Array.Copy(temp, newModifiers, write);
+            Modifiers = newModifiers;
         }
 
         public virtual IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {
@@ -175,7 +206,7 @@ namespace CMPM.Spells {
 
         protected virtual void OnHit(Hittable other, Vector3 impact) {
             if (other.team == Team) return;
-            Action<Hittable, Vector3, Damage.Type> hitAction = (o, i, type) => {
+            Action<Hittable, Vector3, Damage.Type> hitAction = (o, _, type) => {
                 o.Damage(new Damage(GetDamage(), type));
             };
 

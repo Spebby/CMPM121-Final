@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8180923118902145425}
   - component: {fileID: 9044460797568912106}
   m_Layer: 0
-  m_Name: Damage
+  m_Name: JuiceDamage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -189,11 +189,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc70c3e61283a504da2ab67e1b8e3972, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  color_i: {r: 0, g: 0, b: 0, a: 0}
-  color_f: {r: 0, g: 0, b: 0, a: 0}
-  initialPosition: {x: 0, y: 0, z: 0}
-  finalPosition: {x: 0, y: 0, z: 0}
+  colorI: {r: 1, g: 0, b: 0, a: 0}
+  colorF: {r: 0, g: 0, b: 0, a: 0}
   fadeDuration: 0
-  font_i: 0
-  font_f: 0
-  dmg: 

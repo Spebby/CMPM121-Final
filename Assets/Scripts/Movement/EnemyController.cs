@@ -88,7 +88,6 @@ namespace CMPM.Movement {
             dead = true;
             EventBus.Instance.DoEnemyDeath(this);
             GameManager.Instance.RemoveEnemy(gameObject);
-            Destroy(gameObject);
         }
     }
 }

@@ -1,7 +1,7 @@
 using CMPM.Core;
 using CMPM.Relics;
+using CMPM.UI.Tooltips;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,15 +9,22 @@ using UnityEngine.UI;
 namespace CMPM.UI {
     public class RelicUI : MonoBehaviour, ITooltipUser {
         Relic _relic;
-
-        public Image icon;
-        public GameObject highlight;
-        public TextMeshProUGUI label;
-
         Tooltip _internalTooltip;
 
+        [SerializeField] Image icon;
+        [SerializeField] GameObject highlight;
+        [SerializeField] TextMeshProUGUI label;
+
+        void OnDestroy() {
+            if (_internalTooltip) Destroy(_internalTooltip);
+        }
+        
         void OnEnable() {
             label.gameObject.SetActive(false);
+        }
+
+        void OnDisable() {
+            if (_internalTooltip) Destroy(_internalTooltip);
         }
 
         public void Init(Relic relic) {
@@ -28,7 +35,9 @@ namespace CMPM.UI {
         }
 
         void Update() {
-            highlight.SetActive(_relic.IsActive);
+            if (_relic.ShouldHighlight) {
+                highlight.SetActive(_relic.IsActive);
+            }
         }
 
         public void ShowTooltip(Tooltip tooltip) {
@@ -37,15 +46,15 @@ namespace CMPM.UI {
             }
             
             _internalTooltip = Instantiate(tooltip, GameObject.FindWithTag("Canvas").transform, true);
-            bool hasPrecondition = !string.IsNullOrEmpty(_relic.PreconditionDescription);
-            bool hasEffect = !string.IsNullOrEmpty(_relic.EffectDescription);
-            string body = $"{_relic.Description}{(hasEffect || hasPrecondition ? '\n' : "")}{(hasPrecondition ? '\n' : $"\n{_relic.PreconditionType.ToString()}: {_relic.PreconditionDescription}")}{(hasEffect ? '\n' : $"\n{_relic.EffectType.Description()}: {_relic.EffectDescription}")}";
-            _internalTooltip.OnTriggerHoverChanged(true, _relic.Name, body);
+            _internalTooltip.OnTriggerHoverChanged(true, _relic.Name, _relic.Description);
         }
         
         public void HideTooltip() {
+            if (!_internalTooltip) return;
             Destroy(_internalTooltip.gameObject);
             _internalTooltip = null;
         }
+
+        public bool IsHovering() => _internalTooltip?.IsHovering ?? false;
     }
 }

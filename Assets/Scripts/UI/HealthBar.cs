@@ -1,22 +1,19 @@
 using CMPM.DamageSystem;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 namespace CMPM.UI {
     public class HealthBar : MonoBehaviour {
         public GameObject slider;
 
-        public Hittable Hp;
+        [FormerlySerializedAs("Hp")] public Hittable HP;
 
         float _prevRatio;
 
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
-        void Start() { }
-
-        // Update is called once per frame
         void Update() {
-            if (Hp == null) return;
-            float ratio = Hp.HP * 1.0f / Hp.MaxHP;
+            if (HP == null) return;
+            float ratio = HP.HP * 1.0f / HP.MaxHP;
             if (!(Mathf.Abs(_prevRatio - ratio) > 0.01f)) return;
             slider.transform.localScale    = new Vector3(ratio, 1, 1);
             slider.transform.localPosition = new Vector3(-(1 - ratio) / 2, 0, 0);
@@ -24,7 +21,7 @@ namespace CMPM.UI {
         }
 
         public void SetHealth(Hittable hp) {
-            Hp = hp;
+            HP = hp;
             float ratio = hp.HP * 1.0f / hp.MaxHP;
 
             slider.transform.localScale    = new Vector3(ratio, 1, 1);

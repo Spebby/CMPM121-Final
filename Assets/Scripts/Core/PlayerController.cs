@@ -51,8 +51,8 @@ namespace CMPM.Core {
                 Battlemage
             }
         }
-        
-        public PlayerClass @class { get; private set; }
+
+        PlayerClass Class { get; set; }
         public int Speed { get; private set; }
         [SerializeField] Unit unit;
 
@@ -72,8 +72,8 @@ namespace CMPM.Core {
         public void ModifySpeed(int c) => Speed = Mathf.Max(Speed + c, 1);
         public static implicit operator SpellCaster(PlayerController player) => player._caster;
         public void UpdateClass(in PlayerClass c) {
-            @class                = c;
-            spriteRenderer.sprite = GameManager.Instance.PlayerSpriteManager.Get(@class.Sprite);
+            Class                = c;
+            spriteRenderer.sprite = GameManager.Instance.PlayerSpriteManager.Get(Class.Sprite);
             SetPlayerScale(GameManager.Instance.CurrentWave);
         }
         #endregion
@@ -108,23 +108,24 @@ namespace CMPM.Core {
         void SetPlayerScale(int wave) {
             if (_caster == null) return;
             SerializedDictionary<string, int> table = new() { { "wave", wave } };
-            HP.UpdateHPCap(@class.Health.Evaluate(table));
-            _caster.MaxMana   = @class.MaxMana.Evaluate(table);
-            _caster.ManaRegen = @class.ManaRegen.Evaluate(table);
-            _caster.ModifySpellpower(@class.Spellpower.Evaluate(table));
-            Speed = @class.Speed.Evaluate(table);
+            HP.UpdateHPCap(Class.Health.Evaluate(table));
+            _caster.MaxMana   = Class.MaxMana.Evaluate(table);
+            _caster.ManaRegen = Class.ManaRegen.Evaluate(table);
+            _caster.AddSpellpower(Class.Spellpower.Evaluate(table));
+            Speed = Class.Speed.Evaluate(table);
         }
 
         #region Spells
         int _spellIndex;
 
+        readonly List<int> _baseSpellModifiers = new();
         readonly Spell[] _spells = new Spell[4];
         /* To note about readonly: you can think of it as preventing a change to the value of a variable
          * for value types, this is straight forwards. For reference types, like an array, this means
          * the pointer cannot be changed--so you cannot reallocate the array. But you *can* still change
          * the value of what the reference is pointing to. */
 
-        public void AddSpell(Spell spell, int replaceIndex = 0) {
+        public void AddSpell(in Spell spell, int replaceIndex = 0) {
             if (replaceIndex < 0) throw new ArgumentOutOfRangeException(nameof(replaceIndex));
             for (int i = 0; i < _spells.Length; ++i) {
                 if (_spells[i] != null) continue;
@@ -133,9 +134,30 @@ namespace CMPM.Core {
                 return;
             }
 
+            spell.AddModifiers(_baseSpellModifiers.ToArray());
             _spells[replaceIndex] = spell;
+            spellUI.AddSpell(_spells[replaceIndex], replaceIndex);
         }
 
+        public void AddBaseSpellModifiers(int[] modifiers) {
+            _baseSpellModifiers.AddRange(modifiers);
+            foreach (Spell spell in _spells) {
+                spell?.AddModifiers(modifiers);
+            }
+        }
+
+        public void RemoveBaseSpellModifiers(int[] modifiers) {
+            foreach (int modifier in modifiers) {
+                int index = _baseSpellModifiers.IndexOf(modifier);
+                if (index == -1) continue;
+                _baseSpellModifiers.RemoveAt(index);
+            }
+
+            foreach (Spell spell in _spells) {
+                spell.RemoveModifiers(modifiers);
+            } 
+        }
+        
         public void ClearSpells() {
             for (int i = 0; i < _spells.Length; ++i) {
                 _spells[i] = null;
@@ -190,6 +212,7 @@ namespace CMPM.Core {
         #endregion
         
         #region Input Callbacks
+        // ReSharper disable once UnusedMember.Local
         void OnAttack(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
@@ -199,6 +222,7 @@ namespace CMPM.Core {
             StartCoroutine(_caster.Cast(transform.position, mouseWorld));
         }
         
+        // ReSharper disable once UnusedMember.Local
         void OnChangeSpell(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
@@ -206,6 +230,7 @@ namespace CMPM.Core {
             NextSpell(++_spellIndex);
         }
 
+        // ReSharper disable once UnusedMember.Local
         void OnMove(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
