@@ -1,6 +1,7 @@
 using System.Collections;
 using CMPM.Core;
 using CMPM.Utils;
+using CMPM.Utils.Structures;
 using UnityEngine;
 
 
@@ -28,9 +29,10 @@ namespace CMPM.Status {
         
         protected override IEnumerator RunCoroutine() {
             if (!Target) yield break;
-            _delta            =  Target.unit.speed * _slowFactor.Evaluate(GetRPNVariables());
+            SerializedDictionary<string, float> table = GetRPNVariables();
+            _delta            =  Target.Speed * _slowFactor.Evaluate(table);
             Target.ModifySpeed(-_delta);
-            yield return new WaitForSeconds(Duration.Evaluate(GetRPNVariables()));
+            yield return new WaitForSeconds(Duration.Evaluate(table));
             RemoveStatus();
         }
     }

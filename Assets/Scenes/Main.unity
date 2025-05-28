@@ -571,7 +571,7 @@ MonoBehaviour:
   relicUI: {fileID: 1804807629}
   relicSelectorManager: {fileID: 1804807634}
   relicSelectorPrefab: {fileID: 7468806418505594266, guid: 7673e7831eaebe260b81492583185626, type: 3}
-  relicRewardFrequency: 1
+  relicRewardFrequency: 3
   relicRewardAmount: 3
   discardSpellUI: {fileID: 916171671}
   discardSpellUIContainer: {fileID: 12444234}
@@ -4245,8 +4245,8 @@ MonoBehaviour:
     HP: 0
     MaxHP: 0
     MinHP: 0
-  spriteRenderer: {fileID: 232596022}
   unit: {fileID: 1718273956}
+  spriteRenderer: {fileID: 232596022}
   healthUI: {fileID: 765025204}
   manaUI: {fileID: 71109453}
   spellUI: {fileID: 1982188287}
@@ -4554,7 +4554,7 @@ GameObject:
   - component: {fileID: 1861520037}
   - component: {fileID: 1861520036}
   - component: {fileID: 1861520035}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Tilemap
   m_TagString: Untagged
   m_Icon: {fileID: 0}

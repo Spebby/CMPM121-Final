@@ -5,6 +5,7 @@ using CMPM.Relics.Expires;
 using CMPM.Relics.Triggers;
 using CMPM.Spells;
 using CMPM.Spells.Modifiers;
+using CMPM.Status;
 using UnityEditor;
 using UnityEngine;
 
@@ -90,6 +91,13 @@ namespace CMPM.Utils.Debug {
             #region Enemys
             _ = typeof(EnemySpawner);
             _ = typeof(Enemy);
+            #endregion
+            
+            #region Status
+            _ = typeof(IStatusEffect);
+            _ = typeof(AbstractStatus);
+            _ = typeof(DOTStatus);
+            _ = typeof(SlowStatus);
             #endregion
         }
     }

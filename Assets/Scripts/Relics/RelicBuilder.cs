@@ -182,7 +182,7 @@ namespace CMPM.Relics {
                     }
                     case EffectType.StatusBurn: {
                         RPNRange range        = effect.Range ?? throw new NullReferenceException($"{effect.Type} requires an effect range timer!");
-                        SpellStatusModifier m = new((entity) => new DOTStatus(entity, range.Max, effect.Amount, Damage.Type.FIRE));
+                        SpellStatusModifier m = new((entity) => new DOTStatus(entity, range.Max, effect.Amount, 0.4f, Damage.Type.FIRE));
                         int hash = m.GetHashCode();
                         SpellModifierRegistry.Register(hash, m);
                         modifiers = new[] { hash };
@@ -233,7 +233,6 @@ namespace CMPM.Relics {
 
                         expire.OnTrigger();
                         break;
-
                     case EffectExpiration.Overwrite:
                         ShouldHighlight = false;
                         break;

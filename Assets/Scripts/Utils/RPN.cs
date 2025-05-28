@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using CMPM.Utils.Structures;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -14,11 +13,9 @@ namespace CMPM.Utils {
     [JsonConverter(typeof(RPNStringParser))]
     public readonly struct RPNString : IEquatable<RPNString> {
         public readonly string String;
-        [CanBeNull] public readonly SerializedDictionary<string, int> Variables;
 
-        public RPNString(string str, SerializedDictionary<string, int> vars = null) {
+        public RPNString(string str) {
             String    = str;
-            Variables = vars;
         }
 
         public static implicit operator string(RPNString entry) {

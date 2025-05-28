@@ -150,13 +150,13 @@
 		},
 		"effect": [
 			{
-				"description": "Gain a temporary boost to your speed.",
+				"description": "Gain a 10 second boost to your speed.",
 				"type": "gain-speed",
 				"amount": "3",
 				"until": "timer",
 				"range": {
-					"min": "15",
-					"max": "15"
+					"min": "10",
+					"max": "10"
 				}
 			}
 		]

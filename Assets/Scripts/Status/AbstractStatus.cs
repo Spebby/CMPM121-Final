@@ -41,7 +41,7 @@ namespace CMPM.Status {
             return new SerializedDictionary<string, float> {
                 { "wave", GameManager.Instance.CurrentWave }
             };
-        }
+        } 
     }
     
     public static class StatusEffects {
