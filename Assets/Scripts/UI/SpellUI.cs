@@ -74,7 +74,7 @@ namespace CMPM.UI {
             }
             
             _internalTooltip = Instantiate(tooltip, GameObject.FindWithTag("Canvas").transform, true);
-            _internalTooltip.OnTriggerHoverChanged(true, _spell.Name, _spell.GetDescription());
+            _internalTooltip.OnTriggerHoverChanged(true, _spell.GetName(), _spell.GetDescription());
         }
         
         public void HideTooltip() {

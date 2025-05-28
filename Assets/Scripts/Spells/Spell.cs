@@ -23,7 +23,9 @@ namespace CMPM.Spells {
         public readonly Damage.Type DamageType;
         protected RPNString Speed;
         protected RPNString Cooldown; // In Milliseconds
+        protected RPNString HitCap;
         protected RPNString? Lifetime;
+        protected RPNString? Count;
         readonly uint _iconIndex;
         #endregion
 
@@ -38,28 +40,34 @@ namespace CMPM.Spells {
         /// <param name="damage">RPN Formula for calculating damage.</param>
         /// <param name="damageDamageType">Damage Type used for the projectile.</param>
         /// <param name="speed">RPN Formula for calculating projectile speed.</param>
+        /// <param name="hitcap">Number of enemies projectiles can pierce.</param>
         /// <param name="cooldown">RPN Formula for calculating usage cooldown.</param>
         /// <param name="lifetime">RPN Formula for calculating projectile lifetime.</param>
+        /// <param name="count"></param>
         /// <param name="icon">Index of the icon.</param>
-        /// <param name="modifiers">List of modifier hashes.</param>
-        protected Spell(SpellCaster owner,
-                        string name,
-                        RPNString manaCost,
-                        RPNString damage,
-                        Damage.Type damageDamageType,
-                        RPNString speed,
-                        RPNString cooldown,
-                        RPNString? lifetime,
-                        uint icon,
-                        int[] modifiers = null) {
+        /// <param name="modifiers">List of modifier hashes. Null by default.</param>
+        public Spell(SpellCaster owner,
+                     string name,
+                     RPNString manaCost,
+                     RPNString damage,
+                     Damage.Type damageDamageType,
+                     RPNString speed,
+                     RPNString hitcap,
+                     RPNString cooldown,
+                     RPNString? lifetime,
+                     RPNString? count,
+                     uint icon,
+                     int[] modifiers = null) {
             Owner         = owner;
             Name          = name;
             ManaCost      = manaCost;
             DamageFormula = damage;
             DamageType    = damageDamageType;
             Speed         = speed;
+            HitCap        = hitcap;
             Cooldown      = cooldown;
             Lifetime      = lifetime;
+            Count         = count;
             _iconIndex    = icon;
 
             Team     = owner.Team;
@@ -113,16 +121,28 @@ namespace CMPM.Spells {
         }
 
         public virtual float GetSpeed() {
-            return ApplyModifiers(Speed.Evaluate(GetRPNVariablesSafe()), (mod, val) => mod.ModifySpeed(this, val));
+            return ApplyModifiers(Speed.Evaluate(GetRPNVariablesSafe()),
+                                  (mod, val) => mod.ModifySpeed(this, val));
+        }
+        
+        public virtual int GetHitCap() {
+            return (int)ApplyModifiers(HitCap.Evaluate(GetRPNVariablesSafe()),
+                                  (mod, val) => mod.ModifyHitCap(this, (int)val));
         }
 
         public virtual float GetCooldown() {
-            return ApplyModifiers(Cooldown.Evaluate(GetRPNVariables()), (mod, val) => mod.ModifyCooldown(this, val));
+            return ApplyModifiers(Cooldown.Evaluate(GetRPNVariables()),
+                                  (mod, val) => mod.ModifyCooldown(this, val));
         }
 
         public virtual float GetLifetime() {
             return ApplyModifiers(Lifetime?.Evaluate(GetRPNVariables()) ?? 9999f,
                                   (mod, val) => mod.ModifyLifetime(this, val));
+        }
+
+        public virtual int GetCount(){
+            return Mathf.RoundToInt(ApplyModifiers(Count?.Evaluate(GetRPNVariables()) ?? 0,
+                                    (mod, val) => mod.ModifyCount(this, (float)val)));
         }
         #endregion
 
@@ -171,7 +191,7 @@ namespace CMPM.Spells {
             Team = team;
             Action<ProjectileType, Vector3, Vector3> castAction = (type, w, t) => {
                 GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
-                                                                        t - w, GetSpeed(), OnHit);
+                                                                        t - w, GetSpeed(), OnHit, GetHitCap());
             };
 
             foreach (int hash in Modifiers ?? Array.Empty<int>()) {

@@ -193,8 +193,8 @@ namespace CMPM.Level {
 
             en.type = subject.type;
             en.Behaviour = BehaviourBuilder.MakeTree(en);
-            en.HP        = new Hittable(packet.HP, Hittable.Team.MONSTERS, newEnemy);
-            en.speed     = packet.Speed;
+            en.HP        = new Hittable(packet.HP, Hittable.Team.MONSTERS, en);
+            en.ModifySpeed(packet.Speed);
 
             // I don't have the time to refactor the enemy rn to make the damage amount be different
             GameManager.Instance.AddEnemy(newEnemy);

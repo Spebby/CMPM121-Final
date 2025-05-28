@@ -4,6 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json.Linq;
 using CMPM.DamageSystem;
 using CMPM.Spells.Modifiers;
+using CMPM.Status;
 using CMPM.Utils;
 using CMPM.Utils.SpellParsers;
 using Newtonsoft.Json;
@@ -37,7 +38,16 @@ namespace CMPM.Spells {
                     "homing" => new SpellProjectileModifier(ProjectileType.HOMING, s.DamageModifier,
                                                             s.ManaCostModifier),
                     "waver" => new SpellProjectileModifier(ProjectileType.SINE, null, s.ManaCostModifier),
-                    _       => throw new NotImplementedException($"{_.Name} is not implemented")
+                    "bursting" => new SpellStatModifier(null, s.ManaCostModifier, null, null, null,
+                                                        s.CountModifier),
+                    "piercing" => new SpellStatModifier(s.DamageModifier, null, null, s.HitCapModifier),
+                    "icy" => new SpellStatusModifier(entity => new SlowStatus(
+                                                         entity,
+                                                         s.StatusDuration ??
+                                                         throw new NullReferenceException(
+                                                             $"{_.Name} expects 'status_duration' to be defined."),
+                                                         s.Factor)),
+                    _ => throw new NotImplementedException($"{_.Name} is not implemented")
                 };
 
                 SpellModifierRegistry.Register(s.Name.GetHashCode(), mod);
@@ -73,31 +83,37 @@ namespace CMPM.Spells {
             switch (data.Name) {
                 case "Arcane Bolt":
                     return new ArcaneBolt(owner, data.Name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
-                                          projectile.Speed, data.Cooldown, projectile.Lifetime,
+                                          projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime, data.Count,
                                           data.Icon, modifiers);
                 case "Magic Missile":
                     return new MagicMissile(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
-                                            projectile.Speed, data.Cooldown, projectile.Lifetime,
+                                            projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime, data.Count,
                                             data.Icon, modifiers);
                 case "Arcane Blast": {
                     if (secondary == null) throw new Exception($"{name} has no secondary projectile");
                     if (data.Count == null) throw new Exception($"{name} has no count defined");
                     return new ArcaneBlast(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
-                                           projectile.Speed, data.Cooldown, projectile.Lifetime,
+                                           projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime,
                                            data.Count.Value, secondary.Value, data.Icon, modifiers);
                 }
                 case "Arcane Spray":
                     if (data.Count == null) throw new Exception($"{name} has no count defined");
                     if (data.Spray == null) throw new Exception($"{name} has no spray defined");
                     return new ArcaneSpray(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
-                                           projectile.Speed, data.Cooldown, projectile.Lifetime,
+                                           projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime,
                                            data.Icon, data.Count.Value, data.Spray.Value, modifiers);
                 case "Mystic River":
                     if (data.Count == null) throw new Exception($"{name} has no count defined");
                     if (data.Spray == null) throw new Exception($"{name} has no spray defined");
                     return new MysticRiver(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
-                                           projectile.Speed, data.Cooldown, projectile.Lifetime, data.Icon,
-                                           data.Count.Value, data.Spray.Value, modifiers);
+                                           projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime,
+                                           data.Icon, data.Count.Value, data.Spray.Value, modifiers);
+                case "Ice Bolt":
+                    if (data.Status_Duration == null) throw new Exception($"{name} has no time_slowed defined");
+                    return new IceBolt(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
+                                       projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime, data.Count,
+                                       data.Factor, data.Status_Duration.Value, data.Icon, modifiers);
+
                 //then it is a modifier spell, by recursively calling the BuildSpell method
                 default: {
                     throw new Exception($"Unknown spell name: {data.Name}");
@@ -107,8 +123,8 @@ namespace CMPM.Spells {
     }
 
     #region JSON Parsing
-    // TODO: At some point making these *all* RPN Strings may be beneficial simply for added flexibility would be cool.
-    // Though that would be bad for performance lol
+    
+    // There is 0 reason for this to not be a readonly struct. At some point refactor the parser to support a readonly struct.
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [JsonConverter(typeof(SpellDataParser))]
     public struct SpellData {
@@ -128,6 +144,9 @@ namespace CMPM.Spells {
 
         public RPNString? Count;
         public RPNString? Spray;
+
+        public RPNString? Status_Duration;
+        public RPNString Factor;
         #endregion
     }
 
@@ -146,12 +165,14 @@ namespace CMPM.Spells {
     public readonly struct ProjectileData {
         public readonly ProjectileType Trajectory;
         public readonly RPNString Speed;
+        public readonly RPNString HitCap;
         public readonly RPNString? Lifetime;
         public readonly int Sprite;
 
-        public ProjectileData(ProjectileType trajectory, RPNString speed, int sprite, RPNString? lifetime) {
+        public ProjectileData(ProjectileType trajectory, RPNString speed, RPNString hitcap, int sprite, RPNString? lifetime) {
             Trajectory = trajectory;
             Speed      = speed;
+            HitCap     = hitcap;
             Lifetime   = lifetime;
             Sprite     = sprite;
         }
@@ -168,28 +189,39 @@ namespace CMPM.Spells {
         public readonly RPNString DamageModifier;
         public readonly RPNString ManaCostModifier;
         public readonly RPNString SpeedModifier;
+        public readonly RPNString HitCapModifier;
         public readonly RPNString CooldownModifier;
         public readonly RPNString LifetimeModifier;
+        public readonly RPNString CountModifier;
 
         public readonly ProjectileType? Type;
         public readonly RPNString Angle;
         public readonly RPNString Delay;
         public readonly RPNString Count;
 
+        public readonly RPNString? StatusDuration;
+        public readonly RPNString  Factor;
+
         public SpellModifierData(string name, string description, RPNString damageModifier, RPNString manaCostModifier,
-                                 RPNString speedModifier, RPNString cooldownModifier, RPNString lifetimeModifier,
-                                 ProjectileType? type, RPNString angle, RPNString delay, RPNString count) {
+                                 RPNString speedModifier, RPNString hitCapModifier, RPNString cooldownModifier,
+                                 RPNString lifetimeModifier, RPNString countModifier, ProjectileType? type,
+                                 RPNString angle, RPNString delay, RPNString count, RPNString? statusDuration, RPNString factor)
+        {
             Name             = name;
             Description      = description;
             DamageModifier   = damageModifier;
             ManaCostModifier = manaCostModifier;
             SpeedModifier    = speedModifier;
+            HitCapModifier   = hitCapModifier;
             CooldownModifier = cooldownModifier;
             LifetimeModifier = lifetimeModifier;
+            CountModifier    = countModifier;
             Type             = type;
             Angle            = angle;
             Delay            = delay;
             Count            = count;
+            StatusDuration   = statusDuration;
+            Factor      = factor;
         }
         #endregion
     }

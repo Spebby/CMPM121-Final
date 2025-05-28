@@ -1,5 +1,5 @@
 namespace CMPM.DamageSystem {
-    public struct Damage {
+    public readonly struct Damage {
         public readonly int Amount;
 
         public enum Type {
@@ -13,7 +13,7 @@ namespace CMPM.DamageSystem {
         }
 
         // ReSharper disable once InconsistentNaming
-        public Type type;
+        public readonly Type type;
 
         public Damage(int amount, Type type) {
             Amount    = amount;

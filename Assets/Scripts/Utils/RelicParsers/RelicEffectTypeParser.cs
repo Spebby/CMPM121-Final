@@ -16,10 +16,12 @@ namespace CMPM.Utils.RelicParsers {
                 "gain-mana"              => EffectType.GainMana,
                 "gain-spellpower"        => EffectType.GainSpellpower,
                 "gain-health"            => EffectType.GainHealth,
+                "gain-speed"             => EffectType.GainSpeed,
                 "gain-max-health"        => EffectType.GainMaxHealth,
                 "random-boost"           => EffectType.RandomBoost,
                 "modify-spell-cooldown%" => EffectType.ModifySpellCooldownP,
                 "modify-spell-cost%"     => EffectType.ModifySpellCostP,
+                "status-burn"            => EffectType.StatusBurn,
                 _                        => throw new NotImplementedException($"Unknown effect type '{str}'")
             };
         }
@@ -30,9 +32,11 @@ namespace CMPM.Utils.RelicParsers {
                 EffectType.GainSpellpower       => "gain-spellpower",
                 EffectType.GainHealth           => "gain-health",
                 EffectType.GainMaxHealth        => "gain-max-health",
+                EffectType.GainSpeed            => "gain-speed",
                 EffectType.RandomBoost          => "random-boost",
                 EffectType.ModifySpellCooldownP => "modify-spell-cooldown%",
                 EffectType.ModifySpellCostP     => "modify-spell-cost%",
+                EffectType.StatusBurn           => "status-burn",
                 _                               => throw new NotImplementedException($"Unknown effect type '{value}'")
             };
 

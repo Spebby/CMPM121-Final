@@ -22,6 +22,21 @@ namespace CMPM.Core {
 
         public void SetState(GameState state) {
             State = state;
+
+            switch (state) {
+                case GameState.INWAVE:
+                    EventBus.Instance.DoWaveStart();
+                    break;
+                case GameState.WAVEEND:
+                    EventBus.Instance.DoWaveEnd();
+                    break;
+                case GameState.PREGAME:
+                case GameState.COUNTDOWN:
+                case GameState.GAMEOVER:
+                default:
+                    break;
+            }
+            
             OnStateChanged?.Invoke(state);
         }
 
@@ -63,12 +78,22 @@ namespace CMPM.Core {
 
         public GameObject GetClosestEnemy(Vector3 point) {
             lock (ENEMY_LOCK) {
-                if (_enemies == null || _enemies.Count == 0) return null;
-                if (_enemies.Count == 1) return _enemies[0];
-                return _enemies.Aggregate((a, b) => (a.transform.position - point).sqrMagnitude
-                                                  < (b.transform.position - point).sqrMagnitude
-                                              ? a
-                                              : b);
+                GameObject closest = null;
+                float      minDist = float.MaxValue;
+
+                foreach (GameObject enemy in _enemies) {
+                    if (!enemy) continue; // handles destroyed objects
+
+                    Transform t = enemy.transform;
+                    if (!t) continue; // handles edge-case "zombie" objects
+
+                    float dist = (t.position - point).sqrMagnitude;
+                    if (!(dist < minDist)) continue;
+                    minDist = dist;
+                    closest = enemy;
+                }
+
+                return closest;
             }
         }
 

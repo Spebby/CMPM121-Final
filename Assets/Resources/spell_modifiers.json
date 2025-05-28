@@ -1,22 +1,22 @@
 {
    "damage_amp": {
-       "name": "damage-amplified",
+       "name": "Damage-amplified",
        "description": "Increased damage and increased mana cost.",
        "damage_multiplier": "1.5",
        "mana_multiplier": "1.5"
    },
    "speed_amp": {
-       "name": "speed-amplified",
+       "name": "Speed-amplified",
        "description": "Faster projectile speed",
        "speed_multiplier": "1.75"
    },
    "forceful": {
-	   "name": "forceful",
+	   "name": "Forceful",
 	   "description": "Augment the projectile's damage with the projectiles speed.",
 	   "damage_multiplier": "speed 4 + 8 /"
    },
    "doubler": {
-       "name": "doubled",
+       "name": "Doubled",
        "description": "Spell is cast a second time after a small delay; increased mana cost and cooldown.",
        "delay": "0.5",
 	   "count": "2",
@@ -24,30 +24,51 @@
        "cooldown_multiplier": "1.5"
    },
    "splitter": {
-       "name": "split",
+       "name": "Split",
        "description": "Spell is cast twice in slightly different directions; increased mana cost.",
        "angle": "10",
 	   "count": "2",
        "mana_multiplier": "1.5"
    },
    "chaos": {
-       "name": "chaotic",
+       "name": "Chaotic",
        "description": "Significantly increased damage, but projectile is spiraling.",
        "damage_multiplier": "1.5 wave 5 / +",
        "projectile_trajectory": "spiraling"
    },
    "homing": {
-       "name": "homing",
+       "name": "Homing",
        "description": "Homing projectile, with decreased damage and increased mana cost.",
        "damage_multiplier": "0.75",
        "mana_adder": "10",
        "projectile_trajectory": "homing"
    },
    "waver": {
-		"name": "waver",
+		"name": "Waving",
 		"description": "Oscillating projectile, with decreased mana cost. Gets more powerful each wave.",
 		"mana_multiplier": "0.75",
 		"count": "wave 2 / 1 +",
 		"projectile_trajectory": "sine"
-   }
+   },
+   "bursting": {
+        "name": "Bursting",
+        "description": "Increase number of 'pellet' type projectiles.",
+        "mana_multiplier": "1.25",
+        "count_multiplier": "2"
+   },
+   "piercing": {
+        "name": "Piercing",
+        "description": "Increase number of enemies the projectiles can hit.",
+        "hitcap_adder": "wave",
+        "damage_multiplier": "0.9"
+   },
+   "icy": {
+		"name": "Icy",
+		"description": "Slows enemies that the projectile hits.",
+		"cooldown_multiplier": "1.25",
+		"mana_multiplier": "1.2",
+		"speed_multiplier": "0.8",
+		"status_duration": "5",
+		"factor": "0.6"
+	}
 }

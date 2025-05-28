@@ -19,7 +19,7 @@ namespace CMPM.DamageSystem {
         [FormerlySerializedAs("MaxHp")] public int MaxHP;
         [FormerlySerializedAs("MinHp")] public int MinHP;
 
-        public readonly GameObject Owner;
+        public readonly Entity Owner;
 
         public void Damage(Damage damage) {
             EventBus.Instance.DoDamage(Owner.transform.position, damage, this);
@@ -43,7 +43,7 @@ namespace CMPM.DamageSystem {
 
         public event Action OnDeath;
 
-        public Hittable(int hp, Team team, GameObject owner) {
+        public Hittable(int hp, Team team, Entity owner) {
             HP        = hp;
             MaxHP     = hp;
             MinHP     = hp;

@@ -9,11 +9,12 @@ TagManager:
   - UIPanelPopup
   - EnemySpawner
   - Canvas
+  - Environment
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Enviornment
   - Water
   - UI
   - 

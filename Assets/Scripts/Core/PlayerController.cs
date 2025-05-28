@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CMPM.DamageSystem;
+using CMPM.Movement;
 using CMPM.Relics;
 using CMPM.Spells;
 using CMPM.UI;
@@ -12,13 +13,11 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
-using Unit = CMPM.Movement.Unit;
 
 
 namespace CMPM.Core {
-    public class PlayerController : MonoBehaviour {
+    public class PlayerController : Entity {
         // ReSharper disable once InconsistentNaming
-        public Hittable HP;
         [SerializeField] SpriteRenderer spriteRenderer;
         SpellCaster _caster;
 
@@ -53,8 +52,6 @@ namespace CMPM.Core {
         }
 
         PlayerClass Class { get; set; }
-        public int Speed { get; private set; }
-        [SerializeField] Unit unit;
 
         #region UI
         // ReSharper disable once StringLiteralTypo
@@ -82,7 +79,7 @@ namespace CMPM.Core {
             unit                                  = GetComponent<Unit>();
             GameManager.Instance.Player           = gameObject;
             GameManager.Instance.PlayerController = this;
-            HP                                    = new Hittable(100, Hittable.Team.PLAYER, gameObject);
+            HP                                    = new Hittable(100, Hittable.Team.PLAYER, this);
             RelicOwnership                        = new BitArray(RelicRegistry.Count);
         }
 
@@ -201,11 +198,11 @@ namespace CMPM.Core {
         #endregion
 
         #region Relics
-        public readonly List<Relic> Relics = new();
+        readonly List<Relic> _relics = new();
         public BitArray RelicOwnership { get; private set; }
         
         public void AddRelic(Relic relic) {
-            Relics.Add(relic);
+            _relics.Add(relic);
             RelicOwnership.Set(RelicRegistry.GetIndexFromRelic(relic), true);
             EventBus.Instance.DoRelicPickup(relic);
         } 

@@ -58,6 +58,16 @@ namespace CMPM.Utils.SpellParsers {
                 ? new RPNString(sprayToken.ToString())
                 : null;
 
+            JToken statusDuration = obj["status_duration"];
+            result.Status_Duration = statusDuration != null && statusDuration.Type != JTokenType.Null
+                ? serializer.Deserialize<RPNString>(statusDuration.CreateReader())
+                : null;
+
+            JToken factorToken = obj["factor"];
+            result.Factor = factorToken != null && factorToken.Type != JTokenType.Null
+                ? serializer.Deserialize<RPNString>(factorToken.CreateReader())
+                : new RPNString("1");
+
             return result;
         }
 
@@ -84,8 +94,11 @@ namespace CMPM.Utils.SpellParsers {
                 obj["secondary_projectile"] = JToken.FromObject(value.SecondaryProjectile.Value, serializer);
             }
 
-            if (value.Count != null) obj["N"]     = JToken.FromObject(value.Count, serializer);
-            if (value.Spray != null) obj["spray"] = JToken.FromObject(value.Spray, serializer);
+            if (value.Count != null) obj["N"]                = JToken.FromObject(value.Count, serializer);
+            if (value.Spray != null) obj["spray"]            = JToken.FromObject(value.Spray, serializer);
+            
+            obj["factor"] = JToken.FromObject(value.Factor, serializer);
+            if (value.Status_Duration != null) obj["status_duration"] = JToken.FromObject(value.Status_Duration, serializer);
 
             obj.WriteTo(writer);
         }

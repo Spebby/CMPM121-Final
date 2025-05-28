@@ -40,9 +40,9 @@ namespace CMPM.AI.BehaviourTree.Actions {
                 }
             }
 
-            Agent.GetComponent<Unit>().movement = ticks == 0
+            Agent.GetComponent<Unit>().movement = (ticks == 0
                 ? direction.normalized
-                : (Agent.transform.position - playerPos).normalized;
+                : (Agent.transform.position - playerPos).normalized) * Agent.Speed;
 
 
             return Result.IN_PROGRESS;

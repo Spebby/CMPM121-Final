@@ -11,7 +11,9 @@ namespace CMPM.Spells.Modifiers {
         int ModifyDamage(Spell spell, int baseDamage);
         int ModifyManaCost(Spell spell, int baseMana);
         float ModifySpeed(Spell spell, float baseSpeed);
+        int ModifyHitCap(Spell spell, int baseHitCap);
         float ModifyCooldown(Spell spell, float cooldown);
         float ModifyLifetime(Spell spell, float lifetime);
+        int ModifyCount(Spell spell, float count);
     }
 }

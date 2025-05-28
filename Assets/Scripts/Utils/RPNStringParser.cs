@@ -11,7 +11,7 @@ namespace CMPM.Utils {
                 throw new ArgumentException("RPNString cannot be null or empty");
             }
 
-            return new RPNString(str, null);
+            return new RPNString(str);
         }
 
         public override void WriteJson(JsonWriter writer, RPNString value, JsonSerializer serializer) {

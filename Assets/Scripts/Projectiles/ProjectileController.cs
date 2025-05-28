@@ -9,6 +9,8 @@ using UnityEngine;
 namespace CMPM.Projectiles {
     public class ProjectileController : MonoBehaviour {
         public float lifetime;
+        public int HitCap;
+        public int collidedWith;
         public event Action<Hittable, Vector3> OnHit;
         public ProjectileMovement Movement;
 
@@ -17,21 +19,24 @@ namespace CMPM.Projectiles {
             Movement.Movement(transform);
         }
 
-        void OnCollisionEnter2D(Collision2D collision) {
-            if (collision.gameObject.CompareTag("projectile")) return;
-            if (collision.gameObject.CompareTag("unit")) {
-                EnemyController ec = collision.gameObject.GetComponent<EnemyController>();
+        void OnTriggerEnter2D(Collider2D col) {
+            if (col.gameObject.CompareTag("projectile")) return;
+            if (col.gameObject.layer == 3) Destroy(gameObject);
+            if (col.gameObject.CompareTag("unit")) {
+                EnemyController ec = col.gameObject.GetComponent<EnemyController>();
                 if (ec) {
                     OnHit!(ec.HP, transform.position);
-                } else {
-                    PlayerController pc = collision.gameObject.GetComponent<PlayerController>();
-                    if (pc) {
-                        OnHit!(pc.HP, transform.position);
-                    }
+                    collidedWith++;
                 }
             }
-
-            Destroy(gameObject);
+            if (col.gameObject.CompareTag("Player")) {
+                PlayerController pc = col.gameObject.GetComponent<PlayerController>();
+                if (pc) {
+                    OnHit!(pc.HP, transform.position);
+                    collidedWith++;
+                }
+            }
+            if (collidedWith >= HitCap) Destroy(gameObject);
         }
 
         public void SetLifetime(float t) {

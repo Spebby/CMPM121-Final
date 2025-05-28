@@ -10,20 +10,23 @@ using UnityEngine;
 namespace CMPM.Spells {
     public class ArcaneBlast : Spell {
         protected readonly ProjectileData Secondary;
-        protected readonly RPNString Count;
+        // protected readonly RPNString Count;
 
         public ArcaneBlast(SpellCaster owner, string name, RPNString manaCost, RPNString damage,
-                           Damage.Type damageDamageType, RPNString speed, RPNString cooldown, RPNString? lifetime,
-                           RPNString count, ProjectileData secondary,
+                           Damage.Type damageDamageType, RPNString speed, RPNString hitcap,
+                           RPNString cooldown, RPNString? lifetime, RPNString count, ProjectileData secondary,
                            uint icon, int[] modifiers = null) : base(owner, name, manaCost, damage, damageDamageType,
-                                                                     speed, cooldown, lifetime, icon, modifiers) {
+                                                                     speed, hitcap, cooldown, lifetime, count,
+                                                                     icon, modifiers) {
             // do shit with secondary
             Count     = count;
             Secondary = secondary;
         }
 
-        public virtual int GetSecondaryCount() {
-            return (int)Count.Evaluate(GetRPNVariables());
+        public virtual int GetSecondaryCount()
+        {
+            // return (int)Count?.Evaluate(GetRPNVariables());
+            return GetCount();
         }
         //public virtual int GetSecondaryCount() => ApplyModifiers((int)Count.Evaluate(GetRPNVariables()),  (mod, val) => mod.Modify)
 
@@ -33,7 +36,7 @@ namespace CMPM.Spells {
                 float speed = ApplyModifiers(Speed.Evaluate(GetRPNVariables()),
                                              (mod, val) => mod.ModifySpeed(this, val));
                 GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
-                                                                        t - w, speed, base.OnHit, GetLifetime());
+                                                                        t - w, speed, base.OnHit, GetHitCap(), GetLifetime());
             };
 
             foreach (int hash in Modifiers ?? Array.Empty<int>()) {
@@ -62,7 +65,9 @@ namespace CMPM.Spells {
                         Mathf.Sin(Mathf.Deg2Rad * angle),
                         0f
                     );
-                    CoroutineManager.Instance.Run(CastSecondary(i, dir, Owner.Team));
+                    // had to add i to dir cuz dir was a worldspace coord
+                    // in other words, shrapnel were sent in one direction -toward dir- after spawning
+                    CoroutineManager.Instance.Run(CastSecondary(i, i+dir, Owner.Team));
                 }
             };
 

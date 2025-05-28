@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using CMPM.AI;
 using CMPM.AI.BehaviourTree;
 using CMPM.Core;
-using CMPM.DamageSystem;
 using CMPM.Enemies;
 using CMPM.UI;
 using UnityEngine;
@@ -10,11 +9,9 @@ using UnityEngine.Serialization;
 
 
 namespace CMPM.Movement {
-    public class EnemyController : MonoBehaviour {
+    public class EnemyController : Entity {
         #region Publics
         public Transform target;
-        public int speed;
-        public Hittable HP;
         [FormerlySerializedAs("healthui")] public HealthBar healthUI;
         public bool dead;
 
@@ -36,8 +33,8 @@ namespace CMPM.Movement {
             HP.OnDeath += Die;
             healthUI.SetHealth(HP);
 
-            GetComponent<Unit>().speed = speed;
-            _pips                      = new List<GameObject>();
+            unit = GetComponent<Unit>();
+            _pips = new List<GameObject>();
         }
 
         void Update() {

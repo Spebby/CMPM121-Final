@@ -6,8 +6,10 @@ namespace CMPM.Spells.Modifiers {
         public SpellStatModifier(RPNString? damageModifier = null,
                                  RPNString? manaModifier = null,
                                  RPNString? speedModifier = null,
+                                 RPNString? hitCapModifier = null,
                                  RPNString? cooldownModifier = null,
-                                 RPNString? lifetimeModifier = null)
-            : base(damageModifier, manaModifier, speedModifier, cooldownModifier, lifetimeModifier) { }
+                                 RPNString? lifetimeModifier = null,
+                                 RPNString? countModifier = null)
+            : base(damageModifier, manaModifier, speedModifier, hitCapModifier, cooldownModifier, lifetimeModifier, countModifier) { }
     }
 }

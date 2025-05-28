@@ -12,8 +12,28 @@
        "projectile": {
 			"trajectory": "straight",
 			"speed": "8 power 5 / +",
+            "hitcap": "1",
 			"sprite": 0
 		}
+   },
+   "ice_bolt":  {
+       "name": "Ice Bolt",
+       "description": "A straight-flying bolt that slows enemies.",
+       "icon": 12,
+       "damage": {
+            "amount": "15 power 2 / +",
+            "type": "ice"
+        },
+       "mana_cost": "12",
+       "cooldown": "2.5",
+       "projectile": {
+            "trajectory": "straight",
+            "speed": "6 power 5 / +",
+            "hitcap": "1",
+            "sprite": 0
+        },
+       "status_duration": "5",
+       "factor": "0.6"
    },
    "magic_missile":  {
        "name": "Magic Missile",
@@ -28,6 +48,7 @@
        "projectile": {
 			"trajectory": "homing",
 			"speed": "10",
+            "hitcap": "1",
 			"sprite": 0
 		}
    },
@@ -46,11 +67,13 @@
        "projectile": {
 			"trajectory": "straight",
 			"speed": "12",
+            "hitcap": "1",
 			"sprite": 0
 		},
        "secondary_projectile": {
 			"trajectory": "straight",
 			"speed": "20",
+            "hitcap": "1",
 			"lifetime": "0.1",
 			"sprite": 0
 		}
@@ -70,6 +93,7 @@
        "projectile": {
 			"trajectory": "straight",
 			"speed": "8",
+            "hitcap": "1",
 			"sprite": 0,
 			"lifetime": "0.2 power 100 / +"
 		}
@@ -89,6 +113,7 @@
 		"projectile": {
 			"trajectory": "sine",
 			"speed": "10",
+            "hitcap": "1",
 			"sprite": 0,
 			"lifetime": "0.75 power 100 / +"
 		}
