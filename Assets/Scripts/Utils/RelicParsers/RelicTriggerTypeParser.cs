@@ -14,9 +14,12 @@ namespace CMPM.Utils.RelicParsers {
 
             return str switch {
                 "on-kill"     => PreconditionType.OnKill,
+                "on-hit"      => PreconditionType.OnHit,
                 "stand-still" => PreconditionType.StandStill,
                 "take-damage" => PreconditionType.TakeDamage,
                 "timer"       => PreconditionType.Timer,
+                "wave-start"  => PreconditionType.WaveStart,
+                "wave-end"    => PreconditionType.WaveEnd,
                 "none"        => PreconditionType.None,
                 _             => throw new NotImplementedException($"Unknown trigger type '{str}'")
             };
@@ -25,9 +28,12 @@ namespace CMPM.Utils.RelicParsers {
         public override void WriteJson(JsonWriter writer, PreconditionType value, JsonSerializer serializer) {
             string str = value switch {
                 PreconditionType.OnKill     => "on-kill",
+                PreconditionType.OnHit      => "on-hit",
                 PreconditionType.StandStill => "standing-still",
                 PreconditionType.TakeDamage => "take-damage",
                 PreconditionType.Timer      => "timer",
+                PreconditionType.WaveStart  => "wave-start",
+                PreconditionType.WaveEnd    => "wave-end",
                 PreconditionType.None       => "none",
                 _                           => throw new NotImplementedException($"Unknown precondition type '{value}'")
             };

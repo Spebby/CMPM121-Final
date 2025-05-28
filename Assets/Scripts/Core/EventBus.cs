@@ -20,6 +20,8 @@ namespace CMPM.Core {
         public event Action<float> OnPlayerMove;
         public event Action OnPlayerStandstill;
         public event Action<Relic> OnRelicPickup;
+        public event Action OnWaveEnd;
+        public event Action OnWaveStart;
         #endregion
 
         #region Callers
@@ -46,6 +48,9 @@ namespace CMPM.Core {
         public void DoRelicPickup(in Relic relic) {
             OnRelicPickup?.Invoke(relic);
         }
+        
+        public void DoWaveEnd()   => OnWaveEnd?.Invoke();
+        public void DoWaveStart() => OnWaveStart?.Invoke();
         #endregion
     }
 }

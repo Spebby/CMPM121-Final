@@ -12,7 +12,6 @@ namespace CMPM.Spells {
     public class ArcaneSpray : Spell {
         // protected readonly RPNString Count;
         protected readonly RPNString Spread;
-
         // readonly SpellSplitModifier _splitModifier;
 
         public ArcaneSpray(SpellCaster owner, string name, RPNString manaCost, RPNString damage,
@@ -33,7 +32,7 @@ namespace CMPM.Spells {
                 GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
                                                                         t - w, GetSpeed(), OnHit, GetHitCap(), GetLifetime());
             };
-
+            
             // This is insanely dumb but you have to love it
             // _splitModifier.ModifyCast(this, ref castAction);
             foreach (int hash in Modifiers ?? Array.Empty<int>()) {
@@ -43,22 +42,27 @@ namespace CMPM.Spells {
             // original: using a modifier to cast the spray
             // castAction(ProjectileType.STRAIGHT, where, target);
 
+            // Thom: I'm not sure if I like this.
+            // Spread is static which could be fine, we'll have to see.
+            // my main reason for reusing the modifier here was to have "consistency" in the game logic between
+            // how the base spell and the modifier worked, and it seemed redundant to hardcode the functionality
+            // into the spell. I'll have ot see how it handles in-game though.
+            
             // newer: using a loop to cast the spray
-            Vector3 aiming_at = (target - where).normalized;
-            float aim_angle = Mathf.Atan2(aiming_at.y, aiming_at.x) * Mathf.Rad2Deg;
-            float _spread = Spread.Evaluate(GetRPNVariables());
-            float spread_cone = 50f;
-            for (int i = 0; i < GetCount(); i++)
-            {
-                float angle = aim_angle + Random.Range(0, spread_cone) * _spread - _spread / 2;
+            Vector3     aimingAt = (target - where).normalized;
+            float       aimAngle = Mathf.Atan2(aimingAt.y, aimingAt.x) * Mathf.Rad2Deg;
+            float       spread   = Spread.Evaluate(GetRPNVariables());
+            const float CONE     = 50f;
+            for (int i = 0; i < GetCount(); i++) {
+                float angle = aimAngle + Random.Range(0, CONE) * spread - spread / 2;
 
-                Vector3 offsetTarget = new Vector3(
+                Vector3 offsetTarget = new(
                     Mathf.Cos(angle * Mathf.Deg2Rad),
                     Mathf.Sin(angle * Mathf.Deg2Rad),
                     0
                 );
 
-                castAction(ProjectileType.STRAIGHT, where, where+offsetTarget);
+                castAction(ProjectileType.STRAIGHT, where, where + offsetTarget);
             }
             
 

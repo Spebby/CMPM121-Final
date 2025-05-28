@@ -77,6 +77,8 @@ namespace CMPM.Utils.SpellParsers {
                 ? null
                 : ProjectileManager.StringToProjectileType(typeStr);
 
+            RPNString? statusDuration = obj.Value<RPNString>("duration");
+            RPNString  factor         = new(obj.Value<string>("factor") ?? "1");
 
             return new SpellModifierData(
                 name,
@@ -91,7 +93,9 @@ namespace CMPM.Utils.SpellParsers {
                 type,
                 angle,
                 delay,
-                count
+                count,
+                statusDuration,
+                factor
             );
         }
 

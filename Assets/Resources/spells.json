@@ -24,16 +24,16 @@
             "amount": "15 power 2 / +",
             "type": "ice"
         },
-       "mana_cost": "10",
-       "cooldown": "2",
+       "mana_cost": "12",
+       "cooldown": "2.5",
        "projectile": {
             "trajectory": "straight",
             "speed": "6 power 5 / +",
             "hitcap": "1",
             "sprite": 0
         },
-       "slow_factor": "0.6",
-       "time_slowed": "5"
+       "status_duration": "5",
+       "factor": "0.6"
    },
    "magic_missile":  {
        "name": "Magic Missile",

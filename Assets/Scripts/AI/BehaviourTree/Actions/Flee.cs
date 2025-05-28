@@ -22,7 +22,7 @@ namespace CMPM.AI.BehaviourTree.Actions {
 
             //direction.x = direction.x * -1;
             //direction.y = direction.y * -1;
-            Agent.GetComponent<Unit>().movement = direction.normalized;
+            Agent.GetComponent<Unit>().movement = direction.normalized * Agent.Speed;
             return Result.IN_PROGRESS;
         }
 

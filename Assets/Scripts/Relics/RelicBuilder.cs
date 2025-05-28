@@ -8,11 +8,13 @@ using CMPM.Relics.Expires;
 using CMPM.Relics.Triggers;
 using CMPM.Spells;
 using CMPM.Spells.Modifiers;
+using CMPM.Status;
 using CMPM.Utils.RelicParsers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using RPNString = CMPM.Utils.RPNString;
+using CMPM.DamageSystem;
 
 
 namespace CMPM.Relics {
@@ -98,16 +100,19 @@ namespace CMPM.Relics {
                                                          precondition.Range ??
                                                          throw new Exception(
                                                              $"{Name} must define a range for precondition {precondition.Type}!")),
-                PreconditionType.OnKill => null,
-                PreconditionType.None => null,
-                _ => throw new NotImplementedException($"Precondition type {precondition.Type} is not implemented")
+                PreconditionType.OnKill    => new RelicKillCondition(this, precondition.Amount ?? new RPNString("1")),
+                PreconditionType.OnHit     => null,
+                PreconditionType.None      => null,
+                PreconditionType.WaveStart => null,
+                PreconditionType.WaveEnd   => null,
+                _                          => throw new NotImplementedException($"Precondition type {precondition.Type} is not implemented")
             };
             
             // Wire the trigger event
             switch (precondition.Type) {
                 case PreconditionType.TakeDamage:
                     EventBus.Instance.OnDamage += (_, _, h) => {
-                        if (h.Owner != GameManager.Instance.Player) return;
+                        if (h.Owner != GameManager.Instance.PlayerController) return;
                         OnActivate();
                     };
                     ShouldHighlight = false;
@@ -118,7 +123,15 @@ namespace CMPM.Relics {
                     ShouldHighlight = true;
                     break;
                 case PreconditionType.OnKill:
-                    EventBus.Instance.OnEnemyDeath += _ => OnActivate();
+                    EventBus.Instance.OnEnemyDeath += _ => trigger!.OnTrigger();
+                    ShouldHighlight = false;
+                    break;
+                case PreconditionType.OnHit:
+                    Hittable.Team friendly = player.Team;
+                    EventBus.Instance.OnDamage += (_, _, h) => {
+                        if (h.team == friendly) return;
+                        OnActivate();
+                    };
                     ShouldHighlight = false;
                     break;
                 case PreconditionType.Timer:
@@ -135,6 +148,14 @@ namespace CMPM.Relics {
                 case PreconditionType.None:
                     // handled at end of function
                     ShouldHighlight = false;
+                    break;
+                case PreconditionType.WaveEnd:
+                    EventBus.Instance.OnWaveEnd += OnActivate;
+                    ShouldHighlight             =  false;
+                    break;
+                case PreconditionType.WaveStart:
+                    EventBus.Instance.OnWaveStart += OnActivate;
+                    ShouldHighlight               =  false;
                     break;
                 default:
                     throw new NotImplementedException($"Precondition type {precondition.Type} is not implemented");
@@ -159,10 +180,19 @@ namespace CMPM.Relics {
                         modifiers = new[] { hash };
                         break;
                     }
+                    case EffectType.StatusBurn: {
+                        RPNRange range        = effect.Range ?? throw new NullReferenceException($"{effect.Type} requires an effect range timer!");
+                        SpellStatusModifier m = new((entity) => new DOTStatus(entity, range.Max, effect.Amount, Damage.Type.FIRE));
+                        int hash = m.GetHashCode();
+                        SpellModifierRegistry.Register(hash, m);
+                        modifiers = new[] { hash };
+                        break;
+                    }
                     case EffectType.GainMana:
                     case EffectType.GainSpellpower:
                     case EffectType.GainHealth:
                     case EffectType.GainMaxHealth:
+                    case EffectType.GainSpeed:
                     case EffectType.RandomBoost:
                     default:
                         break;
@@ -173,10 +203,12 @@ namespace CMPM.Relics {
                     EffectType.GainSpellpower       => new GainStatEffect(effect.Amount, caster.AddSpellpower),
                     EffectType.GainHealth           => new GainStatEffect(effect.Amount, player.HP.Heal),
                     EffectType.GainMaxHealth        => new GainStatEffect(effect.Amount, player.HP.AddHPCap),
+                    EffectType.GainSpeed            => new GainStatEffect(effect.Amount, player.ModifySpeed),
                     EffectType.RandomBoost          => new GainRandomBuff(player, effect.Amount),
                     EffectType.ModifySpellCooldownP => new BaseSpellModifierEffect(player, modifiers),
                     EffectType.ModifySpellCostP     => new BaseSpellModifierEffect(player, modifiers),
-                    _ => throw new NotImplementedException($"Effect type {effect.Type} is not implemented")
+                    EffectType.StatusBurn           => new BaseSpellModifierEffect(player, modifiers),
+                    _                               => throw new NotImplementedException($"Effect type {effect.Type} is not implemented")
                 });
 
                 RelicExpire expire;
@@ -227,14 +259,13 @@ namespace CMPM.Relics {
         public uint Sprite => _data.Sprite;
         public new int GetHashCode => Name.GetHashCode();
         public static implicit operator RelicData(Relic relic) => relic._data;
-        public RelicData Data => _data;
         public bool ShouldHighlight { get; private set; }
         #endregion
         
         internal void OnActivate() {
             for (int i = 0; i < _effects.Length; i++) {
                 IRelicEffect              e = _effects[i];
-                RelicData.RelicEffectData d = Data.Effects[i];
+                RelicData.RelicEffectData d = _data.Effects[i];
 
                 if (d.Expiration == EffectExpiration.Overwrite && IsActive) {
                     e.RevertEffect();
@@ -258,7 +289,10 @@ namespace CMPM.Relics {
         TakeDamage,
         StandStill,
         OnKill,
+        OnHit,
         Timer,
+        WaveStart,
+        WaveEnd,
 		None
     }
 
@@ -268,9 +302,11 @@ namespace CMPM.Relics {
         GainSpellpower,
 		GainHealth,
         GainMaxHealth,
+        GainSpeed,
         RandomBoost,
 		ModifySpellCooldownP,
-		ModifySpellCostP
+		ModifySpellCostP,
+        StatusBurn
     }
 
     [JsonConverter(typeof(RelicEffectConditionParser))]
@@ -284,6 +320,7 @@ namespace CMPM.Relics {
 
     
     [JsonConverter(typeof(RelicRangeParser))]
+    // ReSharper disable once InconsistentNaming
     public readonly struct RPNRange : IEquatable<RPNRange> {
         public readonly RPNString Min;
         public readonly RPNString Max;

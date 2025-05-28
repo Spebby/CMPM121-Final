@@ -36,7 +36,7 @@ namespace CMPM.AI.BehaviourTree.Actions {
                 return Result.SUCCESS;
             }
 
-            Agent.GetComponent<Unit>().movement = direction.normalized;
+            Agent.GetComponent<Unit>().movement = direction.normalized * Agent.Speed;
             return Result.IN_PROGRESS;
         }
 

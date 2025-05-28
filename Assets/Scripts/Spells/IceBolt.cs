@@ -1,89 +1,53 @@
 using System;
-using System.Collections;
-using CMPM.Core;
 using CMPM.DamageSystem;
-using CMPM.Movement;
 using CMPM.Spells.Modifiers;
+using CMPM.Status;
 using CMPM.Utils;
 using UnityEngine;
 
 
 namespace CMPM.Spells {
-    public class IceBolt : Spell
-    {
-        protected readonly float SlowFactor;
-        protected readonly int TimeSlowed;
-
+    public class IceBolt : Spell {
+        protected readonly RPNString SlowFactor;
+        protected readonly RPNString TimeSlowed;
+        readonly SpellStatusModifier _slowModifier;
+        
+        
         public IceBolt(SpellCaster owner, string name, RPNString manaCost, RPNString damage,
                        Damage.Type damageDamageType, RPNString speed, RPNString hitcap,
                        RPNString cooldown, RPNString? lifetime, RPNString? count,
-                       float? slowFactor, int? timeSlowed,
+                       RPNString slowFactor, RPNString timeSlowed,
                        uint icon, int[] modifiers = null) : base(owner, name, manaCost, damage, damageDamageType,
-                                                                 speed, hitcap, cooldown, lifetime, count, icon, modifiers)
-        {
-            SlowFactor = (float)slowFactor;
-            TimeSlowed = (int)timeSlowed;                                                 
+                                                                 speed, hitcap, cooldown, lifetime, count, icon,
+                                                                 modifiers) {
+            TimeSlowed   = timeSlowed;
+            SlowFactor   = slowFactor;
+            _slowModifier = new SpellStatusModifier((entity) => new SlowStatus(entity, TimeSlowed, SlowFactor));
         }
 
-        public virtual float GetSlowFactor() {
-            return SlowFactor;
+        protected virtual float GetSlowFactor() {
+            return SlowFactor.Evaluate(GetRPNVariables());
         }
 
-        public virtual int GetTimeSlowed() {
-            return TimeSlowed;
+        protected virtual float GetTimeSlowed() {
+            return TimeSlowed.Evaluate(GetRPNVariables());
         }
 
-        public override IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team) {
-            Team = team;
-            Action<ProjectileType, Vector3, Vector3> castAction = (type, w, t) => {
-                GameManager.Instance.ProjectileManager.CreateProjectile(0, type, w,
-                                                                        t - w, GetSpeed(), OnHit, GetHitCap());
-            };
-
-            foreach (int hash in Modifiers ?? Array.Empty<int>()) {
-                ISpellModifier mod = SpellModifierRegistry.Get(hash);
-                mod?.ModifyCast(this, ref castAction);
-            }
-
-            castAction(ProjectileType.STRAIGHT, where, target);
-
-            LastCast = Time.time;
-            yield return new WaitForEndOfFrame();
-        }
-
-        IEnumerator ApplySlow (Hittable other)
-        {
-            int normal_enemy_speed = other.Owner.GetComponent<EnemyController>().speed;
-            other.Owner.GetComponent<EnemyController>().speed = Mathf.RoundToInt(other.Owner.GetComponent<EnemyController>().speed * GetSlowFactor());
-            yield return new WaitForSeconds(GetTimeSlowed());
-            try
-            {
-                other.Owner.GetComponent<EnemyController>().speed = normal_enemy_speed;
-            }
-            catch
-            {/* o.owner died before slow is done oh well */}
-        }
-
-        protected override void OnHit(Hittable other, Vector3 impact)
-        {
+        protected override void OnHit(Hittable other, Vector3 impact) {
             if (other.team == Team) return;
-            Action<Hittable, Vector3, Damage.Type> hitAction = (o, i, t) =>
-            {
-                o.Damage(new Damage(GetDamage(), t));
-
-                if (o.team == Hittable.Team.MONSTERS)
-                {
-                    CoroutineManager.Instance.Run(ApplySlow(o));
-                }
+            Action<Hittable, Vector3, Damage.Type> hitAction = (o, _, type) => {
+                o.Damage(new Damage(GetDamage(), type));
             };
 
-            foreach (int hash in Modifiers ?? Array.Empty<int>())
-            {
+            // I know you don't care for this kevin: the rationale here is that since this *is an status effect* it really
+            // should be using the status effect system, which is integrated w/ spell modifiers already for Relics, etc.
+            _slowModifier.ModifyHit(this, ref hitAction);
+            foreach (int hash in Modifiers ?? Array.Empty<int>()) {
                 ISpellModifier mod = SpellModifierRegistry.Get(hash);
                 mod?.ModifyHit(this, ref hitAction);
             }
 
-            hitAction(other, impact, DamageType);
+            hitAction(other, impact, DamageType);;
         }
     }
 }

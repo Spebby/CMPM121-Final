@@ -58,15 +58,15 @@ namespace CMPM.Utils.SpellParsers {
                 ? new RPNString(sprayToken.ToString())
                 : null;
 
-            JToken slowFactorToken = obj["slow_factor"];
-            result.SlowFactor = slowFactorToken != null && slowFactorToken.Type != JTokenType.Null
-                ? slowFactorToken.ToObject<float>()
+            JToken timeSlowedToken = obj["status_duration"];
+            result.Status_Duration = timeSlowedToken != null && timeSlowedToken.Type != JTokenType.Null
+                ? timeSlowedToken.ToObject<RPNString>()
                 : null;
-
-            JToken timeSlowedToken = obj["time_slowed"];
-            result.TimeSlowed = timeSlowedToken != null && timeSlowedToken.Type != JTokenType.Null
-                ? timeSlowedToken.ToObject<int>()
-                : null;
+            
+            JToken slowFactorToken = obj["factor"];
+            result.Factor = slowFactorToken != null && slowFactorToken.Type != JTokenType.Null
+                ? slowFactorToken.ToObject<RPNString>()
+                : new RPNString("1");
 
             return result;
         }
@@ -97,8 +97,8 @@ namespace CMPM.Utils.SpellParsers {
             if (value.Count != null) obj["N"]                = JToken.FromObject(value.Count, serializer);
             if (value.Spray != null) obj["spray"]            = JToken.FromObject(value.Spray, serializer);
             
-            if (value.SlowFactor != null) obj["slow_factor"] = JToken.FromObject(value.SlowFactor, serializer);
-            if (value.TimeSlowed != null) obj["time_slowed"] = JToken.FromObject(value.TimeSlowed, serializer);
+            if (value.Factor != null) obj["slow_factor"] = JToken.FromObject(value.Factor, serializer);
+            if (value.Status_Duration != null) obj["time_slowed"] = JToken.FromObject(value.Status_Duration, serializer);
 
             obj.WriteTo(writer);
         }

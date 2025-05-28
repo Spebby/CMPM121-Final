@@ -13,7 +13,7 @@ namespace CMPM.Relics.Triggers {
             OnCancel();
         }
         
-        public override void OnTrigger(Action callback) {
+        public override void OnTrigger(Action callback = null) {
             OnCancel();
             Runner = CoroutineManager.Instance.StartCoroutine(RunCoroutine());
             callback?.Invoke();

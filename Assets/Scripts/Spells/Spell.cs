@@ -43,6 +43,7 @@ namespace CMPM.Spells {
         /// <param name="hitcap">Number of enemies projectiles can pierce.</param>
         /// <param name="cooldown">RPN Formula for calculating usage cooldown.</param>
         /// <param name="lifetime">RPN Formula for calculating projectile lifetime.</param>
+        /// <param name="count"></param>
         /// <param name="icon">Index of the icon.</param>
         /// <param name="modifiers">List of modifier hashes. Null by default.</param>
         public Spell(SpellCaster owner,

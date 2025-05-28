@@ -1,4 +1,3 @@
-using System;
 using CMPM.Core;
 using CMPM.Spells;
 using CMPM.UI.Tooltips;

@@ -22,6 +22,21 @@ namespace CMPM.Core {
 
         public void SetState(GameState state) {
             State = state;
+
+            switch (state) {
+                case GameState.INWAVE:
+                    EventBus.Instance.DoWaveStart();
+                    break;
+                case GameState.WAVEEND:
+                    EventBus.Instance.DoWaveEnd();
+                    break;
+                case GameState.PREGAME:
+                case GameState.COUNTDOWN:
+                case GameState.GAMEOVER:
+                default:
+                    break;
+            }
+            
             OnStateChanged?.Invoke(state);
         }
 

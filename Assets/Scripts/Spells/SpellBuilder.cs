@@ -4,6 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json.Linq;
 using CMPM.DamageSystem;
 using CMPM.Spells.Modifiers;
+using CMPM.Status;
 using CMPM.Utils;
 using CMPM.Utils.SpellParsers;
 using Newtonsoft.Json;
@@ -12,8 +13,7 @@ using Random = UnityEngine.Random;
 
 namespace CMPM.Spells {
     public static class SpellBuilder {
-        static SpellBuilder()
-        {
+        static SpellBuilder() {
             ParseSpellsJson(Resources.Load<TextAsset>("spells"), Resources.Load<TextAsset>("spell_modifiers"));
         }
 
@@ -39,9 +39,15 @@ namespace CMPM.Spells {
                                                             s.ManaCostModifier),
                     "waver" => new SpellProjectileModifier(ProjectileType.SINE, null, s.ManaCostModifier),
                     "bursting" => new SpellStatModifier(null, s.ManaCostModifier, null, null, null,
-                                                           s.CountModifier),
+                                                        s.CountModifier),
                     "piercing" => new SpellStatModifier(s.DamageModifier, null, null, s.HitCapModifier),
-                    _       => throw new NotImplementedException($"{_.Name} is not implemented")
+                    "icy" => new SpellStatusModifier(entity => new SlowStatus(
+                                                         entity,
+                                                         s.StatusDuration ??
+                                                         throw new NullReferenceException(
+                                                             $"{_.Name} expects 'status_duration' to be defined."),
+                                                         s.Factor)),
+                    _ => throw new NotImplementedException($"{_.Name} is not implemented")
                 };
 
                 SpellModifierRegistry.Register(s.Name.GetHashCode(), mod);
@@ -103,11 +109,10 @@ namespace CMPM.Spells {
                                            projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime,
                                            data.Icon, data.Count.Value, data.Spray.Value, modifiers);
                 case "Ice Bolt":
-                    if (data.SlowFactor == null) throw new Exception($"{name} has no slow_factor defined");
-                    if (data.TimeSlowed == null) throw new Exception($"{name} has no time_slowed defined");
+                    if (data.Status_Duration == null) throw new Exception($"{name} has no time_slowed defined");
                     return new IceBolt(owner, name, data.ManaCost, data.Damage.DamageRPN, data.Damage.Type,
                                        projectile.Speed, projectile.HitCap, data.Cooldown, projectile.Lifetime, data.Count,
-                                       data.SlowFactor, data.TimeSlowed, data.Icon, modifiers);
+                                       data.Factor, data.Status_Duration.Value, data.Icon, modifiers);
 
                 //then it is a modifier spell, by recursively calling the BuildSpell method
                 default: {
@@ -118,8 +123,8 @@ namespace CMPM.Spells {
     }
 
     #region JSON Parsing
-    // TODO: At some point making these *all* RPN Strings may be beneficial simply for added flexibility would be cool.
-    // Though that would be bad for performance lol
+    
+    // There is 0 reason for this to not be a readonly struct. At some point refactor the parser to support a readonly struct.
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [JsonConverter(typeof(SpellDataParser))]
     public struct SpellData
@@ -141,8 +146,8 @@ namespace CMPM.Spells {
         public RPNString? Count;
         public RPNString? Spray;
 
-        public float? SlowFactor;
-        public int? TimeSlowed;
+        public RPNString? Status_Duration;
+        public RPNString Factor;
         #endregion
     }
 
@@ -195,12 +200,15 @@ namespace CMPM.Spells {
         public readonly RPNString Delay;
         public readonly RPNString Count;
 
+        public readonly RPNString? StatusDuration;
+        public readonly RPNString  Factor;
+
         public SpellModifierData(string name, string description, RPNString damageModifier, RPNString manaCostModifier,
                                  RPNString speedModifier, RPNString hitCapModifier, RPNString cooldownModifier,
                                  RPNString lifetimeModifier, RPNString countModifier, ProjectileType? type,
-                                 RPNString angle, RPNString delay, RPNString count)
+                                 RPNString angle, RPNString delay, RPNString count, RPNString? statusDuration, RPNString factor)
         {
-            Name = name;
+            Name             = name;
             Description      = description;
             DamageModifier   = damageModifier;
             ManaCostModifier = manaCostModifier;
@@ -209,10 +217,12 @@ namespace CMPM.Spells {
             CooldownModifier = cooldownModifier;
             LifetimeModifier = lifetimeModifier;
             CountModifier    = countModifier;
-            Type  = type;
-            Angle = angle;
-            Delay = delay;
-            Count = count;
+            Type             = type;
+            Angle            = angle;
+            Delay            = delay;
+            Count            = count;
+            StatusDuration   = statusDuration;
+            Factor      = factor;
         }
         #endregion
     }

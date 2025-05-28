@@ -1,4 +1,3 @@
-using System;
 using CMPM.Core;
 using CMPM.Relics;
 using CMPM.UI.Tooltips;

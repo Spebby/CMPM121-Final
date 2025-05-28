@@ -139,5 +139,63 @@
 				"amount": "10"
 			}
 		]
+	},
+	{
+		"name": "Battlemage's Amulet",
+		"description": "How else does a wizard warrior run in such armour?",
+		"sprite": 8,
+		"precondition": {
+			"description": "At the start of every wave...",
+			"type": "wave-start"
+		},
+		"effect": [
+			{
+				"description": "Gain a temporary boost to your speed.",
+				"type": "gain-speed",
+				"amount": "3",
+				"until": "timer",
+				"range": {
+					"min": "15",
+					"max": "15"
+				}
+			}
+		]
+	},
+	{
+		"name": "Scarlet Amulet",
+		"description": "Might taste like rocks",
+		"sprite": 7,
+		"precondition": {
+			"description": "At the end of a wave...",
+			"type": "wave-end"
+		},
+		"effect": [
+			{
+				"description": "Recover 25 health",
+				"type": "gain-health",
+				"amount": "25"
+			}
+		]
+	},
+	{
+		"name": "Fiery Tombe",
+		"description": "Refrain from eating.",
+		"sprite": 10,
+		"precondition": {
+			"description": "When you hit an enemy...",
+			"type": "on-hit"
+		},
+		"effect": [
+			{
+				"description": "Inflict a short burn, dealing 15 damage",
+				"type": "status-burn",
+				"amount": "15",
+				"until": "timer",
+				"range": {
+					"min": "3",
+					"max": "3"
+				}
+			}
+		]
 	}
 ]

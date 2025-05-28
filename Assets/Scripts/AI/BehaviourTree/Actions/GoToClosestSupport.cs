@@ -13,7 +13,7 @@ namespace CMPM.AI.BehaviourTree.Actions {
         readonly float _arrivedDistance;
         #endregion
 
-        public GoToClosestSupport(float arrivedDistance) : base() {
+        public GoToClosestSupport(float arrivedDistance) {
             _arrivedDistance = arrivedDistance;
         }
 
@@ -48,7 +48,7 @@ namespace CMPM.AI.BehaviourTree.Actions {
                     Vector3 newPos = playerToTarget / 2;
                     newPos = direction - newPos;
                     newPos.Normalize();
-                    Agent.GetComponent<Unit>().movement = newPos;
+                    Agent.GetComponent<Unit>().movement = newPos * Agent.Speed;
                     return Result.IN_PROGRESS;
                 }
 
@@ -56,7 +56,7 @@ namespace CMPM.AI.BehaviourTree.Actions {
                     Vector3 newPos = playerToTarget / 2;
                     newPos = direction + newPos;
                     newPos.Normalize();
-                    Agent.GetComponent<Unit>().movement = newPos;
+                    Agent.GetComponent<Unit>().movement = newPos * Agent.Speed;
                     return Result.IN_PROGRESS;
                 }
 
@@ -64,7 +64,7 @@ namespace CMPM.AI.BehaviourTree.Actions {
                 return Result.SUCCESS;
             }
 
-            Agent.GetComponent<Unit>().movement = direction.normalized;
+            Agent.GetComponent<Unit>().movement = direction.normalized * Agent.Speed;
             return Result.IN_PROGRESS;
         }
 
