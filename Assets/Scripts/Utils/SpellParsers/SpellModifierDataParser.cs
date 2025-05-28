@@ -77,7 +77,10 @@ namespace CMPM.Utils.SpellParsers {
                 ? null
                 : ProjectileManager.StringToProjectileType(typeStr);
 
-            RPNString? statusDuration = obj.Value<RPNString>("duration");
+            JToken dur = obj["status_duration"];
+            RPNString? statusDuration = dur != null && dur.Type != JTokenType.Null
+                ? serializer.Deserialize<RPNString>(dur.CreateReader())
+                : null;
             RPNString  factor         = new(obj.Value<string>("factor") ?? "1");
 
             return new SpellModifierData(

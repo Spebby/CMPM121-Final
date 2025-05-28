@@ -3,7 +3,6 @@ using System.Collections;
 using CMPM.Core;
 using CMPM.DamageSystem;
 using CMPM.Movement;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -20,18 +19,18 @@ namespace CMPM.Projectiles {
             Movement.Movement(transform);
         }
 
-        void OnTriggerEnter2D(Collider2D collider) {
-            if (collider.gameObject.CompareTag("projectile")) return;
-            if (collider.gameObject.layer == 3) Destroy(gameObject);
-            if (collider.gameObject.CompareTag("unit")) {
-                EnemyController ec = collider.gameObject.GetComponent<EnemyController>();
+        void OnTriggerEnter2D(Collider2D col) {
+            if (col.gameObject.CompareTag("projectile")) return;
+            if (col.gameObject.layer == 3) Destroy(gameObject);
+            if (col.gameObject.CompareTag("unit")) {
+                EnemyController ec = col.gameObject.GetComponent<EnemyController>();
                 if (ec) {
                     OnHit!(ec.HP, transform.position);
                     collidedWith++;
                 }
             }
-            if (collider.gameObject.CompareTag("Player")) {
-                PlayerController pc = collider.gameObject.GetComponent<PlayerController>();
+            if (col.gameObject.CompareTag("Player")) {
+                PlayerController pc = col.gameObject.GetComponent<PlayerController>();
                 if (pc) {
                     OnHit!(pc.HP, transform.position);
                     collidedWith++;

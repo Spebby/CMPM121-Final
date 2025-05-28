@@ -127,8 +127,7 @@ namespace CMPM.Spells {
     // There is 0 reason for this to not be a readonly struct. At some point refactor the parser to support a readonly struct.
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [JsonConverter(typeof(SpellDataParser))]
-    public struct SpellData
-    {
+    public struct SpellData {
         #region Metadata
         public string Name;
         public string Description;
