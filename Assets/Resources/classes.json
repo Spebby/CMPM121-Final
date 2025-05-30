@@ -1,7 +1,7 @@
 {
     "mage": {
             "sprite": 0,
-			"description": "Ol' reliable",
+			"description": "Trained in the mystic arts at the Arcane Tower, \nthis being has extraordinary magical prowess.\nHe may look fragile but beware the power he can unleash upon you.",
             "health": "95 wave 5 * +",
             "mana": "90 wave 10 * +",
             "mana_regeneration": "10 wave +",
@@ -10,7 +10,7 @@
            },
     "warlock": {
             "sprite": 1,
-			"description": "This is placeholder text!",
+			"description": "Born in the dark forests, \nhe has trained to be the master of all crafts. \nHe is both bursting with vitality as well \nas being able to unleash powerful magic.",
             "health": "90 wave 10 * +",
             "mana": "90 wave 10 * +",
             "mana_regeneration": "10",
@@ -19,7 +19,7 @@
     },
     "battlemage": {
             "sprite": 2,
-			"description": "this is placeholder text!",
+			"description": "Through the countless Arcane Wars he has fought in, \nwhat he lacks in mana he overcomes \nit with his exceptional vitality. \nAs the battle rages on his speed increases.",
             "health": "90 wave 15 * +",
             "mana_regeneration": "15",
             "mana": "120",
