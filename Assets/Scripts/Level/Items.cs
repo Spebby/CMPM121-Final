@@ -93,15 +93,17 @@ namespace CMPM.Level
             };
         }
 
-        void OnTriggerEnter2D(Collider2D collision)
+        void OnTriggerStay2D(Collider2D collision)
         {
             if (collision.gameObject.CompareTag("Player"))
             {
-                Debug.Log("player touching item");
-                if (Input.GetKeyDown(KeyCode.F))
+                if (Input.GetKey(KeyCode.F))
                 {
-                    Debug.Log($"picked up {_name}");
+                    // open gui w/ full list of modifiers
+                    // then call PickupItem() when the player
+                    // presses an "Accept" button
                     PickupItem();
+                    Destroy(gameObject);
                 }
             }
         }
