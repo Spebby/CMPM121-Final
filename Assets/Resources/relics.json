@@ -39,7 +39,7 @@
         "name": "Golden Mask",
         "description": "May bite if eaten.",
         "sprite": 2,
-        "rarity": "common",
+        "rarity": "rare",
         "precondition": {
             "description": "When you take damage...",
             "type": "take-damage"
@@ -113,7 +113,7 @@
 		"name": "Rigor Mortis",
 		"description": "Cracking!",
 		"sprite": 18,
-        "rarity": "common",
+        "rarity": "uncommon",
 		"precondition": {
 			"type": "none"
 		},
@@ -134,7 +134,7 @@
 		"name": "Phantom Blood",
 		"description": "May give you a disease.",
 		"sprite": 17,
-        "rarity": "common",
+        "rarity": "rare",
 		"precondition": {
 			"description": "For every 10 enemies killed...",
 			"type":   "on-kill",
@@ -174,7 +174,7 @@
 		"name": "Scarlet Amulet",
 		"description": "Might taste like rocks",
 		"sprite": 7,
-        "rarity": "common",
+        "rarity": "uncommon",
 		"precondition": {
 			"description": "At the end of a wave...",
 			"type": "wave-end"
@@ -191,7 +191,7 @@
 		"name": "Fiery Tombe",
 		"description": "Refrain from eating.",
 		"sprite": 10,
-        "rarity": "common",
+        "rarity": "rare",
 		"precondition": {
 			"description": "When you hit an enemy...",
 			"type": "on-hit"

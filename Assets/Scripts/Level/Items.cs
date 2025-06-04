@@ -62,10 +62,9 @@ namespace CMPM.Level
                     break;
 
                 case ItemType.RELIC:
-                    relicData = RelicRegistry.GetRandom();
+                    relicData = RelicFromRarity(_rarity);
                     _name = relicData.Name;
                     _icon = relicData.Sprite;
-                    _rarity = RarityFromString(relicData.Rarity);
                     GameManager.Instance.RelicIconManager.PlaceSprite(_icon, GetComponent<SpriteRenderer>());
                     break;
             }
@@ -83,6 +82,23 @@ namespace CMPM.Level
             glint.SetActive(true);
         }
 
+
+        RelicData RelicFromRarity(ItemRarity input)
+        {
+            List<RelicData> pool = new();
+            for (int i = 0; i < RelicRegistry.Count; i++)
+            {
+                RelicData relic = RelicRegistry.Get(i);
+                if (relic.Rarity == StringFromRarity(input))
+                {
+                    pool.Add(relic);
+                }
+            }
+
+            if (pool.Count == 0) throw new Exception($"No relic found of rarity: '{input}'");
+            return pool[UnityEngine.Random.Range(0, pool.Count)];
+        }
+
         SpellData SpellFromRarity(ItemRarity input)
         {
             List<SpellData> pool = new();
@@ -94,6 +110,8 @@ namespace CMPM.Level
                     pool.Add(spell);
                 }
             }
+            
+            if (pool.Count == 0) throw new Exception($"No spell found of rarity: '{input}'");
             return pool[UnityEngine.Random.Range(0, pool.Count)];
         }
 

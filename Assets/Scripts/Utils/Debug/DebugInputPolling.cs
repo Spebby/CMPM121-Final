@@ -11,7 +11,7 @@ namespace CMPM
         {
             if (Input.GetKeyDown(KeyCode.Tab))
             {
-                itemGameObject._type = Item.ItemType.SPELL;
+                itemGameObject._type = Item.ItemType.RELIC;
                 var _new = Instantiate(itemGameObject);
                 _new.transform.position = new Vector3(11, 5, -1);
             }

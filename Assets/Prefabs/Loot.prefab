@@ -14512,7 +14512,7 @@ GameObject:
   - component: {fileID: 1043074146415883873}
   - component: {fileID: 2326796629048064802}
   m_Layer: 0
-  m_Name: ItemPickup
+  m_Name: Loot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
