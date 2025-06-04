@@ -62,6 +62,18 @@ namespace CMPM.Core {
 
         // ReSharper disable once StringLiteralTypo
         [SerializeField] SpellUIContainer spellUI;
+
+        //added audio sources
+        [SerializeField] AudioSource footstepAudioSource;
+        [SerializeField] AudioSource whooshAudioSource;
+        [SerializeField] AudioClip whooshAudioClip;
+        [SerializeField] AudioSource explosionAudioSource;
+        [SerializeField] AudioClip explosionAudioClip;
+        [SerializeField] public AudioSource hitHurtAudioSource;
+        [SerializeField] public AudioClip hitHurtClip;
+
+
+
         #endregion
 
         #region APIs
@@ -211,11 +223,32 @@ namespace CMPM.Core {
         #region Input Callbacks
         // ReSharper disable once UnusedMember.Local
         void OnAttack(InputValue value) {
+            if (whooshAudioSource != null && !whooshAudioSource.enabled)
+            {
+                whooshAudioSource.enabled = true;
+            }
+
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
-             || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
+             || GameManager.Instance.State == GameManager.GameState.GAMEOVER)
+            {
+                /*
+                whooshAudioSource.PlayOneShot(whooshAudioClip);
+                if (whooshAudioClip && whooshAudioSource)
+                {
+                    whooshAudioSource.PlayOneShot(whooshAudioClip);
+                }
+                */
+                return;
+            }
             Vector2 mouseScreen = Mouse.current.position.value;
             Vector3 mouseWorld  = Camera.main!.ScreenToWorldPoint(mouseScreen);
             mouseWorld.z = 0;
+            if (whooshAudioClip && whooshAudioSource && (GameManager.Instance.State == GameManager.GameState.INWAVE))
+            {
+                //TODO: prevent multiple whooshes if player is spamming.
+                whooshAudioSource.pitch = UnityEngine.Random.Range(0.80f, 1.35f);
+                whooshAudioSource.PlayOneShot(whooshAudioClip);
+            }
             StartCoroutine(_caster.Cast(transform.position, mouseWorld));
         }
         
@@ -228,12 +261,22 @@ namespace CMPM.Core {
         }
 
         // ReSharper disable once UnusedMember.Local
-        void OnMove(InputValue value) {
+        void OnMove(InputValue value)
+        {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
-             || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
+             || GameManager.Instance.State == GameManager.GameState.GAMEOVER)
+            {
+                if (footstepAudioSource.isPlaying)
+                {
+                    footstepAudioSource.Stop();
+                }
+                footstepAudioSource.enabled = false;
+                return;
+            }
             unit.movement = value.Get<Vector2>() * Speed;
             EventBus.Instance.DoPlayerMove(unit.movement.magnitude);
             EventBus.Instance.DoPlayerStandstill();
+            footstepAudioSource.enabled = unit.movement.magnitude > Mathf.Epsilon;
         }
         #endregion
 

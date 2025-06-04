@@ -9,7 +9,8 @@ using UnityEngine.Serialization;
 
 
 namespace CMPM.Movement {
-    public class EnemyController : Entity {
+    public class EnemyController : Entity
+    {
         #region Publics
         public Transform target;
         [FormerlySerializedAs("healthui")] public HealthBar healthUI;
@@ -20,35 +21,91 @@ namespace CMPM.Movement {
         Dictionary<string, int> _effects;
         public bool canBeBuffed = true;
         #endregion
-        
+
         [FormerlySerializedAs("strength_pip")] public GameObject strengthPip;
         List<GameObject> _pips;
 
         public BehaviourType type;
+        public string enemyName;
         public BehaviourTree Behaviour;
+
+        private AudioSource sfxAudioSource;
+        public AudioClip zombieAudioClip;
+        public AudioClip skeletonAudioClip;
+        public AudioClip warlockAudioClip;
+        public AudioClip dryadAudioClip;
+        public AudioClip goatAudioClip;
+
+        Coroutine sfxCoroutine;
+
+
         #endregion
 
-        void Start() {
-            target =  GameManager.Instance.Player.transform;
+        void Start()
+        {
+            target = GameManager.Instance.Player.transform;
             HP.OnDeath += Die;
             healthUI.SetHealth(HP);
 
             unit = GetComponent<Unit>();
             _pips = new List<GameObject>();
+
+            sfxAudioSource = GetComponent<AudioSource>();
+            if (sfxAudioSource == null) {
+                sfxAudioSource = gameObject.AddComponent<AudioSource>();
+            }
+            sfxCoroutine = StartCoroutine(PlayEnemySFX());
         }
 
-        void Update() {
+        System.Collections.IEnumerator PlayEnemySFX()
+        {
+            while (!dead)
+            {
+                yield return new WaitForSeconds(Random.Range(7f, 32f));
+                switch (enemyName)
+                {
+                    case "zombie":
+                        sfxAudioSource.PlayOneShot(zombieAudioClip);
+                        sfxAudioSource.pitch = Random.Range(0.5f, 1.5f);
+                        break;
+                    case "skeleton":
+                        sfxAudioSource.PlayOneShot(skeletonAudioClip);
+                        sfxAudioSource.pitch = Random.Range(2.0f, 3.0f);
+                        break;
+                    case "warlock":
+                        sfxAudioSource.PlayOneShot(warlockAudioClip);
+                        sfxAudioSource.pitch = Random.Range(0.5f, 1.5f);
+                        break;
+                    case "dryad":
+                        sfxAudioSource.PlayOneShot(dryadAudioClip);
+                        sfxAudioSource.pitch = Random.Range(0.5f, 1.5f);
+                        break;
+                    case "goat":
+                        sfxAudioSource.PlayOneShot(goatAudioClip);
+                        sfxAudioSource.pitch = Random.Range(0.5f, 1.5f);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        void Update()
+        {
             if (GameManager.Instance.State != GameManager.GameState.INWAVE)
                 Destroy(gameObject);
-            else {
+            else
+            {
                 int str = GetEffect("strength");
-                while (str > _pips.Count) {
+                while (str > _pips.Count)
+                {
                     GameObject newPip = Instantiate(strengthPip, transform);
                     newPip.transform.localPosition = new Vector3(-0.4f + _pips.Count * 0.125f, -0.55f, 0);
                     _pips.Add(newPip);
                 }
 
-                while (_pips.Count > str) {
+                while (_pips.Count > str)
+                {
                     GameObject pip = _pips[^1];
                     _pips.RemoveAt(_pips.Count - 1);
                     Destroy(pip);
@@ -59,16 +116,19 @@ namespace CMPM.Movement {
             }
         }
 
-        public void AddAction(EnemyActionTypes actionType, EnemyAction action) {
-            action.Enemy  =   this;
-            _actions[actionType] =   action;
+        public void AddAction(EnemyActionTypes actionType, EnemyAction action)
+        {
+            action.Enemy = this;
+            _actions[actionType] = action;
         }
 
-        public EnemyAction GetAction(EnemyActionTypes actionType) {
+        public EnemyAction GetAction(EnemyActionTypes actionType)
+        {
             return _actions.GetValueOrDefault(actionType, null);
         }
 
-        public void AddEffect(string effectName, int stacks) {
+        public void AddEffect(string effectName, int stacks)
+        {
             _effects ??= new Dictionary<string, int>();
             _effects.TryAdd(effectName, 0);
 
@@ -76,15 +136,18 @@ namespace CMPM.Movement {
             if (_effects[effectName] > 10) _effects[effectName] = 10;
         }
 
-        public int GetEffect(string effectName) {
+        public int GetEffect(string effectName)
+        {
             return _effects?.GetValueOrDefault(effectName, 0) ?? 0;
         }
 
-        void Die() {
+        void Die()
+        {
             if (dead) return;
             dead = true;
             EventBus.Instance.DoEnemyDeath(this);
             GameManager.Instance.RemoveEnemy(gameObject);
         }
+        
     }
 }

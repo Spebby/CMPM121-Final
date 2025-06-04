@@ -46,12 +46,16 @@ namespace CMPM.Level {
             LoadLevelsJson(Resources.Load<TextAsset>("levels"), enemyTypes);
 
             // TODO: In the future I'd like a little more artistic control
-            foreach (Level level in levels) {
+            foreach (Level level in levels)
+            {
                 GameObject selector = Instantiate(button, levelSelector.transform);
                 selector.transform.SetParent(levelSelector.transform);
                 MenuSelectorController msController = selector.GetComponent<MenuSelectorController>();
                 msController.spawner = this;
                 msController.SetLevel(level.name);
+                //https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Object.FindFirstObjectByType.html
+                msController.uiAudioSource = FindFirstObjectByType<RewardScreenManager>().uiAudioSource;
+                msController.uiClickClip = FindFirstObjectByType<RewardScreenManager>().uiClickClip;
             }
         }
 
@@ -175,8 +179,10 @@ namespace CMPM.Level {
             Enemy subject = spawn.enemy;
             newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.EnemySpriteManager.Get(subject.sprite);
             EnemyController en = newEnemy.GetComponent<EnemyController>();
+            en.enemyName = subject.name;
 
-            switch (subject.type) {
+            switch (subject.type)
+            {
                 case BehaviourType.Support:
                     en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.cooldown, subject.range, packet.Damage, subject.strengthFactor));
                     en.AddAction(EnemyActionTypes.Heal, new EnemyHeal(10, 5, 15));

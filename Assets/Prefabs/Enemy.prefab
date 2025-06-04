@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6121702002466829456}
   - component: {fileID: 2010808718909050836}
   - component: {fileID: 3641830926235763761}
+  - component: {fileID: -8033594998819488212}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: unit
@@ -104,11 +105,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 399c9e4011cba3e4c829138ef2eedbda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  HP:
+    team: 0
+    HP: 0
+    MaxHP: 0
+    MinHP: 0
+    hitHurtaudioSource: {fileID: 0}
+    hitHurtAudioClip: {fileID: 0}
+  unit: {fileID: 0}
   target: {fileID: 0}
-  speed: 5
   healthUI: {fileID: 7326907792581316403}
   dead: 0
-  lastAttack: 0
+  canBeBuffed: 1
+  strengthPip: {fileID: 0}
+  type: 0
+  enemyName: 
+  sfxAudioSource: {fileID: 0}
+  zombieAudioClip: {fileID: 8300000, guid: 8c1679ba81cd0194994ef24e8874d537, type: 3}
+  skeletonAudioClip: {fileID: 8300000, guid: e63d8d963fdff7a4887082b281329205, type: 3}
+  warlockAudioClip: {fileID: 8300000, guid: 39c29848f8ff2404c8a07b968a1a5df3, type: 3}
+  dryadAudioClip: {fileID: 8300000, guid: 919d1172bbf4cf94fbf763b0b9b8e9f2, type: 3}
+  goatAudioClip: {fileID: 8300000, guid: 87a96df5f0fbef04f9c2cc45f84b1d7d, type: 3}
 --- !u!61 &6121702002466829456
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -168,7 +185,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movement: {x: 0, y: 0}
-  distance: 0
+  speed: 0
 --- !u!50 &3641830926235763761
 Rigidbody2D:
   serializedVersion: 5
@@ -196,6 +213,103 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!82 &-8033594998819488212
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1832418719708313566}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &6123261448502721304
 GameObject:
   m_ObjectHideFlags: 0
@@ -298,6 +412,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider: {fileID: 7847081412318730888}
+  HP:
+    team: 0
+    HP: 0
+    MaxHP: 0
+    MinHP: 0
+    hitHurtaudioSource: {fileID: 0}
+    hitHurtAudioClip: {fileID: 0}
 --- !u!1 &7847081412318730888
 GameObject:
   m_ObjectHideFlags: 0

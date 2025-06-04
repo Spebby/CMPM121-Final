@@ -8,6 +8,8 @@ namespace CMPM.UI {
         public TextMeshProUGUI label;
         public string level;
         public EnemySpawner spawner;
+        public AudioClip uiClickClip;
+        public AudioSource uiAudioSource;
 
         GameObject _panel;
 
@@ -22,6 +24,12 @@ namespace CMPM.UI {
         }
 
         public void StartLevel() {
+            //button.onClick.RemoveAllListeners();
+            //button.onClick.AddListener(() =>{
+            if (uiAudioSource && uiClickClip)
+            {
+                uiAudioSource.PlayOneShot(uiClickClip);
+            }
             _panel.SetActive(false);
             spawner.StartLevel(level);
         }

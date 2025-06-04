@@ -55,6 +55,17 @@ namespace CMPM.UI {
         PlayerController _player;
         Spell _rewardSpell;
 
+        //for button click sounds to play
+        [Header("Sounds")]
+        [SerializeField] public AudioClip uiClickClip;
+        [SerializeField] public AudioSource uiAudioSource;
+
+        [SerializeField] public AudioClip uiRewardScreenClip;
+        [SerializeField] public AudioSource uiRewardAudioSource;
+        [SerializeField] public AudioClip gameOverScreenClip;
+        [SerializeField] public AudioSource gameOverScreenSource;
+
+
         [FormerlySerializedAs("OnPanelClose")]
         [Header("Unity Events")] // I don't like Unity Events that much, but they are convenient from time to time.
         [SerializeField] UnityEvent onPanelClose;
@@ -102,7 +113,11 @@ namespace CMPM.UI {
                 selector.Init(c);
                 
                 button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => {
+                button.onClick.AddListener(() =>{
+                if (uiAudioSource && uiClickClip)
+                    {
+                        uiAudioSource.PlayOneShot(uiClickClip);
+                }
                     GameManager.Instance.PlayerController.UpdateClass(c);
                     classSelector.SetActive(false);
                     difficultySelector.SetActive(true);
@@ -180,6 +195,10 @@ namespace CMPM.UI {
         }
 
         void ShowLossScreen() {
+            if (gameOverScreenSource && gameOverScreenClip)
+            {
+                gameOverScreenSource.PlayOneShot(gameOverScreenClip);
+            }
             panel.SetActive(true);
             classSelector.SetActive(false);
             difficultySelector.SetActive(false);
@@ -195,6 +214,10 @@ namespace CMPM.UI {
         }
 
         void ShowRewardScreen() {
+            if (uiRewardAudioSource && uiRewardScreenClip)
+            {
+                uiRewardAudioSource.PlayOneShot(uiRewardScreenClip);
+            }
             panel.SetActive(true);
             classSelector.SetActive(false);
             difficultySelector.SetActive(false);
@@ -204,13 +227,16 @@ namespace CMPM.UI {
             spellUI.SetActive(true);
             relicUI.SetActive(false);
             discardSpellUI.SetActive(false);
-            
+
             // Pick and display one random spell
-            if (_rewardSpell == null) {
+            if (_rewardSpell == null)
+            {
                 _rewardSpell = SpellBuilder.MakeRandomSpell(_player, maxSpellModifiers);
                 spellUIIcon.SetSpell(_rewardSpell);
                 spellText.text = $"{_rewardSpell.GetName()}\n{_rewardSpell.GetDescription()}";
-            } else {
+            }
+            else
+            {
                 spellUI.SetActive(false);
                 acceptButton.gameObject.SetActive(false);
             }
@@ -279,6 +305,10 @@ namespace CMPM.UI {
         #endregion
 
         void OnAcceptClicked() {
+            if (uiAudioSource && uiClickClip)
+            {
+                uiAudioSource.PlayOneShot(uiClickClip);
+            }
             _spellClaimed = true;
             if (_player.HasSpellRoom()) {
                 _player.AddSpell(_rewardSpell);
@@ -293,6 +323,10 @@ namespace CMPM.UI {
         }
 
         void ClosePanel() {
+            if (uiAudioSource && uiClickClip)
+            {
+                uiAudioSource.PlayOneShot(uiClickClip);
+            }
             panel.SetActive(false);
             nextButton.gameObject.SetActive(false);
             acceptButton.onClick.RemoveAllListeners();
