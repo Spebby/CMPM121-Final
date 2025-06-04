@@ -16,14 +16,17 @@ namespace CMPM
         TextMeshProUGUI Label;
 
         [SerializeField]
-        RawImage Icon;
+        public GameObject IconObject; // Changed from RawImage to GameObject
 
         RectTransform Rect;
         RadialMenuEntryDelegate Callback;
 
         public void Start()
         {
-            Rect = Icon.GetComponent<RectTransform>();
+            if (IconObject != null)
+            {
+                Rect = IconObject.GetComponent<RectTransform>();
+            }
         }
 
         public void SetLabel(string pText)
@@ -31,20 +34,36 @@ namespace CMPM
             Label.text = pText;
         }
 
-        public void SetIcon(Texture2D pIcon)
+        public void SetIcon(Sprite pIcon)
         {
-            Icon.texture = pIcon;
+            if (IconObject != null)
+            {
+                var image = IconObject.GetComponent<Image>();
+                if (image != null)
+                {
+                    image.sprite = pIcon;
+                }
+            }
         }
 
-        public Texture GetIcon()
+        public Sprite GetIcon()
         {
-            return (Icon.texture);
+            if (IconObject != null)
+            {
+                var image = IconObject.GetComponent<Image>();
+                if (image != null)
+                {
+                    return image.sprite;
+                }
+            }
+            return null;
         }
 
         public void SetCallBack(RadialMenuEntryDelegate pCallback)
         {
             Callback = pCallback;
         }
+
         public void OnPointerClick(PointerEventData eventData)
         {
             Callback?.Invoke(this);
@@ -52,14 +71,20 @@ namespace CMPM
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            Rect.DOComplete();
-            Rect.DOScale(Vector3.one * 1.5f, .3f).SetEase(Ease.OutQuad);
+            if (Rect != null)
+            {
+                Rect.DOComplete();
+                Rect.DOScale(Vector3.one * 1.5f, .3f).SetEase(Ease.OutQuad);
+            }
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            Rect.DOComplete();
-            Rect.DOScale(Vector3.one, .3f).SetEase(Ease.OutQuad);
+            if (Rect != null)
+            {
+                Rect.DOComplete();
+                Rect.DOScale(Vector3.one, .3f).SetEase(Ease.OutQuad);
+            }
         }
     }
 }
