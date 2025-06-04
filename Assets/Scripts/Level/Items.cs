@@ -3,6 +3,7 @@ using System;
 using CMPM.Spells;
 using CMPM.Core;
 using CMPM.Relics;
+using System.Collections.Generic;
 
 namespace CMPM.Level
 {
@@ -49,14 +50,14 @@ namespace CMPM.Level
         void Awake()
         {
             pc = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+            _rarity = RandomRarity();
 
             switch (_type)
             {
                 case ItemType.SPELL:
-                    spellData = SpellRegistry.Get(SpellRegistry.GetRandomKey());
+                    spellData = SpellFromRarity(_rarity);
                     _name = spellData.Name;
                     _icon = spellData.Icon;
-                    _rarity = RarityFromString(spellData.Rarity);
                     GameManager.Instance.SpellIconManager.PlaceSprite(_icon, GetComponent<SpriteRenderer>());
                     break;
 
@@ -82,6 +83,37 @@ namespace CMPM.Level
             glint.SetActive(true);
         }
 
+        SpellData SpellFromRarity(ItemRarity input)
+        {
+            List<SpellData> pool = new();
+            foreach (var hash in SpellRegistry.GetHashes())
+            {
+                SpellData spell = SpellRegistry.Get(hash);
+                if (spell.Rarity == StringFromRarity(input))
+                {
+                    pool.Add(spell);
+                }
+            }
+            return pool[UnityEngine.Random.Range(0, pool.Count)];
+        }
+
+        ItemRarity RandomRarity()
+        {
+            int randomNumber = UnityEngine.Random.Range(1, 101);
+            foreach (var weight in GameManager.Instance.LootWeights)
+            {
+                if (randomNumber <= weight.Value)
+                {
+                    return RarityFromString(weight.Key);
+                }
+                else
+                {
+                    randomNumber -= weight.Value;
+                }
+            }
+            throw new Exception("balls itch");
+        }
+
         public ItemRarity RarityFromString(string input)
         {
             return input switch
@@ -91,6 +123,17 @@ namespace CMPM.Level
                 "rare" => ItemRarity.RARE,
                 _ => throw new ArgumentException($"'{_name}' has unknown rarity type: '{input}'")
             };
+        }
+
+        public string StringFromRarity(ItemRarity input)
+        {
+          return input switch
+            {
+                ItemRarity.COMMON => "common",
+                ItemRarity.UNCOMMON => "uncommon",
+                ItemRarity.RARE => "rare",
+                _ => throw new ArgumentException($"'{input}' aint a real rarity or wrong type")
+            };  
         }
 
         void OnTriggerStay2D(Collider2D collision)

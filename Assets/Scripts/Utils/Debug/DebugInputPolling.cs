@@ -11,8 +11,6 @@ namespace CMPM
         {
             if (Input.GetKeyDown(KeyCode.Tab))
             {
-                // left off here need to determine the ItemType before
-                // instantiation
                 itemGameObject._type = Item.ItemType.SPELL;
                 var _new = Instantiate(itemGameObject);
                 _new.transform.position = new Vector3(11, 5, -1);
