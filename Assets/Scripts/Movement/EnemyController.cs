@@ -51,9 +51,13 @@ namespace CMPM.Movement {
             _pips = new List<GameObject>();
 
             sfxAudioSource = GetComponent<AudioSource>();
-            if (sfxAudioSource == null) {
+            if (sfxAudioSource == null)
+            {
                 sfxAudioSource = gameObject.AddComponent<AudioSource>();
             }
+            sfxAudioSource.spatialBlend = 1.0f;
+            sfxAudioSource.minDistance = 20f;
+            sfxAudioSource.maxDistance = 30f;
             sfxCoroutine = StartCoroutine(PlayEnemySFX());
         }
 
