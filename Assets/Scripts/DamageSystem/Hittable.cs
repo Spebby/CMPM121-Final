@@ -29,10 +29,7 @@ namespace CMPM.DamageSystem {
             EventBus.Instance.DoDamage(Owner.transform.position, damage, this);
             HP -= damage.Amount;
             if (HP < MinHP) MinHP = HP;
-            if (team == Team.PLAYER && Owner is CMPM.Core.PlayerController player) {
-                if (player.hitHurtAudioSource && player.hitHurtClip)
-                    player.hitHurtAudioSource.PlayOneShot(player.hitHurtClip);
-            }
+            PlayerSoundManager.PlaySound(SoundTypePlayer.HURT);
             if (HP > 0) return;
             HP = 0;
             OnDeath?.Invoke();

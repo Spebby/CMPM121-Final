@@ -28,16 +28,11 @@ namespace CMPM.Movement {
         public BehaviourType type;
         public string enemyName;
         public BehaviourTree Behaviour;
-
-        private AudioSource sfxAudioSource;
-        public AudioClip zombieAudioClip;
-        public AudioClip skeletonAudioClip;
-        public AudioClip warlockAudioClip;
-        public AudioClip dryadAudioClip;
-        public AudioClip goatAudioClip;
+        public AudioSource audioSource;
 
         Coroutine sfxCoroutine;
 
+        float volPitch = 1f;
 
         #endregion
 
@@ -50,15 +45,30 @@ namespace CMPM.Movement {
             unit = GetComponent<Unit>();
             _pips = new List<GameObject>();
 
-            sfxAudioSource = GetComponent<AudioSource>();
-            if (sfxAudioSource == null)
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
             {
-                sfxAudioSource = gameObject.AddComponent<AudioSource>();
+                audioSource = gameObject.AddComponent<AudioSource>();
             }
-            sfxAudioSource.spatialBlend = 1.0f;
-            sfxAudioSource.minDistance = 20f;
-            sfxAudioSource.maxDistance = 30f;
+            audioSource.spatialBlend = 1f;
+            audioSource.minDistance = 5f;
+            audioSource.maxDistance = 40f;
+            audioSource.rolloffMode = AudioRolloffMode.Linear;
+
             sfxCoroutine = StartCoroutine(PlayEnemySFX());
+        }
+
+        private SoundTypeEnemies? GetSoundTypeFromName(string name)
+        {
+            switch (name.ToLower())
+            {
+                case "zombie": return SoundTypeEnemies.ZOMBIE;
+                case "skeleton": return SoundTypeEnemies.SKELETON;
+                case "warlock": return SoundTypeEnemies.WARLOCK;
+                case "dryad": return SoundTypeEnemies.DRYAD;
+                case "goat": return SoundTypeEnemies.GOAT;
+                default: return null;
+            }
         }
 
         System.Collections.IEnumerator PlayEnemySFX()
@@ -66,30 +76,32 @@ namespace CMPM.Movement {
             while (!dead)
             {
                 yield return new WaitForSeconds(Random.Range(7f, 32f));
-                switch (enemyName)
+                var soundType = GetSoundTypeFromName(enemyName);
+                if (soundType.HasValue)
                 {
-                    case "zombie":
-                        sfxAudioSource.PlayOneShot(zombieAudioClip);
-                        sfxAudioSource.pitch = Random.Range(0.5f, 1.5f);
-                        break;
-                    case "skeleton":
-                        sfxAudioSource.PlayOneShot(skeletonAudioClip);
-                        sfxAudioSource.pitch = Random.Range(2.0f, 3.0f);
-                        break;
-                    case "warlock":
-                        sfxAudioSource.PlayOneShot(warlockAudioClip);
-                        sfxAudioSource.pitch = Random.Range(0.5f, 1.5f);
-                        break;
-                    case "dryad":
-                        sfxAudioSource.PlayOneShot(dryadAudioClip);
-                        sfxAudioSource.pitch = Random.Range(0.5f, 1.5f);
-                        break;
-                    case "goat":
-                        sfxAudioSource.PlayOneShot(goatAudioClip);
-                        sfxAudioSource.pitch = Random.Range(0.5f, 1.5f);
-                        break;
-                    default:
-                        break;
+                    audioSource.pitch = volPitch;
+                    switch (soundType.Value)
+                    {
+                        case SoundTypeEnemies.ZOMBIE:
+                            volPitch = Random.Range(0.5f, 1.5f);
+                            break;
+                        case SoundTypeEnemies.SKELETON:
+                            volPitch = Random.Range(2.0f, 3.0f);
+                            break;
+                        case SoundTypeEnemies.WARLOCK:
+                            volPitch = Random.Range(0.5f, 1.5f);
+                            break;
+                        case SoundTypeEnemies.DRYAD:
+                            volPitch = Random.Range(0.5f, 1.5f);
+                            break;
+                        case SoundTypeEnemies.GOAT:
+                            volPitch = Random.Range(0.5f, 2.5f);
+                            break;
+                        default:
+                            volPitch = Random.Range(0.1f, 3.0f);
+                            break;
+                    }
+                    audioSource.PlayOneShot(EnemiesSoundManager.GetEnemyClip(soundType.Value));
                 }
             }
         }
