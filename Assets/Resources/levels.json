@@ -1,17 +1,4 @@
 [
-    {
-        "name": "Debug",
-        "waves": 5,
-        "spawns": [
-            {
-                "enemy": "zombie",
-                "count": "1",
-                "hp": "30",
-				"speed": "base",
-                "location": "random bone"
-            }
-        ]
-    },
    {   
        "name": "Easy",
        "waves": 10,

@@ -10,23 +10,23 @@ namespace CMPM.Level
     public class LootController : MonoBehaviour
     {
         // if we still have time, i lowkey want to make recovery items
-        public enum ItemType
+        public enum LootType
         {
             SPELL,
             RELIC
         }
-        public ItemType _type;
+        public LootType _type;
 
-        public enum ItemRarity
+        public enum LootRarity
         {
             COMMON,
             UNCOMMON,
             RARE
         }
-        public ItemRarity _rarity;
+        public LootRarity _rarity;
 
-        public string _name;
-        public uint _icon;
+        string _name;
+        uint _icon;
 
         SpellData spellData;
         public Spell finalSpell;
@@ -40,11 +40,11 @@ namespace CMPM.Level
         {
             switch (_type)
             {
-                case ItemType.SPELL:
+                case LootType.SPELL:
                     pc.AddSpell(finalSpell);
                     break;
 
-                case ItemType.RELIC:
+                case LootType.RELIC:
                     pc.AddRelic(finalRelic);
                     break;
             }
@@ -62,7 +62,7 @@ namespace CMPM.Level
 
             switch (_type)
             {
-                case ItemType.SPELL:
+                case LootType.SPELL:
                     spellData = SpellFromRarity(_rarity);
                     _name = spellData.Name;
                     _icon = spellData.Icon;
@@ -70,7 +70,7 @@ namespace CMPM.Level
                     finalSpell = SpellBuilder.BuildSpell(_name, pc, 3);
                     break;
 
-                case ItemType.RELIC:
+                case LootType.RELIC:
                     relicData = RelicFromRarity(_rarity);
                     _name = relicData.Name;
                     _icon = relicData.Sprite;
@@ -80,8 +80,7 @@ namespace CMPM.Level
             }
         }
 
-
-        RelicData RelicFromRarity(ItemRarity input)
+        RelicData RelicFromRarity(LootRarity input)
         {
             List<RelicData> pool = new();
             for (int i = 0; i < RelicRegistry.Count; i++)
@@ -97,7 +96,7 @@ namespace CMPM.Level
             return pool[UnityEngine.Random.Range(0, pool.Count)];
         }
 
-        SpellData SpellFromRarity(ItemRarity input)
+        SpellData SpellFromRarity(LootRarity input)
         {
             List<SpellData> pool = new();
             foreach (var hash in SpellRegistry.GetHashes())
@@ -113,7 +112,7 @@ namespace CMPM.Level
             return pool[UnityEngine.Random.Range(0, pool.Count)];
         }
 
-        ItemRarity RandomRarity()
+        LootRarity RandomRarity()
         {
             int randomNumber = UnityEngine.Random.Range(1, 101);
             foreach (var weight in GameManager.Instance.LootWeights)
@@ -130,24 +129,24 @@ namespace CMPM.Level
             throw new Exception("cuz nOt AlL cOdE pAtHs ReTurN a VaLuE");
         }
 
-        public static ItemRarity RarityFromString(string input)
+        public static LootRarity RarityFromString(string input)
         {
             return input.ToLower() switch
             {
-                "common" => ItemRarity.COMMON,
-                "uncommon" => ItemRarity.UNCOMMON,
-                "rare" => ItemRarity.RARE,
+                "common" => LootRarity.COMMON,
+                "uncommon" => LootRarity.UNCOMMON,
+                "rare" => LootRarity.RARE,
                 _ => throw new ArgumentException($"'{input}' aint a real rarity")
             };
         }
 
-        public static string StringFromRarity(ItemRarity input)
+        public static string StringFromRarity(LootRarity input)
         {
           return input switch
             {
-                ItemRarity.COMMON => "common",
-                ItemRarity.UNCOMMON => "uncommon",
-                ItemRarity.RARE => "rare",
+                LootRarity.COMMON => "common",
+                LootRarity.UNCOMMON => "uncommon",
+                LootRarity.RARE => "rare",
                 _ => throw new ArgumentException($"'{input}' aint a real rarity")
             };  
         }

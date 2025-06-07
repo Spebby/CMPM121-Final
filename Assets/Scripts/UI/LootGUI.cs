@@ -62,9 +62,9 @@ namespace CMPM.UI
             // that are all off by default
             GameObject glint = lootController._rarity switch
             {
-                LootController.ItemRarity.COMMON => transform.Find("Common Glint").gameObject,
-                LootController.ItemRarity.UNCOMMON => transform.Find("Uncommon Glint").gameObject,
-                LootController.ItemRarity.RARE => transform.Find("Rare Glint").gameObject,
+                LootController.LootRarity.COMMON => transform.Find("Common Glint").gameObject,
+                LootController.LootRarity.UNCOMMON => transform.Find("Uncommon Glint").gameObject,
+                LootController.LootRarity.RARE => transform.Find("Rare Glint").gameObject,
                 _ => throw new Exception($"'{lootController._rarity}' isn't a valid rarity type")
             };
             glint.SetActive(true);   

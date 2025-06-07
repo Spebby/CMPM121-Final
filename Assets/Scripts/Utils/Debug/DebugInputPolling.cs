@@ -11,7 +11,8 @@ namespace CMPM.Utils.Debug
         {
             if (Input.GetKeyDown(KeyCode.Backspace))
             {
-                lc._type = LootController.ItemType.RELIC;
+                // lc._type = LootController.LootType.SPELL;
+                lc._type = LootController.LootType.RELIC;
                 var _new = Instantiate(lc);
                 _new.transform.position = new Vector3(Random.Range(-5,6), Random.Range(-5,6), -1);
             }
