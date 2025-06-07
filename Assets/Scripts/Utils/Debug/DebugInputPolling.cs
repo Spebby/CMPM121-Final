@@ -1,19 +1,19 @@
 using CMPM.Level;
 using UnityEngine;
 
-namespace CMPM
+namespace CMPM.Utils.Debug
 {
     public class DebugInputPolling : MonoBehaviour
     {
-        public Item itemGameObject;
+        public LootController lc;
         // Update is called once per frame
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Tab))
+            if (Input.GetKeyDown(KeyCode.Backspace))
             {
-                itemGameObject._type = Item.ItemType.RELIC;
-                var _new = Instantiate(itemGameObject);
-                _new.transform.position = new Vector3(11, 5, -1);
+                lc._type = LootController.ItemType.RELIC;
+                var _new = Instantiate(lc);
+                _new.transform.position = new Vector3(Random.Range(-5,6), Random.Range(-5,6), -1);
             }
         }
     }

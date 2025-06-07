@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace CMPM.Level
 {
-    public class Item : MonoBehaviour
+    public class LootController : MonoBehaviour
     {
         // if we still have time, i lowkey want to make recovery items
         public enum ItemType
@@ -29,22 +29,30 @@ namespace CMPM.Level
         public uint _icon;
 
         SpellData spellData;
+        public Spell finalSpell;
         RelicData relicData;
+        public Relic finalRelic;
 
         PlayerController pc;
 
+        // added this to the accept button in Unity Inspector
         public void PickupItem()
         {
             switch (_type)
             {
                 case ItemType.SPELL:
-                    pc.AddSpell(SpellBuilder.BuildSpell(_name, pc, 3));
+                    pc.AddSpell(finalSpell);
                     break;
 
                 case ItemType.RELIC:
-                    pc.AddRelic(RelicBuilder.CreateRelic(relicData));
+                    pc.AddRelic(finalRelic);
                     break;
             }
+        }
+
+        public void Forget()
+        {
+            Destroy(gameObject);
         }
 
         void Awake()
@@ -59,6 +67,7 @@ namespace CMPM.Level
                     _name = spellData.Name;
                     _icon = spellData.Icon;
                     GameManager.Instance.SpellIconManager.PlaceSprite(_icon, GetComponent<SpriteRenderer>());
+                    finalSpell = SpellBuilder.BuildSpell(_name, pc, 3);
                     break;
 
                 case ItemType.RELIC:
@@ -66,20 +75,9 @@ namespace CMPM.Level
                     _name = relicData.Name;
                     _icon = relicData.Sprite;
                     GameManager.Instance.RelicIconManager.PlaceSprite(_icon, GetComponent<SpriteRenderer>());
+                    finalRelic = RelicBuilder.CreateRelic(relicData);
                     break;
             }
-
-            // glint
-            // the PickupItem gameobject has children that contain particle systems
-            // that are all off by default
-            GameObject glint = _rarity switch
-            {
-                ItemRarity.COMMON => transform.Find("Common Glint").gameObject,
-                ItemRarity.UNCOMMON => transform.Find("Uncommon Glint").gameObject,
-                ItemRarity.RARE => transform.Find("Rare Glint").gameObject,
-                _ => throw new Exception($"'{_name}' doesn't have a rarity: '{_rarity}'")
-            };
-            glint.SetActive(true);
         }
 
 
@@ -129,44 +127,29 @@ namespace CMPM.Level
                     randomNumber -= weight.Value;
                 }
             }
-            throw new Exception("balls itch");
+            throw new Exception("cuz nOt AlL cOdE pAtHs ReTurN a VaLuE");
         }
 
-        public ItemRarity RarityFromString(string input)
+        public static ItemRarity RarityFromString(string input)
         {
-            return input switch
+            return input.ToLower() switch
             {
                 "common" => ItemRarity.COMMON,
                 "uncommon" => ItemRarity.UNCOMMON,
                 "rare" => ItemRarity.RARE,
-                _ => throw new ArgumentException($"'{_name}' has unknown rarity type: '{input}'")
+                _ => throw new ArgumentException($"'{input}' aint a real rarity")
             };
         }
 
-        public string StringFromRarity(ItemRarity input)
+        public static string StringFromRarity(ItemRarity input)
         {
           return input switch
             {
                 ItemRarity.COMMON => "common",
                 ItemRarity.UNCOMMON => "uncommon",
                 ItemRarity.RARE => "rare",
-                _ => throw new ArgumentException($"'{input}' aint a real rarity or wrong type")
+                _ => throw new ArgumentException($"'{input}' aint a real rarity")
             };  
-        }
-
-        void OnTriggerStay2D(Collider2D collision)
-        {
-            if (collision.gameObject.CompareTag("Player"))
-            {
-                if (Input.GetKey(KeyCode.F))
-                {
-                    // open gui w/ full list of modifiers
-                    // then call PickupItem() when the player
-                    // presses an "Accept" button
-                    PickupItem();
-                    Destroy(gameObject);
-                }
-            }
         }
     }
 }
