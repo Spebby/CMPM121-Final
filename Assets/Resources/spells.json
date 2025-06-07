@@ -3,6 +3,7 @@
        "name": "Arcane Bolt",
        "description": "A straight-flying bolt.",
        "icon": 0,
+       "rarity": "common",
        "damage": {
 			"amount": "25 power 5 / +",
 			"type": "arcane"
@@ -20,6 +21,7 @@
        "name": "Ice Bolt",
        "description": "A straight-flying bolt that slows enemies.",
        "icon": 12,
+       "rarity": "common",
        "damage": {
             "amount": "15 power 2 / +",
             "type": "ice"
@@ -38,7 +40,8 @@
    "magic_missile":  {
        "name": "Magic Missile",
        "description": "A homing bolt.",
-       "icon": 2,
+       "icon": 4,
+       "rarity": "uncommon",
        "damage": {
 			"amount": "10 power 3 / +",
 			"type": "arcane"
@@ -55,7 +58,8 @@
    "arcane_blast":  {
        "name": "Arcane Blast",
        "description": "A bolt that explodes into smaller bolts on impact.",
-       "icon": 2,
+       "icon": 3,
+       "rarity": "rare",
        "N": "8 power 5 / +",
        "damage": {
 			"amount": "20 power 3 / +",
@@ -82,6 +86,7 @@
        "name": "Arcane Spray",
        "description": "A large number of short-range bolts in a cone.",
        "icon": 1,
+       "rarity": "common",
        "N": "7 power 25 / +",
        "spray": "0.3",
        "damage": {
@@ -102,6 +107,7 @@
 		"name": "Mystic River",
 		"description": "A wave of mana that flows from the tip of the wand.",
 		"icon": 10,
+        "rarity": "rare",
 		"N": "7 power 25 / +",
 		"spray": "0.25",
 		"damage": {
