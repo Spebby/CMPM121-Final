@@ -7,7 +7,6 @@ using UnityEngine.Serialization;
 using CMPM.Core;
 using CMPM.UI;
 
-//https://www.youtube.com/watch?v=g5WT91Sn3hg&t=700s
 public enum SoundTypePlayer
 {
     WALK,
@@ -44,5 +43,41 @@ public class PlayerSoundManager : MonoBehaviour
     public static AudioClip GetPlayerClip(SoundTypePlayer playerSound)
     {
         return instance.playerSoundsList[(int)playerSound];
+    }
+
+    public static void StopSound()
+    {
+        if (instance.audioSource.isPlaying)
+        {
+            instance.audioSource.Stop();
+        }
+    }
+
+    public static void StartSound()
+    {
+        if (!instance.audioSource.isPlaying)
+        {
+            instance.audioSource.Play();
+        }
+    }
+
+    public static void StartLooping(SoundTypePlayer playerSound, float volume = 1f)
+    {
+        if (instance.audioSource.isPlaying && instance.audioSource.loop && instance.audioSource.clip == instance.playerSoundsList[(int)playerSound])
+        {
+            return;
+        }
+        instance.audioSource.clip = instance.playerSoundsList[(int)playerSound];
+        instance.audioSource.loop = true;
+        instance.audioSource.volume = volume;
+        instance.audioSource.Play();
+    }
+    public static void StopLooping(){
+        if (instance.audioSource.isPlaying && instance.audioSource.loop)
+        {
+            instance.audioSource.Stop();
+            instance.audioSource.loop = false;
+            instance.audioSource.clip = null;
+        }
     }
 }

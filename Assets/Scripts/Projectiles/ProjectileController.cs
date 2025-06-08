@@ -38,7 +38,7 @@ namespace CMPM.Projectiles {
                 
                     if (explosionAudioClip != null)
                     {
-                        AudioSource.PlayClipAtPoint(explosionAudioClip, Camera.main.transform.position, 0.5f);
+                        AudioSource.PlayClipAtPoint(explosionAudioClip, Camera.main.transform.position, 0.2f);
                     }
                 }
             }

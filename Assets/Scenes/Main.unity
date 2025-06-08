@@ -5852,7 +5852,7 @@ MonoBehaviour:
   healthUI: {fileID: 765025204}
   manaUI: {fileID: 71109453}
   spellUI: {fileID: 1982188287}
-  footstepAudioSource: {fileID: 191418736}
+  footstepAudioSource: {fileID: 1592533439}
   whooshAudioSource: {fileID: 1821828665}
   whooshAudioClip: {fileID: 8300000, guid: f3e225eb847578645b79a3cbf9a94197, type: 3}
   explosionAudioSource: {fileID: 1043275510}

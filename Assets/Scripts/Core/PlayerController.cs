@@ -63,16 +63,6 @@ namespace CMPM.Core {
         // ReSharper disable once StringLiteralTypo
         [SerializeField] SpellUIContainer spellUI;
 
-        //added audio sources
-        [SerializeField] AudioSource footstepAudioSource;
-        [SerializeField] AudioSource whooshAudioSource;
-        [SerializeField] AudioClip whooshAudioClip;
-        [SerializeField] AudioSource explosionAudioSource;
-        [SerializeField] AudioClip explosionAudioClip;
-        [SerializeField] public AudioSource hitHurtAudioSource;
-        [SerializeField] public AudioClip hitHurtClip;
-
-
 
         #endregion
 
@@ -223,32 +213,16 @@ namespace CMPM.Core {
         #region Input Callbacks
         // ReSharper disable once UnusedMember.Local
         void OnAttack(InputValue value) {
-            if (whooshAudioSource != null && !whooshAudioSource.enabled)
-            {
-                whooshAudioSource.enabled = true;
-            }
-
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER)
             {
-                /*
-                whooshAudioSource.PlayOneShot(whooshAudioClip);
-                if (whooshAudioClip && whooshAudioSource)
-                {
-                    whooshAudioSource.PlayOneShot(whooshAudioClip);
-                }
-                */
                 return;
             }
+            PlayerSoundManager.PlaySound(SoundTypePlayer.ATTACK, UnityEngine.Random.Range(0.80f, 1.35f));
             Vector2 mouseScreen = Mouse.current.position.value;
             Vector3 mouseWorld  = Camera.main!.ScreenToWorldPoint(mouseScreen);
             mouseWorld.z = 0;
-            if (whooshAudioClip && whooshAudioSource && (GameManager.Instance.State == GameManager.GameState.INWAVE))
-            {
-                //TODO: prevent multiple whooshes if player is spamming.
-                whooshAudioSource.pitch = UnityEngine.Random.Range(0.80f, 1.35f);
-                whooshAudioSource.PlayOneShot(whooshAudioClip);
-            }
+        
             StartCoroutine(_caster.Cast(transform.position, mouseWorld));
         }
         
@@ -264,24 +238,30 @@ namespace CMPM.Core {
         void OnMove(InputValue value)
         {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
-             || GameManager.Instance.State == GameManager.GameState.GAMEOVER)
+                || GameManager.Instance.State == GameManager.GameState.GAMEOVER)
             {
-                if (footstepAudioSource.isPlaying)
-                {
-                    footstepAudioSource.Stop();
-                }
-                footstepAudioSource.enabled = false;
+                PlayerSoundManager.StopLooping();
                 return;
             }
             unit.movement = value.Get<Vector2>() * Speed;
             EventBus.Instance.DoPlayerMove(unit.movement.magnitude);
             EventBus.Instance.DoPlayerStandstill();
-            footstepAudioSource.enabled = unit.movement.magnitude > Mathf.Epsilon;
+
+            if (unit.movement.magnitude > Mathf.Epsilon) {
+                PlayerSoundManager.StartLooping(SoundTypePlayer.WALK, UnityEngine.Random.Range(0.80f, 1.50f));
+            }
+            else {
+                PlayerSoundManager.StopLooping();
+            }
+            unit.movement = value.Get<Vector2>() * Speed;
+            EventBus.Instance.DoPlayerMove(unit.movement.magnitude);
+            EventBus.Instance.DoPlayerStandstill();
         }
         #endregion
 
         // ReSharper disable once MemberCanBeMadeStatic.Local
         void Die() {
+            PlayerSoundManager.PlaySound(SoundTypePlayer.DEATH);
             GameManager.Instance.SetGameOver();
         }
     }
