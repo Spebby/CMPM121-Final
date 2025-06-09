@@ -218,7 +218,7 @@ namespace CMPM.Core {
             {
                 return;
             }
-            PlayerSoundManager.PlaySound(SoundTypePlayer.ATTACK, UnityEngine.Random.Range(0.80f, 1.35f));
+            PlayerSoundManager.PlaySound(SoundTypePlayer.ATTACK, UnityEngine.Random.Range(1.0f, 1.25f));
             Vector2 mouseScreen = Mouse.current.position.value;
             Vector3 mouseWorld  = Camera.main!.ScreenToWorldPoint(mouseScreen);
             mouseWorld.z = 0;

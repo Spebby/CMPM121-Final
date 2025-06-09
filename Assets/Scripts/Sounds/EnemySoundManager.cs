@@ -7,8 +7,6 @@ using UnityEngine.Serialization;
 using CMPM.Core;
 using CMPM.UI;
 using System;
-
-//https://www.youtube.com/watch?v=g5WT91Sn3hg&t=700s
 public enum SoundTypeEnemies
 {
     ZOMBIE,

@@ -45,22 +45,6 @@ public class PlayerSoundManager : MonoBehaviour
         return instance.playerSoundsList[(int)playerSound];
     }
 
-    public static void StopSound()
-    {
-        if (instance.audioSource.isPlaying)
-        {
-            instance.audioSource.Stop();
-        }
-    }
-
-    public static void StartSound()
-    {
-        if (!instance.audioSource.isPlaying)
-        {
-            instance.audioSource.Play();
-        }
-    }
-
     public static void StartLooping(SoundTypePlayer playerSound, float volume = 1f)
     {
         if (instance.audioSource.isPlaying && instance.audioSource.loop && instance.audioSource.clip == instance.playerSoundsList[(int)playerSound])

@@ -286,6 +286,10 @@ namespace CMPM.UI {
                     btn.onClick.RemoveAllListeners();
                     int idx = i;
                     btn.onClick.AddListener(() => {
+                        if (uiAudioSource && uiClickClip)
+                        {
+                            uiAudioSource.PlayOneShot(uiClickClip);
+                        }
                         _player.AddSpell(_rewardSpell, idx);
                         if (_relicClaimed == RelicClaimed.Claimed) {
                             ClosePanel();
