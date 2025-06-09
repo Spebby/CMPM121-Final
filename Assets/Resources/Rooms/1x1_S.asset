@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e6c33bf0fdac1a83ac8b57ce1836be5, type: 3}
+  m_Name: 1x1_S
+  m_EditorClassIdentifier: 
+  rooms:
+  - {fileID: 7328084662367532751, guid: 28b1cf9aa0d85bb40b848849db84fdec, type: 3}
+  doors:
+  - GridCoordinates: {x: 0, y: 0}
+    direction: 2
+    WorldCoordinates: {x: 5, y: 0}
+  Weight: 8
+  Width: 1
+  Height: 1
+  Occupancy: 01
