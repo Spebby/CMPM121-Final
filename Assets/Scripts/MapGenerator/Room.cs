@@ -3,9 +3,9 @@ using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
 
 
-namespace CMPM146.MapGenerator {
+namespace CMPM.MapGenerator {
     public sealed class Room : MonoBehaviour {
-        public const int GRID_SIZE = 12;
+        public const int GRID_SIZE = 11;
         public Tilemap tiles;
         [FormerlySerializedAs("weight"), SerializeField] internal int Weight;
 

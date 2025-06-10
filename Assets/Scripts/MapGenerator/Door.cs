@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 
 
 // My original version of this class used bit packing :D
-namespace CMPM146.MapGenerator {
+namespace CMPM.MapGenerator {
     [Serializable]
     public struct Door : IEquatable<Door> {
         public enum Direction {

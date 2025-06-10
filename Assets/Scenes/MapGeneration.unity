@@ -282,7 +282,7 @@ Grid:
   m_GameObject: {fileID: 1037907379}
   m_Enabled: 1
   m_CellSize: {x: 11, y: 11, z: 1}
-  m_CellGap: {x: 1, y: 1, z: 0}
+  m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
 --- !u!4 &1037907381
@@ -331,8 +331,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ResourceDirectory: Rooms
   archetypes: []
-  verticalHallway: {fileID: 5255264242106100983, guid: 23dab4baa5c4e3d4f9ab82b747040843, type: 3}
-  horizontalHallway: {fileID: 1508018506499616265, guid: da4748670254bcd48a9c066ed148bec1, type: 3}
   startRooms: {fileID: 11400000, guid: b94403de0b969abf38e0fc740db2d0a3, type: 2}
   target: {fileID: 11400000, guid: 4037ade5abfdcf33796fa246d07fd052, type: 2}
   MIN_SIZE: 15

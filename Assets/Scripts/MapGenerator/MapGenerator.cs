@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 using Exception = System.Exception;
 
 
-namespace CMPM146.MapGenerator {
+namespace CMPM.MapGenerator {
     public sealed class MapGenerator : MonoBehaviour {
         [Header("Archetypes")] 
         [SerializeField] string ResourceDirectory = "Rooms";

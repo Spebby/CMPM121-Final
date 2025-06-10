@@ -7,7 +7,7 @@ using UnityEngine;
 
 
 [assembly: InternalsVisibleTo("Assembly-CSharp-Editor")]
-namespace CMPM146.MapGenerator {
+namespace CMPM.MapGenerator {
     [CreateAssetMenu(fileName = "RoomArchetype", menuName = "MapGenerator/RoomArchetype")]
     public class RoomArchetype : ScriptableObject {
         public Room[] rooms;

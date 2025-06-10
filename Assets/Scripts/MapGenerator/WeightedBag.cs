@@ -2,7 +2,7 @@ using System;
 using System.Buffers;
 
 
-namespace CMPM146.MapGenerator {
+namespace CMPM.MapGenerator {
     internal ref struct WeightedBag<T> {
         readonly T[] _items;
         readonly ReadOnlySpan<int> _weights;

@@ -1,5 +1,5 @@
 #if UNITY_EDITOR
-using CMPM146.MapGenerator;
+using CMPM.MapGenerator;
 using UnityEditor;
 using UnityEngine;
 
