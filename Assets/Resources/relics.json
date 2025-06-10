@@ -3,6 +3,7 @@
         "name": "Green Gem",
         "description": "Looks edible.",
         "sprite": 0,
+        "rarity": "common",
         "precondition": {
             "description": "Whenever you take damage",
             "type": "take-damage"
@@ -19,6 +20,7 @@
         "name": "Jade Elephant",
         "description": "Most likely not edible.",
         "sprite": 1,
+        "rarity": "common",
         "precondition": {
             "description": "When you don't move for 3 seconds...",
             "type": "stand-still",
@@ -37,6 +39,7 @@
         "name": "Golden Mask",
         "description": "May bite if eaten.",
         "sprite": 2,
+        "rarity": "rare",
         "precondition": {
             "description": "When you take damage...",
             "type": "take-damage"
@@ -54,6 +57,7 @@
         "name": "Cursed Scroll",
         "description": "May cut up your throat on the way down.",
         "sprite": 3,
+        "rarity": "common",
         "precondition": {
             "description": "When you kill an enemy...",
             "type": "on-kill"
@@ -70,6 +74,7 @@
 		"name": "Fungus",
         "description": "Could taste good.",
 		"sprite": 16,
+        "rarity": "common",
 		"precondition": {
 			"description": "Every 6-8 seconds...",
 			"type": "timer",
@@ -91,6 +96,7 @@
 		"name": "Rations",
 		"description": "Most probably edible.",
 		"sprite": 11,
+        "rarity": "common",
 		"precondition": {
 			"description": "When you kill an enemy...",
 			"type": "on-kill"
@@ -107,6 +113,7 @@
 		"name": "Rigor Mortis",
 		"description": "Cracking!",
 		"sprite": 18,
+        "rarity": "uncommon",
 		"precondition": {
 			"type": "none"
 		},
@@ -127,6 +134,7 @@
 		"name": "Phantom Blood",
 		"description": "May give you a disease.",
 		"sprite": 17,
+        "rarity": "rare",
 		"precondition": {
 			"description": "For every 10 enemies killed...",
 			"type":   "on-kill",
@@ -144,6 +152,7 @@
 		"name": "Battlemage's Amulet",
 		"description": "How else does a wizard warrior run in such armour?",
 		"sprite": 8,
+        "rarity": "common",
 		"precondition": {
 			"description": "At the start of every wave...",
 			"type": "wave-start"
@@ -165,6 +174,7 @@
 		"name": "Scarlet Amulet",
 		"description": "Might taste like rocks",
 		"sprite": 7,
+        "rarity": "uncommon",
 		"precondition": {
 			"description": "At the end of a wave...",
 			"type": "wave-end"
@@ -181,6 +191,7 @@
 		"name": "Fiery Tombe",
 		"description": "Refrain from eating.",
 		"sprite": 10,
+        "rarity": "rare",
 		"precondition": {
 			"description": "When you hit an enemy...",
 			"type": "on-hit"

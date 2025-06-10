@@ -15,6 +15,7 @@ namespace CMPM.Utils.RelicParsers {
             string name        = obj["name"]?.ToString()         ?? throw new JsonException("Missing name");
             string description = obj["description"]?.ToString()  ?? throw new JsonException("Missing description");
             uint   sprite      = obj["sprite"]?.ToObject<uint>() ?? throw new JsonException("Missing sprite");
+            string rarity      = obj["rarity"].ToString();
 
             // Parse Precondition
             JObject pre = obj["precondition"]?.ToObject<JObject>() ?? throw new JsonException("Missing precondition");
@@ -46,7 +47,7 @@ namespace CMPM.Utils.RelicParsers {
                                                   })
                                                  .ToArray();
             
-            return new RelicData(name, description, sprite, relicPrecondition, effects);
+            return new RelicData(name, description, sprite, rarity, relicPrecondition, effects);
         }
         
         public override void WriteJson(JsonWriter writer, RelicData value, JsonSerializer serializer) {

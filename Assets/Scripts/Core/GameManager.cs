@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using CMPM.Spells;
@@ -9,7 +10,15 @@ using Object = UnityEngine.Object;
 
 namespace CMPM.Core {
     public class GameManager {
-        public enum GameState {
+        public Dictionary<string, int> LootWeights = new Dictionary<string, int>
+        { // needs to stay in descending order
+            {"common", 60},
+            {"uncommon", 30},
+            {"rare", 10},
+        };
+
+        public enum GameState
+        {
             PREGAME,
             INWAVE,
             WAVEEND,

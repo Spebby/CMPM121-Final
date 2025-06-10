@@ -11,7 +11,7 @@ using CMPM.Enemies;
 using CMPM.Movement;
 using CMPM.UI;
 using CMPM.Utils;
-using CMPM.Utils.SpawningParsers;
+using CMPM.Utils.LevelParsing;
 using CMPM.Utils.Structures;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -128,7 +128,7 @@ namespace CMPM.Level {
 
             SpawnPoint[] validSpawns = spawnPoints;
             if (spawn.location != SpawnPoint.SpawnName.RANDOM) {
-                validSpawns = spawnPoints.Where(point => point.kind == spawn.location).ToArray();
+                validSpawns = spawnPoints.Where(point => point.Kind == spawn.location).ToArray();
             }
 
             // Fallback

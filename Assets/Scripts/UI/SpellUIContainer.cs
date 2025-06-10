@@ -66,9 +66,9 @@ namespace CMPM.UI {
 
         public void AddSpell(Spell spell, int i) {
             spellUIs[i].SetSpell(spell);
-            if (i == 0) {
-                spellUIs[0].highlight.SetActive(true);
-            }
+            // if (i == 0) {
+            //     spellUIs[0].highlight.SetActive(true);
+            // }
         }
     }
 }

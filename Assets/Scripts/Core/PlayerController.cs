@@ -62,6 +62,8 @@ namespace CMPM.Core {
 
         // ReSharper disable once StringLiteralTypo
         [SerializeField] SpellUIContainer spellUI;
+
+
         #endregion
 
         #region APIs
@@ -212,10 +214,15 @@ namespace CMPM.Core {
         // ReSharper disable once UnusedMember.Local
         void OnAttack(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
-             || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
+             || GameManager.Instance.State == GameManager.GameState.GAMEOVER)
+            {
+                return;
+            }
+            PlayerSoundManager.PlaySound(SoundTypePlayer.ATTACK, UnityEngine.Random.Range(1.0f, 1.25f));
             Vector2 mouseScreen = Mouse.current.position.value;
             Vector3 mouseWorld  = Camera.main!.ScreenToWorldPoint(mouseScreen);
             mouseWorld.z = 0;
+        
             StartCoroutine(_caster.Cast(transform.position, mouseWorld));
         }
         
@@ -228,9 +235,24 @@ namespace CMPM.Core {
         }
 
         // ReSharper disable once UnusedMember.Local
-        void OnMove(InputValue value) {
+        void OnMove(InputValue value)
+        {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
-             || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
+                || GameManager.Instance.State == GameManager.GameState.GAMEOVER)
+            {
+                PlayerSoundManager.StopLooping();
+                return;
+            }
+            unit.movement = value.Get<Vector2>() * Speed;
+            EventBus.Instance.DoPlayerMove(unit.movement.magnitude);
+            EventBus.Instance.DoPlayerStandstill();
+
+            if (unit.movement.magnitude > Mathf.Epsilon) {
+                PlayerSoundManager.StartLooping(SoundTypePlayer.WALK, UnityEngine.Random.Range(0.80f, 1.50f));
+            }
+            else {
+                PlayerSoundManager.StopLooping();
+            }
             unit.movement = value.Get<Vector2>() * Speed;
             EventBus.Instance.DoPlayerMove(unit.movement.magnitude);
             EventBus.Instance.DoPlayerStandstill();
@@ -239,6 +261,7 @@ namespace CMPM.Core {
 
         // ReSharper disable once MemberCanBeMadeStatic.Local
         void Die() {
+            PlayerSoundManager.PlaySound(SoundTypePlayer.DEATH);
             GameManager.Instance.SetGameOver();
         }
     }

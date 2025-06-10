@@ -132,6 +132,7 @@ namespace CMPM.Spells {
         public string Name;
         public string Description;
         public uint Icon;
+        public string Rarity;
         #endregion
 
         #region Stats

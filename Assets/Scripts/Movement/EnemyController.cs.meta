@@ -1,2 +1,21 @@
 fileFormatVersion: 2
 guid: 399c9e4011cba3e4c829138ef2eedbda
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - unit: {instanceID: 0}
+  - target: {instanceID: 0}
+  - healthUI: {instanceID: 0}
+  - strengthPip: {instanceID: 0}
+  - sfxAudioSource: {instanceID: 0}
+  - zombieAudioClip: {fileID: 8300000, guid: 8c1679ba81cd0194994ef24e8874d537, type: 3}
+  - skeletonAudioClip: {fileID: 8300000, guid: e63d8d963fdff7a4887082b281329205, type: 3}
+  - warlockAudioClip: {fileID: 8300000, guid: 39c29848f8ff2404c8a07b968a1a5df3, type: 3}
+  - dryadAudioClip: {fileID: 8300000, guid: 919d1172bbf4cf94fbf763b0b9b8e9f2, type: 3}
+  - goatAudioClip: {fileID: 8300000, guid: 87a96df5f0fbef04f9c2cc45f84b1d7d, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

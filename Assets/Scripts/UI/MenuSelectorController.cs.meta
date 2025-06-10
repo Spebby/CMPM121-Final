@@ -1,2 +1,15 @@
 fileFormatVersion: 2
 guid: edeaaba44c967974aa7f7c02def9c8c2
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - label: {instanceID: 0}
+  - spawner: {instanceID: 0}
+  - uiClickClip: {fileID: 8300000, guid: 5278f2d2cea728047a26189df2360988, type: 3}
+  - uiAudioSource: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -14,7 +14,14 @@ namespace CMPM.Relics {
             REGISTRY.Add(val);
         }
 
-        public static RelicData GetRandom() {
+        public static RelicData Get(int input)
+        {
+            RelicBuilder.Initialise();
+            return REGISTRY[input];
+        }
+
+        public static RelicData GetRandom()
+        {
             RelicBuilder.Initialise();
             return REGISTRY[RNG.Next(REGISTRY.Count)];
         }

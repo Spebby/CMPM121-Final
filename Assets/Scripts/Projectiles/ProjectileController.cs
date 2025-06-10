@@ -1,9 +1,12 @@
+
 using System;
 using System.Collections;
 using CMPM.Core;
 using CMPM.DamageSystem;
 using CMPM.Movement;
 using UnityEngine;
+
+
 
 
 namespace CMPM.Projectiles {
@@ -14,34 +17,52 @@ namespace CMPM.Projectiles {
         public event Action<Hittable, Vector3> OnHit;
         public ProjectileMovement Movement;
 
+        [SerializeField] AudioClip explosionAudioClip;
+
         // Update is called once per frame
         void Update() {
             Movement.Movement(transform);
         }
 
+
         void OnTriggerEnter2D(Collider2D col) {
             if (col.gameObject.CompareTag("projectile")) return;
             if (col.gameObject.layer == 3) Destroy(gameObject);
-            if (col.gameObject.CompareTag("unit")) {
+            if (col.gameObject.CompareTag("unit"))
+            {
                 EnemyController ec = col.gameObject.GetComponent<EnemyController>();
-                if (ec) {
+                if (ec)
+                {
                     OnHit!(ec.HP, transform.position);
                     collidedWith++;
+                
+                    if (explosionAudioClip != null)
+                    {
+                        AudioSource.PlayClipAtPoint(explosionAudioClip, Camera.main.transform.position, 0.2f);
+                    }
                 }
             }
             if (col.gameObject.CompareTag("Player")) {
                 PlayerController pc = col.gameObject.GetComponent<PlayerController>();
-                if (pc) {
+                if (pc)
+                {
                     OnHit!(pc.HP, transform.position);
                     collidedWith++;
                 }
             }
-            if (collidedWith >= HitCap) Destroy(gameObject);
+            if (collidedWith >= HitCap)
+            {
+                Destroy(gameObject);
+            }
+           
         }
 
-        public void SetLifetime(float t) {
+
+        public void SetLifetime(float t)
+        {
             StartCoroutine(Expire(t));
         }
+
 
         IEnumerator Expire(float t) {
             yield return new WaitForSeconds(t);
