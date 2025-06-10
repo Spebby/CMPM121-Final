@@ -90,7 +90,7 @@ namespace CMPM.Utils.Debug {
             
             #region Enemys
             _ = typeof(EnemySpawner);
-            _ = typeof(EnemyData);
+            _ = typeof(Enemy);
             #endregion
             
             #region Status

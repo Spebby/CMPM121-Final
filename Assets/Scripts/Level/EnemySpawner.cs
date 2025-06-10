@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using CMPM.AI;
 using CMPM.Core;
@@ -13,6 +14,7 @@ using CMPM.Utils;
 using CMPM.Utils.LevelParsing;
 using CMPM.Utils.Structures;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -28,8 +30,8 @@ namespace CMPM.Level {
 
         // We may be able to get away w/ making this a static member for easier usage for parser,
         // but there's not a (ton) of reason to expose it publicly to begin with.
-        public SerializedDictionary<string, EnemyData> enemyTypes;
-        List<Level> _levels;
+        public SerializedDictionary<string, Enemy> enemyTypes;
+        public List<Level> levels;
 
         [Header("UI")] [SerializeField] GameObject levelSelector;
 
@@ -44,15 +46,12 @@ namespace CMPM.Level {
             LoadLevelsJson(Resources.Load<TextAsset>("levels"), enemyTypes);
 
             // TODO: In the future I'd like a little more artistic control
-            foreach (Level level in _levels) {
+            foreach (Level level in levels) {
                 GameObject selector = Instantiate(button, levelSelector.transform);
                 selector.transform.SetParent(levelSelector.transform);
                 MenuSelectorController msController = selector.GetComponent<MenuSelectorController>();
                 msController.spawner = this;
-                msController.SetLevel(level.Name);
-                //https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Object.FindFirstObjectByType.html
-                msController.uiAudioSource = FindFirstObjectByType<RewardScreenManager>().uiAudioSource;
-                msController.uiClickClip = FindFirstObjectByType<RewardScreenManager>().uiClickClip;
+                msController.SetLevel(level.name);
             }
         }
 
@@ -61,13 +60,18 @@ namespace CMPM.Level {
 
             // this is not nice: we should not have to be required to tell the player directly that the level is starting
 
-            Level currentLevel = _levels.Find(level => level.Name == levelName);
-            GameManager.Instance.TotalWaves  = currentLevel.Waves;
+            Level currentLevel = levels.Find(level => level.name == levelName);
+            GameManager.Instance.TotalWaves  = currentLevel.waves;
             GameManager.Instance.CurrentWave = 1;
 
             //to start the level
             GameManager.Instance.PlayerController.StartLevel();
             StartCoroutine(SpawnWave(currentLevel, 1));
+        }
+
+        public void NextWave(Level currentLevel, int wave) {
+            //to move to the next wave
+            StartCoroutine(SpawnWave(currentLevel, wave));
         }
 
         public void NextWave() {
@@ -86,7 +90,7 @@ namespace CMPM.Level {
 
             {
                 SerializedDictionary<string, int> table      = new() { { "wave", wave } };
-                Span<Spawn>                       span       = level.Spawns.AsSpan();
+                Span<Spawn>                       span       = level.spawns.AsSpan();
                 int                               maxEnemies = 0;
                 for (int i = 0; i < span.Length; i++) {
                     maxEnemies += span[i].Count.Evaluate(table);
@@ -104,7 +108,7 @@ namespace CMPM.Level {
 
 
             // Definition of Embarrassingly Parallel
-            foreach (Spawn spawn in level.Spawns) {
+            foreach (Spawn spawn in level.spawns) {
                 _ = SpawnEnemies(spawn, wave);
             }
 
@@ -118,13 +122,13 @@ namespace CMPM.Level {
         async Task SpawnEnemies(Spawn spawn, int wave) {
             int   n             = 0;
             int   count         = spawn.Count.Evaluate(new SerializedDictionary<string, int> { { "wave", wave } });
-            int   delay         = spawn.Delay;
-            int[] sequence      = spawn.Sequence;
+            int   delay         = spawn.delay;
+            int[] sequence      = spawn.sequence;
             int   sequenceIndex = 0;
 
             SpawnPoint[] validSpawns = spawnPoints;
-            if (spawn.Location != SpawnPoint.SpawnName.RANDOM) {
-                validSpawns = spawnPoints.Where(point => point.Kind == spawn.Location).ToArray();
+            if (spawn.location != SpawnPoint.SpawnName.RANDOM) {
+                validSpawns = spawnPoints.Where(point => point.Kind == spawn.location).ToArray();
             }
 
             // Fallback
@@ -135,11 +139,11 @@ namespace CMPM.Level {
 
             EnemyPacket ep = new() {
                 HP = spawn.HPFormula.Evaluate(new SerializedDictionary<string, int>()
-                                                  { { "wave", wave }, { "base", spawn.EnemyData.HP } }),
+                                                  { { "wave", wave }, { "base", spawn.enemy.baseHP } }),
                 Damage = spawn.DamageFormula.Evaluate(new SerializedDictionary<string, int>()
-                                                          { { "wave", wave }, { "base", spawn.EnemyData.Damage } }),
+                                                          { { "wave", wave }, { "base", spawn.enemy.damage } }),
                 Speed = spawn.SpeedFormula.Evaluate(new SerializedDictionary<string, int>()
-                                                        { { "wave", wave }, { "base", spawn.EnemyData.Speed } })
+                                                        { { "wave", wave }, { "base", spawn.enemy.speed } })
             };
 
             // Provided by Markus Eger's Lecture 5: Design Patterns in pseudocode
@@ -168,27 +172,26 @@ namespace CMPM.Level {
             Vector3    initialPosition = p.transform.position + new Vector3(offset.x, offset.y, 0);
             GameObject newEnemy        = Instantiate(enemyPrefab, initialPosition, Quaternion.identity);
 
-            EnemyData subject = spawn.EnemyData;
-            newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.EnemySpriteManager.Get(subject.Sprite);
+            Enemy subject = spawn.enemy;
+            newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.EnemySpriteManager.Get(subject.sprite);
             EnemyController en = newEnemy.GetComponent<EnemyController>();
-            en.enemyName = subject.Name;
 
-            switch (subject.Type) {
+            switch (subject.type) {
                 case BehaviourType.Support:
-                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.Cooldown, subject.Range, packet.Damage, subject.StrengthFactor));
+                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.cooldown, subject.range, packet.Damage, subject.strengthFactor));
                     en.AddAction(EnemyActionTypes.Heal, new EnemyHeal(10, 5, 15));
                     en.AddAction(EnemyActionTypes.Buff, new EnemyBuff(8, 5, 3, 8));
                     en.AddAction(EnemyActionTypes.Permabuff, new EnemyBuff(20, 5, 1));
                     en.AddEffect("noheal", 1);
                     break;
                 case BehaviourType.Swarmer:
-                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.Cooldown, subject.Range, subject.Damage, subject.StrengthFactor));
+                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.cooldown, subject.range, subject.damage, subject.strengthFactor));
                     break;
                 default:
-                    throw new NotImplementedException($"Behaviour Type {subject.Type} not implemented!");
+                    throw new NotImplementedException($"Behaviour Type {subject.type} not implemented!");
             }
 
-            en.type = subject.Type;
+            en.type = subject.type;
             en.Behaviour = BehaviourBuilder.MakeTree(en);
             en.HP        = new Hittable(packet.HP, Hittable.Team.MONSTERS, en);
             en.ModifySpeed(packet.Speed);
@@ -200,63 +203,88 @@ namespace CMPM.Level {
         
         #region JSON
         void LoadEnemiesJson(in TextAsset enemyText) {
-            enemyTypes = new SerializedDictionary<string, EnemyData>();
+            enemyTypes = new SerializedDictionary<string, Enemy>();
 
             foreach (JToken _ in JToken.Parse(enemyText.text)) {
-                EnemyData e = _.ToObject<EnemyData>();
-                enemyTypes[e.Name] = e;
+                Enemy e = _.ToObject<Enemy>();
+                enemyTypes[e.name] = e;
             }
         }
 
         // I wrote some JsonConverters to make the parsing logic less cluttered.
         // I may change more but for the moment this is acceptable.
-        void LoadLevelsJson(in TextAsset levelText, in SerializedDictionary<string, EnemyData> enemies) {
+        void LoadLevelsJson(in TextAsset levelText, in SerializedDictionary<string, Enemy> enemies) {
+            // Set up a custom JsonConverter that includes the enemies dictionary
+            JsonSerializerSettings settings = new() {
+                Converters = new List<JsonConverter> {
+                    new SpawnEnemyParser(enemies)
+                }
+            };
 
+            levels = JsonConvert.DeserializeObject<List<Level>>(levelText.text, settings);
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator <-- Resharper is wrong
+            foreach (Level level in levels) {
+                foreach (ref Spawn spawn in level.spawns.AsSpan()) {
+                    ref Enemy fallback = ref spawn.enemy;
+                    FormulaFallback(ref spawn.HPFormula, fallback.baseHP);
+                    FormulaFallback(ref spawn.DamageFormula, fallback.damage);
+                    FormulaFallback(ref spawn.SpeedFormula, fallback.speed);
+                    spawn.sequence ??= new[] { 1 };
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void FormulaFallback(ref RPNString str, int fallback) {
+            str = string.IsNullOrEmpty(str) ? new RPNString(Convert.ToString(fallback)) : str;
         }
     }
     
-    //[JsonConverter(typeof(EnemyDataParser))]
-    public readonly struct EnemyData {
-        public readonly string Name;
-        public readonly int Sprite;
-        public readonly int HP;
-        public readonly int Speed;
-        public readonly int Damage;
-        public readonly float Cooldown;
-        public readonly float Range;
-        public readonly float StrengthFactor;
-        public readonly BehaviourType Type;
-        public EnemyData(string name, int sprite, int hp, int speed, int damage, float cooldown, float range, float strengthFactor, BehaviourType type) {
-            Name           = name;
-            Sprite         = sprite;
-            HP             = hp;
-            Speed          = speed;
-            Damage         = damage;
-            Cooldown       = cooldown;
-            Range          = range;
-            StrengthFactor = strengthFactor;
-            Type      = type;
-        }
-    }
-
-    // TODO: replace enemy ref w/ JSON Parser
-    //[JsonConverter(typeof(SpawnDataParser))]
-    internal readonly struct Spawn {
-        public readonly EnemyData EnemyData;
-        public readonly RPNString Count;
-        public readonly RPNString HPFormula;
-        public readonly RPNString SpeedFormula;
-        public readonly RPNString DamageFormula;
-        public readonly int Delay;
-        [CanBeNull] public readonly int[] Sequence;
-        public readonly SpawnPoint.SpawnName Location;
+    [Serializable]
+    public struct Enemy {
+        public string name;
+        public int sprite;
+        [JsonProperty("hp")] public int baseHP;
+        public int speed;
+        public int damage;
+        public float cooldown;
+        public float range;
+        public float strengthFactor;
+        [JsonProperty("behaviour")] public BehaviourType type;
     }
 
     [Serializable]
-    internal readonly struct Level {
-        public readonly string Name;
-        public readonly int Waves;
-        public readonly Spawn[] Spawns;
+    public class Level {
+        public string name;
+        public int waves;
+        public Spawn[] spawns;
+    }
+
+    // TODO: replace enemy ref w/ JSON Parser
+    [Serializable]
+    public struct Spawn {
+        //[JsonConverter(typeof(SpawnEnemyParser))] <-- this is only valid syntax when it's a parameterless constructor
+        public Enemy enemy;
+
+        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("count")]
+        public RPNString Count;
+
+        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("hp")]
+        public RPNString HPFormula;
+
+        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("speed")]
+        public RPNString SpeedFormula;
+
+        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("damage")]
+        public RPNString DamageFormula;
+
+        [JsonConverter(typeof(SecondsParser))] [Tooltip("In ms.")]
+        public int delay;
+
+        [CanBeNull] public int[] sequence;
+
+        [JsonConverter(typeof(SpawnLocationParser))]
+        public SpawnPoint.SpawnName location;
     }
 
     struct EnemyPacket {
