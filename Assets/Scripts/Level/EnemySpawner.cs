@@ -171,9 +171,8 @@ namespace CMPM.Level {
             EnemyData subject = spawn.EnemyData;
             newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.EnemySpriteManager.Get(subject.Sprite);
             EnemyController en = newEnemy.GetComponent<EnemyController>();
-            en.enemyName = subject.name;
+            en.enemyName = subject.Name;
 
-            switch (subject.type) {
             switch (subject.Type) {
                 case BehaviourType.Support:
                     en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.Cooldown, subject.Range, packet.Damage, subject.StrengthFactor));
