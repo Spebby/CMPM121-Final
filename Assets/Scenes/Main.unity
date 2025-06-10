@@ -1274,7 +1274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa898092d9b0d8a41b153c7d66e057a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  kind: 2
+  Kind: 2
 --- !u!1 &447376980
 GameObject:
   m_ObjectHideFlags: 0
@@ -1777,7 +1777,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa898092d9b0d8a41b153c7d66e057a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  kind: 0
+  Kind: 0
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -2439,7 +2439,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa898092d9b0d8a41b153c7d66e057a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  kind: 1
+  Kind: 1
 --- !u!1 &967867791
 GameObject:
   m_ObjectHideFlags: 0
@@ -3224,8 +3224,6 @@ MonoBehaviour:
   - {fileID: 587991943}
   enemyTypes:
     keys: []
-    values: []
-  levels: []
   levelSelector: {fileID: 1611758730}
 --- !u!1 &1395241979
 GameObject:
@@ -3410,7 +3408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa898092d9b0d8a41b153c7d66e057a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  kind: 1
+  Kind: 1
 --- !u!1 &1475662080
 GameObject:
   m_ObjectHideFlags: 0
@@ -3599,7 +3597,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa898092d9b0d8a41b153c7d66e057a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  kind: 0
+  Kind: 0
 --- !u!1 &1611758730
 GameObject:
   m_ObjectHideFlags: 0
@@ -4221,7 +4219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa898092d9b0d8a41b153c7d66e057a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  kind: 1
+  Kind: 1
 --- !u!1 &1718273950
 GameObject:
   m_ObjectHideFlags: 0
@@ -55225,7 +55223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa898092d9b0d8a41b153c7d66e057a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  kind: 0
+  Kind: 0
 --- !u!1001 &2306492998223050676
 PrefabInstance:
   m_ObjectHideFlags: 0

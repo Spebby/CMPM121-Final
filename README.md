@@ -1,10 +1,11 @@
-# CMPM121 Part 1
+# CMPM121 Final
 
+[![wakatime](https://wakatime.com/badge/user/6c1b4d80-35ad-487a-a081-efc861c8d411/project/a17e7dac-2951-4f6c-b0a3-b7d38ca500e8.svg)](https://wakatime.com/badge/user/6c1b4d80-35ad-487a-a081-efc861c8d411/project/a17e7dac-2951-4f6c-b0a3-b7d38ca500e8)
 [![wakatime](https://wakatime.com/badge/user/6c1b4d80-35ad-487a-a081-efc861c8d411/project/0af5b64f-3ba4-4ac0-b3d4-d487ac8ee09f.svg)](https://wakatime.com/badge/user/6c1b4d80-35ad-487a-a081-efc861c8d411/project/0af5b64f-3ba4-4ac0-b3d4-d487ac8ee09f)
 
-This is the repository for the first 3 assignments for CMPM121 @ UCSC, Spring
+This is the repository for the final "pivot" portion of CMPM121 @ UCSC, Spring
 '25. The instructions for the first few assignments can be found
-[here](https://yawgmoth.github.io/CMPM121/assignments/infrastructure.html). This
+[here](https://yawgmoth.github.io/CMPM121/assignments/assignment4.html). This
 repository was designed with Unity 6000 in mind, though it should work in the
 majority of other modern Unity versions.
 

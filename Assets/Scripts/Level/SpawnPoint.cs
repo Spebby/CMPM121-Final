@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 namespace CMPM.Level {
@@ -12,12 +13,11 @@ namespace CMPM.Level {
             RANDOM
         }
 
-        public SpawnName kind;
+        [FormerlySerializedAs("kind")] public SpawnName Kind;
 
         void OnEnable() {
-            if (kind == SpawnName.RANDOM) {
-                throw new NotSupportedException(
-                    $"Spawn point {gameObject.name} 'kind' is set to type 'RANDOM', which is not supported.");
+            if (Kind == SpawnName.RANDOM) {
+                throw new NotSupportedException($"Spawn point {gameObject.name} 'kind' is set to type 'RANDOM', which is not supported.");
             }
         }
     }
