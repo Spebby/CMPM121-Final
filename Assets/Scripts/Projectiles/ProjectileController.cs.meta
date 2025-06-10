@@ -1,2 +1,13 @@
 fileFormatVersion: 2
 guid: 38b7c83e532cb3f4bab5d3384ef3b20f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - explosionAudioClip: {fileID: 8300000, guid: b6c6aeef46158b1409759b8708976db1, type: 3}
+  - hitHurtAudioClip: {fileID: 8300000, guid: a1df8481a32b3044d8bad82d0e6ed42c, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

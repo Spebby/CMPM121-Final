@@ -13,7 +13,6 @@ using CMPM.Utils;
 using CMPM.Utils.LevelParsing;
 using CMPM.Utils.Structures;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -51,6 +50,9 @@ namespace CMPM.Level {
                 MenuSelectorController msController = selector.GetComponent<MenuSelectorController>();
                 msController.spawner = this;
                 msController.SetLevel(level.Name);
+                //https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Object.FindFirstObjectByType.html
+                msController.uiAudioSource = FindFirstObjectByType<RewardScreenManager>().uiAudioSource;
+                msController.uiClickClip = FindFirstObjectByType<RewardScreenManager>().uiClickClip;
             }
         }
 
@@ -169,6 +171,7 @@ namespace CMPM.Level {
             EnemyData subject = spawn.EnemyData;
             newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.EnemySpriteManager.Get(subject.Sprite);
             EnemyController en = newEnemy.GetComponent<EnemyController>();
+            en.enemyName = subject.Name;
 
             switch (subject.Type) {
                 case BehaviourType.Support:
