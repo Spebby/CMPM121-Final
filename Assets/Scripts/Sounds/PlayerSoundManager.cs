@@ -45,7 +45,12 @@ public class PlayerSoundManager : MonoBehaviour
         return instance.playerSoundsList[(int)playerSound];
     }
 
-    public static void StartLooping(SoundTypePlayer playerSound, float volume = 1f)
+    public static void SetPitch(float pitch)
+    {
+        instance.audioSource.pitch = Mathf.Clamp(pitch, 0.5f, 4f);
+    }
+
+    public static void StartLooping(SoundTypePlayer playerSound, float volume = 1f, float pitch = 1f)
     {
         if (instance.audioSource.isPlaying && instance.audioSource.loop && instance.audioSource.clip == instance.playerSoundsList[(int)playerSound])
         {
@@ -54,6 +59,7 @@ public class PlayerSoundManager : MonoBehaviour
         instance.audioSource.clip = instance.playerSoundsList[(int)playerSound];
         instance.audioSource.loop = true;
         instance.audioSource.volume = volume;
+        instance.audioSource.pitch = Mathf.Clamp(pitch, 0.5f, 4f);
         instance.audioSource.Play();
     }
     public static void StopLooping(){

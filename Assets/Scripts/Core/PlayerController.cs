@@ -234,6 +234,8 @@ namespace CMPM.Core {
             NextSpell(++_spellIndex);
         }
 
+        private Vector2 _lastInputVector;
+        
         // ReSharper disable once UnusedMember.Local
         void OnMove(InputValue value)
         {
@@ -243,21 +245,32 @@ namespace CMPM.Core {
                 PlayerSoundManager.StopLooping();
                 return;
             }
-            unit.movement = value.Get<Vector2>() * Speed;
+            _lastInputVector = value.Get<Vector2>();
+            ApplyMovement();
+        }
+        private void ApplyMovement() {
+            float multiplier = Keyboard.current.leftShiftKey.isPressed ? 2f : 1f;
+            unit.movement = _lastInputVector * Speed * multiplier;
             EventBus.Instance.DoPlayerMove(unit.movement.magnitude);
             EventBus.Instance.DoPlayerStandstill();
-
-            if (unit.movement.magnitude > Mathf.Epsilon) {
-                PlayerSoundManager.StartLooping(SoundTypePlayer.WALK, UnityEngine.Random.Range(0.80f, 1.50f));
+            float pitch = unit.movement.magnitude / Speed + 0.5f;
+            if (unit.movement.magnitude > Mathf.Epsilon)
+            {
+                PlayerSoundManager.StartLooping(SoundTypePlayer.WALK, UnityEngine.Random.Range(0.80f, 1.50f), pitch);
+                PlayerSoundManager.SetPitch(pitch);
             }
-            else {
+            else
+            {
                 PlayerSoundManager.StopLooping();
             }
-            unit.movement = value.Get<Vector2>() * Speed;
-            EventBus.Instance.DoPlayerMove(unit.movement.magnitude);
-            EventBus.Instance.DoPlayerStandstill();
         }
+        
         #endregion
+
+        void Update()
+        {
+            ApplyMovement();
+        }
 
         // ReSharper disable once MemberCanBeMadeStatic.Local
         void Die() {
