@@ -340,7 +340,8 @@ namespace CMPM.Relics {
     public readonly struct RelicData : IEquatable<RelicData> {
         public readonly string Name;
         public readonly string Description;
-        public readonly uint Sprite;
+        public readonly uint   Sprite;
+        public readonly string Rarity;
 
         public readonly RelicPreconditionData Precondition;
         public readonly RelicEffectData[] Effects;
@@ -386,13 +387,15 @@ namespace CMPM.Relics {
             #endregion
         }
 
-        public RelicData(string name, string description, uint sprite, RelicPreconditionData precondition,
+        public RelicData(string name, string description, uint sprite, string rarity, RelicPreconditionData precondition,
                          RelicEffectData[] effects) {
             Name         = name;
             Description  = description;
             Sprite       = sprite;
+            Rarity       = rarity;
             Precondition = precondition;
             Effects      = effects;
+            
         }
 
         public string GetFullDescription() {

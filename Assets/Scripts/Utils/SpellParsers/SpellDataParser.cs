@@ -15,7 +15,8 @@ namespace CMPM.Utils.SpellParsers {
             SpellData result = new() {
                 Name        = obj["name"]?.ToString() ?? throw new NullReferenceException(),
                 Description = obj["description"]?.ToString() ?? throw new NullReferenceException(),
-                Icon        = obj["icon"]?.ToObject<uint>() ?? 0
+                Icon        = obj["icon"]?.ToObject<uint>() ?? 0,
+                Rarity      = obj["rarity"].ToString()
             };
 
             // Damage (custom logic)
