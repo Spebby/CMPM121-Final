@@ -13,6 +13,7 @@ namespace CMPM.UI {
         
         [SerializeField] TextMeshProUGUI Label;
         [SerializeField] public GameObject IconObject; // Changed from RawImage to GameObject
+        [SerializeField] public GameObject _SpellUI;
         [SerializeField, Range(0.05f, 0.5f)] float tweenTimer = 0.1f;
         
         RectTransform _rect;

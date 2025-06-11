@@ -90,10 +90,11 @@ namespace CMPM.UI {
             if (spell != null) {
                 if (GameManager.Instance?.SpellIconManager != null) {
                     // Get the Image component from the RadialMenuEntry's icon GameObject
-                    Image iconImage = menuEntry.IconObject?.GetComponent<Image>();
-                    if (iconImage) {
-                        GameManager.Instance.SpellIconManager.PlaceSprite(spell.GetIcon(), iconImage);
-                    }
+                    // Image iconImage = menuEntry.IconObject?.GetComponent<Image>();
+                    // if (iconImage) {
+                    //     GameManager.Instance.SpellIconManager.PlaceSprite(spell.GetIcon(), iconImage);
+                    // }
+                    menuEntry._SpellUI.GetComponent<SpellUI>().SetSpell(spell);
                 }
             }
 
