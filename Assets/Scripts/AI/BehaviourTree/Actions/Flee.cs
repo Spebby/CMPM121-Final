@@ -1,5 +1,6 @@
 using CMPM.Core;
 using CMPM.Movement;
+using Pathfinding;
 using UnityEngine;
 
 
@@ -9,13 +10,28 @@ namespace CMPM.AI.BehaviourTree.Actions {
         readonly float _escapedDistance;
         #endregion
 
-        public Flee(float escapedDistance) : base() {
+        public Flee(float escapedDistance) : base()
+        {
             _escapedDistance = escapedDistance;
         }
 
-        public override Result Run() {
+        public override Result Run()
+        {
+            // AIPath path = Agent.GetComponent<AIPath>();
+            // path.maxSpeed = Agent.Speed;
+            // if (Vector2.Distance(GameManager.Instance.Player.transform.position, Agent.transform.position) < 1)
+            // {
+            //     path.destination = Agent.transform.position;
+            // }
+            // else
+            // {
+            //     path.destination = GameManager.Instance.Player.transform.position;
+            // }
+
+
             Vector3 direction = Agent.transform.position - GameManager.Instance.Player.transform.position;
-            if (direction.magnitude > _escapedDistance) {
+            if (direction.magnitude > _escapedDistance)
+            {
                 Agent.GetComponent<Unit>().movement = new Vector2(0, 0);
                 return Result.SUCCESS;
             }

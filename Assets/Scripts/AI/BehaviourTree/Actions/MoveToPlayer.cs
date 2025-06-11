@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using CMPM.Core;
 using CMPM.Movement;
 using UnityEngine;
+using Pathfinding;
 
 
 namespace CMPM.AI.BehaviourTree.Actions {
@@ -40,10 +41,20 @@ namespace CMPM.AI.BehaviourTree.Actions {
                 }
             }
 
-            Agent.GetComponent<Unit>().movement = (ticks == 0
-                ? direction.normalized
-                : (Agent.transform.position - playerPos).normalized) * Agent.Speed;
+            // Agent.GetComponent<Unit>().movement = (ticks == 0
+            //     ? direction.normalized
+            //     : (Agent.transform.position - playerPos).normalized) * Agent.Speed;
 
+            AIPath path = Agent.GetComponent<AIPath>();
+            path.maxSpeed = Agent.Speed;
+            if (Vector2.Distance(GameManager.Instance.Player.transform.position, Agent.transform.position) < 1)
+            {
+                path.destination = Agent.transform.position;
+            }
+            else
+            {
+                path.destination = GameManager.Instance.Player.transform.position;
+            }
 
             return Result.IN_PROGRESS;
         }

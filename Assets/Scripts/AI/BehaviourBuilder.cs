@@ -24,7 +24,7 @@ namespace CMPM.AI {
                     //Here we implement THE GROUPING UP PHASE
                     new LockedSequence(new BehaviourTree.BehaviourTree[] {
                         //If we're close enough, this fails, and so does the sequence. This is our "lock".
-                        new NearbyEnemiesQueryReversed(5, 8f),
+                        new NearbyEnemiesQueryReversed(3, 50f),
                         new Flee(25f),
                         new GoToClosestSupport(1.5f)
                     }),
@@ -42,7 +42,7 @@ namespace CMPM.AI {
                 BehaviourType.Swarmer => new Selector(new BehaviourTree.BehaviourTree[] {
                     //Here we create the Grouping behavior tree
                     new LockedSequence(new BehaviourTree.BehaviourTree[] {
-                        new NearbyEnemiesQueryReversed(5, 8f),
+                        new NearbyEnemiesQueryReversed(3, 50f),
                         new Flee(25f),
                         new GoToClosestSwarmer(1.5f)
                     }),
