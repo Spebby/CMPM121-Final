@@ -197,6 +197,10 @@ namespace CMPM.Core {
         public Spell[] GetSpells() {
             return _spells;
         }
+
+        public Spell GetActiveSpell() {
+            return _spells[_spellIndex];
+        }
         #endregion
 
         #region Relics

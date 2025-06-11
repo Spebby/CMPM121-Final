@@ -13,13 +13,17 @@ namespace CMPM.UI {
         
         [SerializeField] TextMeshProUGUI Label;
         [SerializeField] public GameObject IconObject; // Changed from RawImage to GameObject
+        [SerializeField] public GameObject _SpellUI;
         [SerializeField, Range(0.05f, 0.5f)] float tweenTimer = 0.1f;
         
         RectTransform _rect;
         RadialMenuEntryDelegate _callback;
+        RadialMenuEntryDelegate _doDrop;
 
-        public void Start() {
-            if (IconObject) {
+        public void Start()
+        {
+            if (IconObject)
+            {
                 _rect = IconObject.GetComponent<RectTransform>();
             }
         }
@@ -45,9 +49,22 @@ namespace CMPM.UI {
         public void SetCallBack(RadialMenuEntryDelegate pCallback) {
             _callback = pCallback;
         }
+        
+        public void SetDropCallBack(RadialMenuEntryDelegate callback) {
+            _doDrop = callback;
+        }
 
-        public void OnPointerClick(PointerEventData eventData) {
-            _callback?.Invoke(this);
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                _callback?.Invoke(this);
+            }
+            else if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                _doDrop?.Invoke(this);
+            }
+
         }
 
         public void OnPointerEnter(PointerEventData eventData) {
