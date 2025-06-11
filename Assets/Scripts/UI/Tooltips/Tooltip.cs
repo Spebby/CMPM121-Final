@@ -16,7 +16,7 @@ namespace CMPM.UI.Tooltips {
         }
 
         public bool IsHovering { get;  private set; }
-        public bool IsTriggerHovered { get;  private set; }
+        // public bool IsTriggerHovered { get;  private set; }
 
         protected virtual void Show(Vector3 pos, string label, string desc) {
             title.text       = label;
@@ -43,7 +43,7 @@ namespace CMPM.UI.Tooltips {
         }
 
         public void OnTriggerHoverChanged(bool hovering, string label, string desc) {
-            IsTriggerHovered = hovering;
+            // IsTriggerHovered = hovering;
             if (hovering) {
                 Show(Input.mousePosition, label, desc);
             }
@@ -58,24 +58,16 @@ namespace CMPM.UI.Tooltips {
         }
 
         static void ClampToScreen(GameObject body, RectTransform rect) {
-            Vector3[]     corners     = new Vector3[4];
-            rect.GetWorldCorners(corners);
-
             float screenWidth  = Screen.width;
             float screenHeight = Screen.height;
+            float padding = 10f;
 
             Vector3 pos = body.transform.position;
 
-            float width  = corners[2].x - corners[0].x;
-            float height = corners[2].y - corners[0].y;
+            // somehow this works... with class selection at least
+            pos.x = Mathf.Clamp(pos.x, (screenWidth / -2) + padding, (screenWidth / 2) - padding);
+            pos.y = Mathf.Clamp(pos.y, (screenHeight / -2) + padding, (screenHeight / 2) - padding);
 
-            // Clamp right and top edges
-            if (pos.x + width > screenWidth)   pos.x   = screenWidth - width;
-            if (pos.y + height > screenHeight) pos.y = screenHeight - height;
-
-            // Clamp left and bottom edges
-            if (pos.x < 0) pos.x = 0;
-            if (pos.y < 0) pos.y = 0;
 
             body.transform.position = pos;
         } 
