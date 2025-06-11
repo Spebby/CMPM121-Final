@@ -56,15 +56,22 @@ namespace CMPM.UI {
         void Update() {
             if (_spell == null) return;
             if (Time.time > _lastTextUpdate + UPDATE_DELAY) {
-                manacost.text   = _spell.GetManaCost().ToString();
-                damage.text     = _spell.GetDamage().ToString();
+                manacost.text = _spell.GetManaCost().ToString();
+                damage.text = _spell.GetDamage().ToString();
                 _lastTextUpdate = Time.time;
             }
 
             if (!cooldown) return;
             float sinceLast = Time.time - _spell.LastCast;
-            float ratio     = sinceLast > _spell.GetCooldown() ? 0 : 1 - sinceLast / _spell.GetCooldown();
+            float ratio = sinceLast > _spell.GetCooldown() ? 0 : 1 - sinceLast / _spell.GetCooldown();
             cooldown.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 48 * ratio);
+
+            if (_spell == GameManager.Instance.PlayerController.GetActiveSpell())
+            {
+                highlight.SetActive(true);
+            } else {
+                highlight.SetActive(false);
+            }
         }
         
         public void ShowTooltip(Tooltip tooltip) {

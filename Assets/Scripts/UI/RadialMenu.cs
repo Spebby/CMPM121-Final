@@ -15,6 +15,7 @@ namespace CMPM.UI {
         [SerializeField] float tweenInDuration = 0.1f;
         [SerializeField] float tweenOutDuration = 0.15f;
         [SerializeField] float tweenDelay = 0.05f;
+        [SerializeField] bool inDropMode = false;
 
         readonly List<RadialMenuEntry> _entries = new();
         bool _isInitialized;
@@ -99,9 +100,17 @@ namespace CMPM.UI {
             }
 
             menuEntry.SetCallBack(_ => {
+                inDropMode = false;
                 OnSpellSelected(spellIndex);
                 Close(noSelect: true);
             });
+
+            menuEntry.SetDropCallBack(_ => {
+                inDropMode = true;
+                OnSpellSelected(spellIndex);
+                Close(noSelect: true);
+            });
+
             _entries.Add(menuEntry);
         }
 
@@ -175,7 +184,11 @@ namespace CMPM.UI {
             PlayerController playerController = GameManager.Instance.PlayerController;
             if (!playerController) return;
 
-            playerController.SwitchSpell(spellIndex);
+            if (inDropMode && playerController.GetSpells().Length > 1) {
+                playerController.DropSpell(spellIndex);
+            } else {
+                playerController.SwitchSpell(spellIndex);
+            }
 
             if (!targetIcon) return;
             Spell[] spells = playerController.GetSpells();
