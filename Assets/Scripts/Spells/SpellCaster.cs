@@ -3,6 +3,7 @@ using System.Collections;
 using CMPM.Core;
 using CMPM.DamageSystem;
 using UnityEngine;
+using static CMPM.Core.GameManager.GameState;
 
 
 namespace CMPM.Spells {
@@ -39,7 +40,7 @@ namespace CMPM.Spells {
 
         public IEnumerator Cast(Vector3 where, Vector3 target) {
             if (Mana < Spell.GetManaCost() || !Spell.IsReady() ||
-                GameManager.Instance.State != GameManager.GameState.INWAVE) yield break;
+                GameManager.Instance.State.HasFlag(INGAME | INCOMBAT)) yield break;
             Mana -= Spell.GetManaCost();
             OnCast?.Invoke();
             yield return Spell.Cast(where, target, Team);

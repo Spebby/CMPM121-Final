@@ -73,7 +73,7 @@ namespace CMPM.Core {
         public void UpdateClass(in PlayerClass c) {
             Class                = c;
             spriteRenderer.sprite = GameManager.Instance.PlayerSpriteManager.Get(Class.Sprite);
-            SetPlayerScale(GameManager.Instance.CurrentWave);
+            SetPlayerScale(GameManager.Instance.CurrentFloor);
         }
         #endregion
 
@@ -91,8 +91,8 @@ namespace CMPM.Core {
             StartCoroutine(_caster.ManaRegeneration());
             _spells[_spellIndex] = _caster.Spell;
 
-            int wave = GameManager.Instance.CurrentWave;
-            SetPlayerScale(wave);
+            int floor = GameManager.Instance.CurrentFloor;
+            SetPlayerScale(floor);
 
             HP.HealToMax();
             HP.OnDeath += Die;
@@ -197,6 +197,10 @@ namespace CMPM.Core {
         public Spell[] GetSpells() {
             return _spells;
         }
+
+        public Spell GetActiveSpell() {
+            return _spells[_spellIndex];
+        }
         #endregion
 
         #region Relics
@@ -214,8 +218,7 @@ namespace CMPM.Core {
         // ReSharper disable once UnusedMember.Local
         void OnAttack(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
-             || GameManager.Instance.State == GameManager.GameState.GAMEOVER)
-            {
+             || GameManager.Instance.State == GameManager.GameState.GAMEOVER) {
                 return;
             }
             PlayerSoundManager.PlaySound(SoundTypePlayer.ATTACK, UnityEngine.Random.Range(1.0f, 1.25f));
@@ -227,28 +230,28 @@ namespace CMPM.Core {
         }
         
         // ReSharper disable once UnusedMember.Local
+        /*
         void OnChangeSpell(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
 
             NextSpell(++_spellIndex);
         }
+        */
 
         private Vector2 _lastInputVector;
         
         // ReSharper disable once UnusedMember.Local
-        void OnMove(InputValue value)
-        {
+        void OnMove(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
-                || GameManager.Instance.State == GameManager.GameState.GAMEOVER)
-            {
+                || GameManager.Instance.State == GameManager.GameState.GAMEOVER) {
                 PlayerSoundManager.StopLooping();
                 return;
             }
             _lastInputVector = value.Get<Vector2>();
             ApplyMovement();
         }
-        private void ApplyMovement() {
+        void ApplyMovement() {
             float multiplier = Keyboard.current.leftShiftKey.isPressed ? 2f : 1f;
             unit.movement = _lastInputVector * Speed * multiplier;
             EventBus.Instance.DoPlayerMove(unit.movement.magnitude);
@@ -267,8 +270,7 @@ namespace CMPM.Core {
         
         #endregion
 
-        void Update()
-        {
+        void Update() {
             ApplyMovement();
         }
 

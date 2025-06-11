@@ -222,7 +222,7 @@ namespace CMPM.Spells {
         // NOTE: this **CANNOT** be used on speed, as you'll end up with a circular calculation.
         public SerializedDictionary<string, float> GetRPNVariables() {
             return new SerializedDictionary<string, float> {
-                { "wave", GameManager.Instance.CurrentWave },
+                { "wave", GameManager.Instance.CurrentFloor },
                 { "power", Owner.SpellPower },
                 { "speed", GetSpeed() }
             };
@@ -230,7 +230,7 @@ namespace CMPM.Spells {
 
         public SerializedDictionary<string, float> GetRPNVariablesSafe() {
             return new SerializedDictionary<string, float> {
-                { "wave", GameManager.Instance.CurrentWave },
+                { "wave", GameManager.Instance.CurrentFloor },
                 { "power", Owner.SpellPower }
             };
         }

@@ -24,7 +24,7 @@ namespace CMPM.MapGenerator {
         // this will limit the run time (~10 is a good value 
         // during development, later you'll want to set it to 
         // something a bit higher, like 25-30)
-        public int MAX_SIZE;
+        public int MAX_SIZE = 15;
 
         public int DIMENSION_DIFF = 2;
 

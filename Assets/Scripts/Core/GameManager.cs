@@ -1,7 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using CMPM.Level;
 using CMPM.Spells;
 using CMPM.Sprites;
 using UnityEngine;
@@ -17,13 +17,12 @@ namespace CMPM.Core {
             {"rare", 10},
         };
 
-        public enum GameState
-        {
-            PREGAME,
-            INWAVE,
-            WAVEEND,
-            COUNTDOWN,
-            GAMEOVER
+        [Flags]
+        public enum GameState {
+            PREGAME   = 1 << 0,
+            INGAME    = 1 << 1,
+            INCOMBAT  = 1 << 2,
+            GAMEOVER  = 1 << 3,
         }
 
         public GameState State { get; private set; }
@@ -31,21 +30,6 @@ namespace CMPM.Core {
 
         public void SetState(GameState state) {
             State = state;
-
-            switch (state) {
-                case GameState.INWAVE:
-                    EventBus.Instance.DoWaveStart();
-                    break;
-                case GameState.WAVEEND:
-                    EventBus.Instance.DoWaveEnd();
-                    break;
-                case GameState.PREGAME:
-                case GameState.COUNTDOWN:
-                case GameState.GAMEOVER:
-                default:
-                    break;
-            }
-            
             OnStateChanged?.Invoke(state);
         }
 
@@ -65,7 +49,7 @@ namespace CMPM.Core {
         public int EnemiesLeft;
 
         public int TotalWaves;
-        public int CurrentWave;
+        public int CurrentFloor;
 
         public int EnemyCount => _enemies.Count;
 
@@ -82,6 +66,9 @@ namespace CMPM.Core {
                 _enemies.Remove(enemy);
                 Object.Destroy(enemy);
                 EnemiesLeft--;
+                if (EnemiesLeft == 0) {
+                    EnemySpawner.Instance.EndWave();
+                }
             }
         }
 

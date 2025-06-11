@@ -10,6 +10,8 @@ TagManager:
   - EnemySpawner
   - Canvas
   - Environment
+  - room
+  - door
   layers:
   - Default
   - TransparentFX

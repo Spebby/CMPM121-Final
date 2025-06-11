@@ -15,7 +15,7 @@ namespace CMPM.Utils {
         }
 
         public override void WriteJson(JsonWriter writer, RPNString value, JsonSerializer serializer) {
-            writer.WriteValue(value.String);
+            writer.WriteValue(value.ToString());
         }
     }
 }

@@ -32,14 +32,14 @@ namespace CMPM.Utils.SpellParsers {
             writer.WritePropertyName("trajectory");
             writer.WriteValue(value.Trajectory);
             writer.WritePropertyName("speed");
-            writer.WriteValue(value.Speed.String);
+            writer.WriteValue(value.Speed.ToString());
             writer.WritePropertyName("hitcap");
-            writer.WriteValue(value.HitCap.String);
+            writer.WriteValue(value.HitCap.ToString());
             writer.WritePropertyName("sprite");
             writer.WriteValue(value.Sprite);
             if (value.Lifetime.HasValue) {
                 writer.WritePropertyName("lifetime");
-                writer.WriteValue(value.Lifetime.Value.String);
+                writer.WriteValue(value.Lifetime.Value.ToString());
             }
 
             writer.WriteEndObject();
