@@ -167,14 +167,14 @@ namespace CMPM.Relics {
                 int[] modifiers = null;
                 switch (effect.Type) {
                     case EffectType.ModifySpellCooldownP: {
-                        SpellStatModifier m    = new(null, null, null, new RPNString($"value {effect.Amount.String} *"));
+                        SpellStatModifier m    = new(null, null, null, new RPNString($"value {effect.Amount.ToString()} *"));
                         int               hash = m.GetHashCode();
                         SpellModifierRegistry.Register(hash, m);
                         modifiers = new[] { hash };
                         break;
                     }
                     case EffectType.ModifySpellCostP: {
-                        SpellStatModifier m    = new(null, new RPNString($"value {effect.Amount.String} *"));
+                        SpellStatModifier m    = new(null, new RPNString($"value {effect.Amount.ToString()} *"));
                         int               hash = m.GetHashCode();
                         SpellModifierRegistry.Register(hash, m);
                         modifiers = new[] { hash };

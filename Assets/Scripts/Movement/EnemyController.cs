@@ -6,6 +6,7 @@ using CMPM.Enemies;
 using CMPM.UI;
 using UnityEngine;
 using UnityEngine.Serialization;
+using static CMPM.Core.GameManager.GameState;
 
 
 namespace CMPM.Movement {
@@ -86,7 +87,7 @@ namespace CMPM.Movement {
         }
 
         void Update() {
-            if (GameManager.Instance.State != GameManager.GameState.INWAVE)
+            if (GameManager.Instance.State != INCOMBAT)
                 Destroy(gameObject);
             else {
                 int str = GetEffect("strength");

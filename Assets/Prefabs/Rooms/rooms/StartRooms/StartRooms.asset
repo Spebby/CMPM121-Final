@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: StartRooms
   m_EditorClassIdentifier: 
   rooms:
-  - {fileID: 11400000, guid: e53634c59dfa2e311886a32146b4628f, type: 2}
   - {fileID: 11400000, guid: f6565d8ced6de618e85c97bf6e20314f, type: 2}
   - {fileID: 11400000, guid: 5bebc6f5f0a27ee7ea7d803b3633e7f0, type: 2}
   - {fileID: 11400000, guid: a9830bbfe56f3f74ab6ef57faa57c3bb, type: 2}

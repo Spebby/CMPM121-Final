@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using CMPM.Spells;
 using CMPM.Core;
+using static CMPM.Core.GameManager.GameState;
 
 
 namespace CMPM.UI {
@@ -48,7 +49,7 @@ namespace CMPM.UI {
 
         void TryOpenMenu() {
             if (IsMenuOpen || GameManager.Instance == null ||
-                GameManager.Instance.State != GameManager.GameState.INWAVE)
+                GameManager.Instance.State.HasFlag(INGAME | INCOMBAT))
                 return;
 
             PlayerController playerController = GameManager.Instance.PlayerController;

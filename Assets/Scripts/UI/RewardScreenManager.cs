@@ -17,47 +17,43 @@ using UnityEngine.Serialization;
 // This entire class will become redundant during the pivot :(
 namespace CMPM.UI {
     public class RewardScreenManager : MonoBehaviour {
-        [Header("Panels & Buttons")]
-        [SerializeField] GameObject panel;
+        [Header("Panels & Buttons")] [SerializeField]
+        GameObject panel;
 
         [SerializeField] GameObject endUI;
         [SerializeField] Button nextButton;
         [SerializeField] Button acceptButton;
 
-        [Header("Main Menu")]
-        [SerializeField] GameObject classSelector;
+        [Header("Main Menu")] [SerializeField] GameObject classSelector;
 
         [SerializeField] GameObject classProfilePrefab;
-        [SerializeField] GameObject difficultySelector;
-        
-        [Header("Spell UI")]
-        [SerializeField] GameObject spellUI;
+
+        [Header("Spell UI")] [SerializeField] GameObject spellUI;
         [SerializeField] SpellUI spellUIIcon;
         [SerializeField] TextMeshProUGUI spellText;
         [SerializeField] int maxSpellModifiers = 3;
 
-        [Header("Relic UI")]
-        [SerializeField] GameObject relicUI;
+        [Header("Relic UI")] [SerializeField] GameObject relicUI;
         [SerializeField] RelicSelectorManager relicSelectorManager;
         [SerializeField] GameObject relicSelectorPrefab;
         [SerializeField] int relicRewardFrequency = 3;
         [SerializeField] int relicRewardAmount = 3;
-        
-        [Header("Discard UI")]
-        [SerializeField] GameObject discardSpellUI;
+
+        [Header("Discard UI")] [SerializeField]
+        GameObject discardSpellUI;
 
         [SerializeField] Transform discardSpellUIContainer;
-        [FormerlySerializedAs("discardSpellButton")] [SerializeField] Button discardSpellBackButton;
 
-        [Header("Stats")]
-        [SerializeField] TextMeshProUGUI statsText;
+        [FormerlySerializedAs("discardSpellButton")] [SerializeField]
+        Button discardSpellBackButton;
+
+        [Header("Stats")] [SerializeField] TextMeshProUGUI statsText;
 
         PlayerController _player;
         Spell _rewardSpell;
 
         //for button click sounds to play
-        [Header("Sounds")]
-        [SerializeField] public AudioClip uiClickClip;
+        [Header("Sounds")] [SerializeField] public AudioClip uiClickClip;
         [SerializeField] public AudioSource uiAudioSource;
 
         [SerializeField] public AudioClip uiRewardScreenClip;
@@ -65,10 +61,10 @@ namespace CMPM.UI {
         [SerializeField] public AudioClip gameOverScreenClip;
         [SerializeField] public AudioSource gameOverScreenSource;
 
-
         [FormerlySerializedAs("OnPanelClose")]
         [Header("Unity Events")] // I don't like Unity Events that much, but they are convenient from time to time.
-        [SerializeField] UnityEvent onPanelClose;
+        [SerializeField]
+        UnityEvent onPanelClose;
 
         // Temporary stat collectors
         double _timeSpent;
@@ -80,6 +76,7 @@ namespace CMPM.UI {
             Generated,
             Claimed
         }
+
         RelicClaimed _relicClaimed;
         bool _spellClaimed;
 
@@ -87,7 +84,7 @@ namespace CMPM.UI {
             // Cache player reference
             // Unfortunately can't just ask GameManager for it since GameManager might not have it yet if we get unlucky w/ load order
             _player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
-                
+
             // This doesn't really belong here, but I can't think of a better spot to put it...
             TextAsset json = Resources.Load<TextAsset>("classes");
             Dictionary<PlayerController.PlayerClass.Type, PlayerController.PlayerClass> classMap =
@@ -104,29 +101,36 @@ namespace CMPM.UI {
         }
 
         void Start() {
-            Dictionary<PlayerController.PlayerClass.Type, PlayerController.PlayerClass>.KeyCollection classes = ClassRegistry.GetHashes();
+            Dictionary<PlayerController.PlayerClass.Type, PlayerController.PlayerClass>.KeyCollection classes =
+                ClassRegistry.GetHashes();
             foreach (PlayerController.PlayerClass.Type key in classes) {
                 PlayerController.PlayerClass c        = ClassRegistry.Get(key);
                 GameObject                   _        = Instantiate(classProfilePrefab, classSelector.transform);
                 ClassSelector                selector = _.GetComponent<ClassSelector>();
                 Button                       button   = _.GetComponent<Button>();
                 selector.Init(c);
-                
+
                 button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() =>{
-                if (uiAudioSource && uiClickClip)
-                    {
+                button.onClick.AddListener(() => {
+                    if (uiAudioSource && uiClickClip) {
                         uiAudioSource.PlayOneShot(uiClickClip);
-                }
+                    }
+
                     GameManager.Instance.PlayerController.UpdateClass(c);
-                    classSelector.SetActive(false);
-                    difficultySelector.SetActive(true);
+                    StartLevel();
+                    HideAllPopups();
                 });
             }
-            
+
             nextButton.onClick.AddListener(ClosePanel);
             discardSpellBackButton.onClick.AddListener(ShowRewardScreen);
             HandleGameStateChanged(PREGAME);
+        }
+
+        void StartLevel() {
+            GameManager.Instance.CurrentFloor = 1;
+            GameManager.Instance.PlayerController.StartLevel();
+            GameManager.Instance.SetState(INGAME);
         }
 
         void OnEnable() {
@@ -148,43 +152,38 @@ namespace CMPM.UI {
             acceptButton.onClick.RemoveAllListeners();
             _relicClaimed = RelicClaimed.None;
             _spellClaimed = false;
-            
+
             switch (newState) {
                 case PREGAME:
                     ShowStartScreen();
                     break;
 
-                case INWAVE:
+                case INCOMBAT:
                     // we continue tracking time in Update()
-                    break;
-
-                case WAVEEND:
-                    ShowRewardScreen();
                     break;
 
                 case GAMEOVER:
                     ShowLossScreen();
                     break;
 
-                case COUNTDOWN:
+                case INGAME:
                 default:
-                    HideAllUI();
+                    HideAllPopups();
                     break;
             }
         }
 
         void Update() {
-            if (GameManager.Instance.State != INWAVE) return;
+            if (GameManager.Instance.State.HasFlag(INGAME | INCOMBAT)) return;
             _timeSpent += Time.deltaTime;
         }
 
         #region Screens
         void ShowStartScreen() {
             panel.SetActive(true);
-            
+
             classSelector.SetActive(true);
-            difficultySelector.SetActive(false);
-            
+
             endUI.SetActive(false);
             nextButton.gameObject.SetActive(false);
             acceptButton.gameObject.SetActive(false);
@@ -195,13 +194,12 @@ namespace CMPM.UI {
         }
 
         void ShowLossScreen() {
-            if (gameOverScreenSource && gameOverScreenClip)
-            {
+            if (gameOverScreenSource && gameOverScreenClip) {
                 gameOverScreenSource.PlayOneShot(gameOverScreenClip);
             }
+
             panel.SetActive(true);
             classSelector.SetActive(false);
-            difficultySelector.SetActive(false);
             endUI.SetActive(true);
             nextButton.gameObject.SetActive(false);
             acceptButton.gameObject.SetActive(false);
@@ -214,13 +212,12 @@ namespace CMPM.UI {
         }
 
         void ShowRewardScreen() {
-            if (uiRewardAudioSource && uiRewardScreenClip)
-            {
+            if (uiRewardAudioSource && uiRewardScreenClip) {
                 uiRewardAudioSource.PlayOneShot(uiRewardScreenClip);
             }
+
             panel.SetActive(true);
             classSelector.SetActive(false);
-            difficultySelector.SetActive(false);
             endUI.SetActive(true);
             nextButton.gameObject.SetActive(true);
             acceptButton.gameObject.SetActive(true);
@@ -229,14 +226,11 @@ namespace CMPM.UI {
             discardSpellUI.SetActive(false);
 
             // Pick and display one random spell
-            if (_rewardSpell == null)
-            {
+            if (_rewardSpell == null) {
                 _rewardSpell = SpellBuilder.MakeRandomSpell(_player, maxSpellModifiers);
                 spellUIIcon.SetSpell(_rewardSpell);
                 spellText.text = $"{_rewardSpell.GetName()}\n{_rewardSpell.GetDescription()}";
-            }
-            else
-            {
+            } else {
                 spellUI.SetActive(false);
                 acceptButton.gameObject.SetActive(false);
             }
@@ -248,14 +242,14 @@ namespace CMPM.UI {
             if (_relicClaimed == RelicClaimed.Generated) {
                 relicUI.SetActive(true);
             }
-            
+
             // Wave isn't updated until the Enemy Spawner starts spawning.
-            int wave = GameManager.Instance.CurrentWave;
-            if (_relicClaimed != RelicClaimed.None || wave % relicRewardFrequency != 0) return;
+            int floor = GameManager.Instance.CurrentFloor;
+            if (_relicClaimed != RelicClaimed.None || floor % relicRewardFrequency != 0) return;
             relicUI.SetActive(true);
             _relicClaimed = RelicClaimed.Generated;
-            
-            BitArray set = _player.RelicOwnership;
+
+            BitArray    set    = _player.RelicOwnership;
             RelicData[] relics = RelicBuilder.GetRelicSet(set, relicRewardAmount, out BitArray _);
             if (relics.Length == 0) return;
             relicSelectorManager.Set(relics, r => {
@@ -286,10 +280,10 @@ namespace CMPM.UI {
                     btn.onClick.RemoveAllListeners();
                     int idx = i;
                     btn.onClick.AddListener(() => {
-                        if (uiAudioSource && uiClickClip)
-                        {
+                        if (uiAudioSource && uiClickClip) {
                             uiAudioSource.PlayOneShot(uiClickClip);
                         }
+
                         _player.AddSpell(_rewardSpell, idx);
                         if (_relicClaimed == RelicClaimed.Claimed) {
                             ClosePanel();
@@ -303,16 +297,16 @@ namespace CMPM.UI {
             }
         }
 
-        void HideAllUI() {
+        void HideAllPopups() {
             panel.SetActive(false);
         }
         #endregion
 
         void OnAcceptClicked() {
-            if (uiAudioSource && uiClickClip)
-            {
+            if (uiAudioSource && uiClickClip) {
                 uiAudioSource.PlayOneShot(uiClickClip);
             }
+
             _spellClaimed = true;
             if (_player.HasSpellRoom()) {
                 _player.AddSpell(_rewardSpell);
@@ -327,10 +321,10 @@ namespace CMPM.UI {
         }
 
         void ClosePanel() {
-            if (uiAudioSource && uiClickClip)
-            {
+            if (uiAudioSource && uiClickClip) {
                 uiAudioSource.PlayOneShot(uiClickClip);
             }
+
             panel.SetActive(false);
             nextButton.gameObject.SetActive(false);
             acceptButton.onClick.RemoveAllListeners();
@@ -339,7 +333,7 @@ namespace CMPM.UI {
         }
 
         void UpdateStatsText() {
-            int    cur      = GameManager.Instance.CurrentWave;
+            int    cur      = GameManager.Instance.CurrentFloor;
             int    tot      = GameManager.Instance.TotalWaves;
             string waveInfo = $"\tWave: {cur}" + (tot > 0 ? $"/{tot}" : "");
 
@@ -353,13 +347,13 @@ namespace CMPM.UI {
         }
 
         void UpdateDamageStats(Vector3 _, Damage damage, Hittable target) {
-            if (target.Owner == GameManager.Instance.Player) {
+            if (target.Owner == GameManager.Instance.PlayerController) {
                 _damageTaken += damage.Amount;
             } else {
                 _damageDone += damage.Amount;
             }
         }
-        
+
         #region Debug
         public void DebugAddSpell() {
             _rewardSpell ??= SpellBuilder.MakeRandomSpell(_player, maxSpellModifiers);

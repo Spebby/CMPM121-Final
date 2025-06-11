@@ -10,9 +10,9 @@ using UnityEngine;
 namespace CMPM.Utils {
     // I figured a wrapper for RPN Strings was fitting to make the use case clear & keep associated data together
     // + reduce user error.
-    [JsonConverter(typeof(RPNStringParser))]
-    public readonly struct RPNString : IEquatable<RPNString> {
-        public readonly string String;
+    [Serializable, JsonConverter(typeof(RPNStringParser))]
+    public struct RPNString : IEquatable<RPNString> {
+        [SerializeField] string String;
 
         public RPNString(string str) {
             String    = str;

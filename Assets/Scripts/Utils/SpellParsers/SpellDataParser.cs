@@ -82,7 +82,7 @@ namespace CMPM.Utils.SpellParsers {
 
             // Damage
             JObject dmg = new() {
-                ["amount"] = value.Damage.DamageRPN.String,
+                ["amount"] = value.Damage.DamageRPN.ToString(),
                 ["type"]   = value.Damage.Type.ToString().ToLowerInvariant()
             };
             obj["damage"] = dmg;
