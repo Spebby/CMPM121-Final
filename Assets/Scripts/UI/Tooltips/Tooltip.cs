@@ -20,7 +20,11 @@ namespace CMPM.UI.Tooltips {
 
         protected virtual void Show(Vector3 pos, string label, string desc) {
             title.text       = label;
+            title.enableAutoSizing = false;
+            title.fontSize   = 30f;
             description.text = desc;
+            description.enableAutoSizing = false;
+            description.fontSize = 20f;
 
             Vector2 offset = new(10f, -10f);
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
