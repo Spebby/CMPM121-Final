@@ -2440,7 +2440,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 13.611111
+  orthographic size: 10.916667
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -3143,6 +3143,9 @@ MonoBehaviour:
   radius: 150
   singleSpellOffset: 50
   targetIcon: {fileID: 0}
+  tweenInDuration: 0.1
+  tweenOutDuration: 0.15
+  tweenDelay: 0.025
 --- !u!224 &722513318
 RectTransform:
   m_ObjectHideFlags: 0

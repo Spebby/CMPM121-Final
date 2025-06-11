@@ -11,7 +11,10 @@ namespace CMPM.UI {
         [Header("Settings")] [SerializeField] GameObject radialMenuEntryPrefab;
         [SerializeField] float radius = 150f;
         [SerializeField] float singleSpellOffset = 50f;
-        [SerializeField] public GameObject targetIcon;
+        [SerializeField] GameObject targetIcon;
+        [SerializeField] float tweenInDuration = 0.1f;
+        [SerializeField] float tweenOutDuration = 0.15f;
+        [SerializeField] float tweenDelay = 0.05f;
 
         readonly List<RadialMenuEntry> _entries = new();
         bool _isInitialized;
@@ -55,14 +58,10 @@ namespace CMPM.UI {
         }
 
         void Open(Spell[] spells) {
-            // Clear existing entries
-            if (_entries.Count > 0) {
-                foreach (RadialMenuEntry entry in _entries) {
-                    if (entry) Destroy(entry.gameObject);
-                }
-
-                _entries.Clear();
+            foreach (RadialMenuEntry entry in _entries) {
+                if (entry) Destroy(entry.gameObject);
             }
+            _entries.Clear();
 
             for (int i = 0; i < spells.Length; i++) {
                 if (spells[i] == null) continue;
@@ -98,7 +97,10 @@ namespace CMPM.UI {
                 }
             }
 
-            menuEntry.SetCallBack((_) => OnSpellSelected(spellIndex));
+            menuEntry.SetCallBack(_ => {
+                OnSpellSelected(spellIndex);
+                Close(noSelect: true);
+            });
             _entries.Add(menuEntry);
         }
 
@@ -128,17 +130,24 @@ namespace CMPM.UI {
                 float y = Mathf.Cos(radiansOfSeparation * i) * radius;
 
                 rect.localScale = Vector3.zero;
-                rect.DOAnchorPos(new Vector3(x, y, 0f), 0.3f)
-                    .SetEase(Ease.OutBack)
-                    .SetDelay(0.05f * i);
-                rect.DOScale(Vector3.one, 0.3f)
-                    .SetEase(Ease.OutBack)
-                    .SetDelay(0.05f * i);
+                
+                DOTween.Sequence()
+                       .Join(rect.DOAnchorPos(new Vector3(x, y), tweenInDuration).SetEase(Ease.OutBack).SetDelay(tweenDelay * i))
+                       .Join(rect.DOScale(Vector3.one, tweenInDuration).SetEase(Ease.OutBack).SetDelay(tweenDelay * i))
+                       .SetLink(gameObject);
             }
         }
 
-        public void Close() {
+        public void Close(bool noSelect = false) {
             if (!IsMenuOpen) return;
+
+            if (!noSelect) {
+                for (int i = 0; i < _entries.Count; i++) {
+                    if (!_entries[i].IsHovered) continue;
+                    OnSpellSelected(i);
+                    break;
+                }
+            }
 
             foreach (RadialMenuEntry entry in _entries) {
                 if (!entry) continue;
@@ -146,9 +155,14 @@ namespace CMPM.UI {
                 RectTransform rect = entry.GetComponent<RectTransform>();
                 if (!rect) continue;
 
-                rect.DOAnchorPos(Vector3.zero, 0.2f)
-                    .SetEase(Ease.InQuad)
-                    .onComplete += () => Destroy(entry.gameObject);
+                DOTween.Sequence()
+                   .Join(rect.DOScale(Vector3.one, tweenOutDuration).SetEase(Ease.OutBack))
+                   .Join(rect.DOAnchorPos(Vector3.zero, tweenOutDuration).SetEase(Ease.InQuad))
+                   .OnComplete(() => {
+                        rect.DOKill();
+                        Destroy(entry.gameObject);
+                   })
+                  .SetLink(gameObject);
             }
 
             _entries.Clear();
@@ -162,14 +176,11 @@ namespace CMPM.UI {
 
             playerController.SwitchSpell(spellIndex);
 
-            if (targetIcon) {
-                Spell[] spells = playerController.GetSpells();
-                if (spellIndex < spells.Length && spells[spellIndex] != null) {
-                    GameManager.Instance.SpellIconManager?.Get(spells[spellIndex].GetIcon());
-                }
+            if (!targetIcon) return;
+            Spell[] spells = playerController.GetSpells();
+            if (spellIndex < spells.Length && spells[spellIndex] != null) {
+                GameManager.Instance.SpellIconManager?.Get(spells[spellIndex].GetIcon());
             }
-
-            Close();
         }
     }
 }

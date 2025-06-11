@@ -227,12 +227,14 @@ namespace CMPM.Core {
         }
         
         // ReSharper disable once UnusedMember.Local
+        /*
         void OnChangeSpell(InputValue value) {
             if (GameManager.Instance.State == GameManager.GameState.PREGAME
              || GameManager.Instance.State == GameManager.GameState.GAMEOVER) return;
 
             NextSpell(++_spellIndex);
         }
+        */
 
         // ReSharper disable once UnusedMember.Local
         void OnMove(InputValue value)
