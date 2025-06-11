@@ -1,197 +1,154 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using CMPM.AI;
 using CMPM.Core;
 using CMPM.DamageSystem;
 using CMPM.Enemies;
+using CMPM.MapGenerator;
 using CMPM.Movement;
-using CMPM.UI;
 using CMPM.Utils;
 using CMPM.Utils.LevelParsing;
 using CMPM.Utils.Structures;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 // This is the most imports I've ever had in my life.
 
 
 namespace CMPM.Level {
     public class EnemySpawner : MonoBehaviour {
-        public GameObject button;
         [FormerlySerializedAs("enemy")] public GameObject enemyPrefab;
-        public SpawnPoint[] spawnPoints;
-
+        public static EnemySpawner Instance { get; private set; }
+        
+        
         // We may be able to get away w/ making this a static member for easier usage for parser,
         // but there's not a (ton) of reason to expose it publicly to begin with.
-        public SerializedDictionary<string, Enemy> enemyTypes;
-        public List<Level> levels;
+        SerializedDictionary<string, Enemy> _enemyTypes;
+        List<Difficulty> _difficulties;
 
         [Header("UI")] [SerializeField] GameObject levelSelector;
 
         #region Privates
-        Level _currentLevel;
-        int _currentWave;
+        Room _currentRoom;
+        int _currentFloor;
         int _remainingSpawns;
         #endregion
 
         void Awake() {
+            if (Instance && Instance != this) {
+                Destroy(gameObject); // Optional: clean up duplicates
+                return;
+            }
+            Instance = this;
+            
             LoadEnemiesJson(Resources.Load<TextAsset>("enemies"));
-            LoadLevelsJson(Resources.Load<TextAsset>("levels"), enemyTypes);
+            //LoadDifficultiesJson(Resources.Load<TextAsset>("levels"), enemyTypes);
 
-            // TODO: In the future I'd like a little more artistic control
-            foreach (Level level in levels) {
+            /*
+            foreach (Difficulty difficulty in _difficulties) {
                 GameObject selector = Instantiate(button, levelSelector.transform);
                 selector.transform.SetParent(levelSelector.transform);
                 MenuSelectorController msController = selector.GetComponent<MenuSelectorController>();
                 msController.spawner = this;
-                msController.SetLevel(level.name);
+                msController.SetLevel(difficulty.name);
             }
+            */
         }
 
-        public void StartLevel(string levelName) {
-            levelSelector.gameObject.SetActive(false);
-
-            // this is not nice: we should not have to be required to tell the player directly that the level is starting
-
-            Level currentLevel = levels.Find(level => level.name == levelName);
-            GameManager.Instance.TotalWaves  = currentLevel.waves;
-            GameManager.Instance.CurrentWave = 1;
-
-            //to start the level
-            GameManager.Instance.PlayerController.StartLevel();
-            StartCoroutine(SpawnWave(currentLevel, 1));
-        }
-
-        public void NextWave(Level currentLevel, int wave) {
-            //to move to the next wave
-            StartCoroutine(SpawnWave(currentLevel, wave));
-        }
-
-        public void NextWave() {
-            StartCoroutine(SpawnWave(_currentLevel, ++_currentWave));
+        public void EndWave() {
+            _currentRoom.UnlockDoors();
         }
 
         // It may be good to also make this async at some point. I don't see any reason *why* it has to sync w/
         // game manager, especially as this function gets more complex
-        IEnumerator SpawnWave(Level level, int wave) {
-            _currentLevel                    = level;
-            _currentWave                     = wave;
-            GameManager.Instance.CurrentWave = _currentWave;
+        public void SpawnEnemies(in Room room) {
+            _currentRoom  = room;
+            _currentFloor = GameManager.Instance.CurrentFloor;
 
-            GameManager.Instance.SetState(GameManager.GameState.COUNTDOWN);
-            GameManager.Instance.Countdown = 3;
-
-            {
-                SerializedDictionary<string, int> table      = new() { { "wave", wave } };
-                Span<Spawn>                       span       = level.spawns.AsSpan();
-                int                               maxEnemies = 0;
-                for (int i = 0; i < span.Length; i++) {
-                    maxEnemies += span[i].Count.Evaluate(table);
+            RoomSpawn roomSpawns = room.spawns;
+            
+            if (roomSpawns.spawns.Length == 0) return;
+            GameManager.Instance.SetState(GameManager.GameState.INCOMBAT);
+            
+            // Precompute valid enemies
+            Dictionary<SpawnPoint.SpawnName, (Spawn[], int[])> table = new();
+            foreach (SpawnPoint.SpawnName spawnName in Enum.GetValues(typeof(SpawnPoint.SpawnName))) {
+                List<Spawn> temp = new();
+                List<int>  temp2 = new();
+                foreach (Spawn spawn in roomSpawns.spawns) {
+                    if (spawn.MinFloor > _currentFloor) continue;
+                    bool validLocation = spawn.Locations.Contains(spawnName) || spawn.Locations.Contains(SpawnPoint.SpawnName.RANDOM);
+                    if (!validLocation) continue;
+                    temp.Add(spawn);
+                    temp2.Add(spawn.Weight);
                 }
 
-                GameManager.Instance.EnemiesLeft = maxEnemies;
+                table[spawnName] = (temp.ToArray(), temp2.ToArray());
             }
 
-            for (int i = 3; i > 0; i--) {
-                yield return new WaitForSeconds(1);
-                GameManager.Instance.Countdown--;
-            }
+            // One enemy per point
+            foreach (SpawnPoint point in room.spawnpoints) {
+                (Spawn[], int[]) valid = table[point.Kind];
+                if (valid.Item1.Length == 0) continue;
 
-            GameManager.Instance.SetState(GameManager.GameState.INWAVE);
+                Spawn spawn = valid.Item1[0];
+                { // Pick an enemy to spawn at this point w/ weights
+                    int   weightSum  = valid.Item2.Sum();
+                    int   pick       = Random.Range(0, weightSum);
+                    float cumulative = 0f;
 
+                    for (int i = 0; i < valid.Item1.Length; ++i) {
+                        cumulative += valid.Item2[i];
+                        if (!(pick <= cumulative)) continue;
+                        spawn = valid.Item1[i];
+                    }
+                }
 
-            // Definition of Embarrassingly Parallel
-            foreach (Spawn spawn in level.spawns) {
-                _ = SpawnEnemies(spawn, wave);
-            }
-
-            yield return new WaitWhile(()  => GameManager.Instance.EnemiesLeft > 0);
-            if (GameManager.Instance.State != GameManager.GameState.GAMEOVER) {
-                GameManager.Instance.SetState(GameManager.GameState.WAVEEND);
+                Enemy enemy = _enemyTypes[spawn.EnemyName];
+                (int HP, int Damage, int Speed) ep = (
+                    HP: (int)spawn.HPFormula.Evaluate(new SerializedDictionary<string, float> {
+                        { "floor", _currentFloor }, { "base", enemy.baseHP }
+                    }),
+                    Damage: spawn.DamageFormula.Evaluate(new SerializedDictionary<string, int> {
+                        { "floor", _currentFloor }, { "base", enemy.damage }
+                    }),
+                    Speed: spawn.SpeedFormula.Evaluate(new SerializedDictionary<string, int> {
+                        { "floor", _currentFloor }, { "base", enemy.speed }
+                    }));
+                
+                SpawnEnemy(enemy, ep, point.transform.position);
             }
         }
 
-        // TODO: Convert to RPNStrings
-        async Task SpawnEnemies(Spawn spawn, int wave) {
-            int   n             = 0;
-            int   count         = spawn.Count.Evaluate(new SerializedDictionary<string, int> { { "wave", wave } });
-            int   delay         = spawn.delay;
-            int[] sequence      = spawn.sequence;
-            int   sequenceIndex = 0;
-
-            SpawnPoint[] validSpawns = spawnPoints;
-            if (spawn.location != SpawnPoint.SpawnName.RANDOM) {
-                validSpawns = spawnPoints.Where(point => point.Kind == spawn.location).ToArray();
-            }
-
-            // Fallback
-            if (validSpawns.Length == 0) {
-                Debug.LogWarning("No valid spawn points found. Using fallback.");
-                validSpawns = new[] { spawnPoints[0] };
-            }
-
-            EnemyPacket ep = new() {
-                HP = spawn.HPFormula.Evaluate(new SerializedDictionary<string, int>()
-                                                  { { "wave", wave }, { "base", spawn.enemy.baseHP } }),
-                Damage = spawn.DamageFormula.Evaluate(new SerializedDictionary<string, int>()
-                                                          { { "wave", wave }, { "base", spawn.enemy.damage } }),
-                Speed = spawn.SpeedFormula.Evaluate(new SerializedDictionary<string, int>()
-                                                        { { "wave", wave }, { "base", spawn.enemy.speed } })
-            };
-
-            // Provided by Markus Eger's Lecture 5: Design Patterns in pseudocode
-            while (n < count) {
-                int required = sequence![sequenceIndex];
-                // ++x does have a meaningful difference against x++ in this case. Prefix means that we increment then get, suffix means get then increment.
-                sequenceIndex = ++sequenceIndex % sequence.Length;
-                for (int i = 0; i < required && n < count; i++, n++) {
-                    SpawnEnemy(spawn, ep, validSpawns);
-                }
-
-                await Task.Delay(delay);
-            }
-        }
-
-        // TOOD: Get rid of "packet". I don't remember why I seperated things this way and ideally we don't have
-        // multiple structs that provide values for the same thing (Ex packet and spawn both define a "HP"
-        
-        // I think packet was supposed to "simplify" the evaluation process by pre-computing all the RPN stuff.
-        // However there's legitimate reason for someone to want to re-evaluate RPN everytime it's accessed, so
-        // we'll want to do away with pre-computing it methinks.
-        void SpawnEnemy(in Spawn spawn, in EnemyPacket packet, in SpawnPoint[] points) {
-            SpawnPoint p      = points[Random.Range(0, points.Length)];
+        void SpawnEnemy(in Enemy enemy, in (int HP, int Damage, int Speed) packet, in Vector3 point) {
             Vector2    offset = Random.insideUnitCircle * 1.8f;
+            Vector3    initialPosition = point + new Vector3(offset.x, offset.y, 0);
+            GameObject newEnemy        = Object.Instantiate(enemyPrefab, initialPosition, Quaternion.identity);
 
-            Vector3    initialPosition = p.transform.position + new Vector3(offset.x, offset.y, 0);
-            GameObject newEnemy        = Instantiate(enemyPrefab, initialPosition, Quaternion.identity);
-
-            Enemy subject = spawn.enemy;
-            newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.EnemySpriteManager.Get(subject.sprite);
+            newEnemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.EnemySpriteManager.Get(enemy.sprite);
             EnemyController en = newEnemy.GetComponent<EnemyController>();
 
-            switch (subject.type) {
+            switch (enemy.type) {
                 case BehaviourType.Support:
-                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.cooldown, subject.range, packet.Damage, subject.strengthFactor));
+                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(enemy.cooldown, enemy.range, packet.Damage, enemy.strengthFactor));
                     en.AddAction(EnemyActionTypes.Heal, new EnemyHeal(10, 5, 15));
                     en.AddAction(EnemyActionTypes.Buff, new EnemyBuff(8, 5, 3, 8));
                     en.AddAction(EnemyActionTypes.Permabuff, new EnemyBuff(20, 5, 1));
                     en.AddEffect("noheal", 1);
                     break;
                 case BehaviourType.Swarmer:
-                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(subject.cooldown, subject.range, subject.damage, subject.strengthFactor));
+                    en.AddAction(EnemyActionTypes.Attack, new EnemyAttack(enemy.cooldown, enemy.range, enemy.damage, enemy.strengthFactor));
                     break;
                 default:
-                    throw new NotImplementedException($"Behaviour Type {subject.type} not implemented!");
+                    throw new NotImplementedException($"Behaviour Type {enemy.type} not implemented!");
             }
 
-            en.type = subject.type;
+            en.type = enemy.type;
             en.Behaviour = BehaviourBuilder.MakeTree(en);
             en.HP        = new Hittable(packet.HP, Hittable.Team.MONSTERS, en);
             en.ModifySpeed(packet.Speed);
@@ -200,14 +157,12 @@ namespace CMPM.Level {
             GameManager.Instance.AddEnemy(newEnemy);
         }
         
-        
-        #region JSON
         void LoadEnemiesJson(in TextAsset enemyText) {
-            enemyTypes = new SerializedDictionary<string, Enemy>();
+            _enemyTypes = new SerializedDictionary<string, Enemy>();
 
             foreach (JToken _ in JToken.Parse(enemyText.text)) {
                 Enemy e = _.ToObject<Enemy>();
-                enemyTypes[e.name] = e;
+                _enemyTypes[e.name] = e;
             }
         }
 
@@ -221,9 +176,10 @@ namespace CMPM.Level {
                 }
             };
 
-            levels = JsonConvert.DeserializeObject<List<Level>>(levelText.text, settings);
+            /*
+            difficulties = JsonConvert.DeserializeObject<List<RoomSpawn>>(levelText.text, settings);
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator <-- Resharper is wrong
-            foreach (Level level in levels) {
+            foreach (RoomSpawn level in difficulties) {
                 foreach (ref Spawn spawn in level.spawns.AsSpan()) {
                     ref Enemy fallback = ref spawn.enemy;
                     FormulaFallback(ref spawn.HPFormula, fallback.baseHP);
@@ -232,6 +188,7 @@ namespace CMPM.Level {
                     spawn.sequence ??= new[] { 1 };
                 }
             }
+            */
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -253,44 +210,10 @@ namespace CMPM.Level {
         [JsonProperty("behaviour")] public BehaviourType type;
     }
 
-    [Serializable]
-    public class Level {
-        public string name;
-        public int waves;
-        public Spawn[] spawns;
-    }
-
     // TODO: replace enemy ref w/ JSON Parser
-    [Serializable]
-    public struct Spawn {
-        //[JsonConverter(typeof(SpawnEnemyParser))] <-- this is only valid syntax when it's a parameterless constructor
-        public Enemy enemy;
 
-        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("count")]
-        public RPNString Count;
-
-        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("hp")]
-        public RPNString HPFormula;
-
-        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("speed")]
-        public RPNString SpeedFormula;
-
-        [JsonConverter(typeof(RPNStringParser))] [JsonProperty("damage")]
-        public RPNString DamageFormula;
-
-        [JsonConverter(typeof(SecondsParser))] [Tooltip("In ms.")]
-        public int delay;
-
-        [CanBeNull] public int[] sequence;
-
-        [JsonConverter(typeof(SpawnLocationParser))]
-        public SpawnPoint.SpawnName location;
+    struct Difficulty {
+        public string name;
+        
     }
-
-    struct EnemyPacket {
-        public int HP;
-        public int Damage;
-        public int Speed;
-    }
-    #endregion
 }

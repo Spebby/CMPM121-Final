@@ -29,7 +29,7 @@ namespace CMPM.Relics.Triggers {
 
         public SerializedDictionary<string, float> GetRPNVariables() {
             return new SerializedDictionary<string, float> {
-                { "wave", GameManager.Instance.CurrentWave }
+                { "wave", GameManager.Instance.CurrentFloor }
             };
         }
     }

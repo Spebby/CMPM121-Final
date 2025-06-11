@@ -1,0 +1,18 @@
+using CMPM.Utils;
+using UnityEditor;
+using UnityEngine;
+
+
+namespace CMPM.Editor {
+    [CustomPropertyDrawer(typeof(RPNString))]
+    public class RPNStringDrawer : PropertyDrawer {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
+            SerializedProperty expr = property.FindPropertyRelative("String");
+            EditorGUI.PropertyField(position, expr, label, true);
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
+            return EditorGUI.GetPropertyHeight(property.FindPropertyRelative("String"), label, true);
+        }
+    }
+}

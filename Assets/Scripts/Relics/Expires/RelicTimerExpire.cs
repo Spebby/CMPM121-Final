@@ -22,7 +22,7 @@ namespace CMPM.Relics.Expires {
 
         public SerializedDictionary<string, float> GetRPNVariables() {
             return new SerializedDictionary<string, float> {
-                { "wave", GameManager.Instance.CurrentWave }
+                { "wave", GameManager.Instance.CurrentFloor }
             };
         }
     }
