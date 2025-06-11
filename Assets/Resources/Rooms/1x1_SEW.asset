@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rooms:
   - {fileID: 7328084662367532751, guid: da54436ae2124824ca2c3b0db3c161b6, type: 3}
+  - {fileID: 7328084662367532751, guid: 0ea69709a7a31c84fa602eb26310a031, type: 3}
+  - {fileID: 7328084662367532751, guid: 3ac67232d16b23c45b03a46e692d82d1, type: 3}
   doors:
   - GridCoordinates: {x: 0, y: 0}
     direction: 2
