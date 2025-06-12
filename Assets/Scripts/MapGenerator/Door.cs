@@ -69,7 +69,7 @@ namespace CMPM.MapGenerator {
 
         public readonly Vector3 GetLocalCoordinates() => new(WorldCoordinates.x, WorldCoordinates.y, 0);
 
-        public Door GetMatching() {
+        public readonly Door GetMatching() {
             int x = GridCoordinates.x, y = GridCoordinates.y;
             // The +- 2 is b/c we have the padding of 1 unit for each room. Doors are guaranteed to touch that boundary
             // so we need to bump it over to the "correct" spot on the other side of the boundary.

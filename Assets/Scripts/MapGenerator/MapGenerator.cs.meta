@@ -4,10 +4,10 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - verticalHallway: {fileID: 5255264242106100983, guid: 23dab4baa5c4e3d4f9ab82b747040843, type: 3}
-  - horizontalHallway: {fileID: 1508018506499616265, guid: da4748670254bcd48a9c066ed148bec1, type: 3}
   - startRooms: {fileID: 11400000, guid: b94403de0b969abf38e0fc740db2d0a3, type: 2}
   - target: {fileID: 11400000, guid: 4037ade5abfdcf33796fa246d07fd052, type: 2}
+  - treasureRooms: {fileID: 11400000, guid: e07e4fe2c5f50f4e49b06818420ad9e3, type: 2}
+  - pathfinding: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

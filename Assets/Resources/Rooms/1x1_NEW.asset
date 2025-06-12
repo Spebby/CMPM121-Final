@@ -26,7 +26,7 @@ MonoBehaviour:
   - GridCoordinates: {x: 0, y: 0}
     direction: 3
     WorldCoordinates: {x: 0, y: 5}
-  Weight: 2
+  Weight: 3
   Width: 1
   Height: 1
   Occupancy: 01
