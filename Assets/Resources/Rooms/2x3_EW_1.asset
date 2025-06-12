@@ -33,7 +33,7 @@ MonoBehaviour:
   - GridCoordinates: {x: 1, y: 2}
     direction: 1
     WorldCoordinates: {x: 22, y: 29}
-  Weight: 1
+  Weight: 2
   Width: 2
   Height: 3
   Occupancy: 010101010101
