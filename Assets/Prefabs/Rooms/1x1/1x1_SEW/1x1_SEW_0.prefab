@@ -6153,6 +6153,51 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Kind: 0
+--- !u!1 &5203652076239696631
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1126697686162731250}
+  - component: {fileID: 617981567613465369}
+  m_Layer: 3
+  m_Name: Green
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1126697686162731250
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5203652076239696631}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 11, y: 10, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1233919373670568647}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &617981567613465369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5203652076239696631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa898092d9b0d8a41b153c7d66e057a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Kind: 1
 --- !u!1 &6582993340133507873
 GameObject:
   m_ObjectHideFlags: 0
@@ -6235,6 +6280,7 @@ Transform:
   - {fileID: 5773797799904173001}
   - {fileID: 375702854188915942}
   - {fileID: 399555016093248762}
+  - {fileID: 1126697686162731250}
   - {fileID: 2699509171763312201}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -6253,6 +6299,7 @@ MonoBehaviour:
   tiles: {fileID: 5825326236042427473}
   Weight: 2
   spawns: {fileID: 11400000, guid: aec379ffe0524cffca70ddff45f0d2a5, type: 2}
+  lootTable: {fileID: 0}
   spawnpoints: []
 --- !u!61 &-6942936451897492336
 BoxCollider2D:
