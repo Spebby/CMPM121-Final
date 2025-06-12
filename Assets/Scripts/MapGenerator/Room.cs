@@ -14,6 +14,7 @@ namespace CMPM.MapGenerator {
         [FormerlySerializedAs("weight"), SerializeField] internal int Weight;
 
         public RoomSpawn spawns;
+        [SerializeField] LootTable lootTable;
         [HideInInspector] public SpawnPoint[] spawnpoints;
         GameObject[] _lockedDoors;
         
@@ -22,7 +23,6 @@ namespace CMPM.MapGenerator {
         void Awake() {
             spawnpoints  = GetComponentsInChildren<SpawnPoint>();
             _lockedDoors = transform.GetChildrenWithTag("door").ToArray();
-            if (spawns is null) Cleared = true;
             foreach (GameObject door in _lockedDoors ?? Array.Empty<GameObject>()) {
                 door.SetActive(false);
             } 
@@ -41,19 +41,35 @@ namespace CMPM.MapGenerator {
             foreach (GameObject door in _lockedDoors ?? Array.Empty<GameObject>()) {
                 door.SetActive(false);
             }
+            OnClear();
         }
         
         public void LockDoors() {
+            EventBus.Instance.DoRoomStart();
             Cleared = false;
             foreach (GameObject door in _lockedDoors ?? Array.Empty<GameObject>()) {
                 door.SetActive(true);
             }
         }
-        
+
+        public void OnClear() {
+            EventBus.Instance.DoRoomClear();
+            if (!lootTable) return;
+            LootSpawner spawner = GetComponentInChildren<LootSpawner>();
+            MapGenerator.GENERATED_OBJECTS.Add(spawner.Spawn(lootTable));
+        }
+
         void OnTriggerEnter2D(Collider2D col) {
-            if (GameManager.Instance.State != GameManager.GameState.INGAME || Cleared) return;
-            LockDoors();
-            EnemySpawner.Instance.SpawnEnemies(this);
+            if (Cleared || GameManager.Instance.State != GameManager.GameState.INGAME || !col.CompareTag("Player")) return;
+            
+            // If combat dungeon
+            if (spawns != null) {
+                LockDoors();
+                EnemySpawner.Instance.SpawnEnemies(this);
+            } else {
+                UnlockDoors();
+            }
+            // this is inflexible, but I don't have much time to do it good for only 1 thing
         }
 
 #if UNITY_EDITOR
@@ -95,6 +111,10 @@ namespace CMPM.MapGenerator {
         #endif
     }
 
+    public interface IRoomItem {
+        
+    }
+    
     public static class TransformExtensions {
         public static List<GameObject> GetChildrenWithTag(this Transform parent, string tag) {
             List<GameObject> taggedChildren = new();

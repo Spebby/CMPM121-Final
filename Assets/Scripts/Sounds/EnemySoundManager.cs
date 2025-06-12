@@ -1,12 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Audio;
-using UnityEngine.Serialization;
 
-using CMPM.Core;
-using CMPM.UI;
-using System;
+
 public enum SoundTypeEnemies
 {
     ZOMBIE,

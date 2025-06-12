@@ -189,8 +189,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Label: {fileID: 1046314638542513343}
-  IconObject: {fileID: 4547677907347544454}
-  _SpellUI: {fileID: 2504102491205396209}
+  IconObject: {fileID: 2504102491205396209}
+  spellUI: {fileID: 2504102491205396209}
   tweenTimer: 0.1
 --- !u!1 &4547677907347544454
 GameObject:

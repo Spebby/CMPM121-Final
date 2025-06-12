@@ -14988,7 +14988,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -15012,8 +15012,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9a125a9910ce054b9eac0a1b893040d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _type: 0
-  _rarity: 0
+  type: 0
+  rarity: 0
 --- !u!114 &5384647079461612158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15030,6 +15030,7 @@ MonoBehaviour:
   relicIcon: {fileID: 7864136486167979728}
   description: {fileID: 3280792768500800373}
   lootController: {fileID: 1043074146415883873}
+  GUI: {fileID: 3844590895341519762}
 --- !u!61 &2326796629048064802
 BoxCollider2D:
   m_ObjectHideFlags: 0

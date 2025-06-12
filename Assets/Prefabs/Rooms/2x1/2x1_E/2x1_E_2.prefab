@@ -11989,7 +11989,7 @@ GameObject:
   - component: {fileID: -5898844824108619539}
   m_Layer: 3
   m_Name: 2x1_E_2
-  m_TagString: Untagged
+  m_TagString: room
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -12032,6 +12032,7 @@ MonoBehaviour:
   tiles: {fileID: 6467519232191827459}
   Weight: 5
   spawns: {fileID: 11400000, guid: aec379ffe0524cffca70ddff45f0d2a5, type: 2}
+  lootTable: {fileID: 0}
   spawnpoints: []
 --- !u!61 &-5898844824108619539
 BoxCollider2D:

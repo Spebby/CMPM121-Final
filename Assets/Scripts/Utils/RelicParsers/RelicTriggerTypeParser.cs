@@ -19,7 +19,7 @@ namespace CMPM.Utils.RelicParsers {
                 "take-damage" => PreconditionType.TakeDamage,
                 "timer"       => PreconditionType.Timer,
                 "wave-start"  => PreconditionType.WaveStart,
-                "wave-end"    => PreconditionType.WaveEnd,
+                "room-clear"  => PreconditionType.RoomClear,
                 "none"        => PreconditionType.None,
                 _             => throw new NotImplementedException($"Unknown trigger type '{str}'")
             };
@@ -33,7 +33,7 @@ namespace CMPM.Utils.RelicParsers {
                 PreconditionType.TakeDamage => "take-damage",
                 PreconditionType.Timer      => "timer",
                 PreconditionType.WaveStart  => "wave-start",
-                PreconditionType.WaveEnd    => "wave-end",
+                PreconditionType.RoomClear  => "room-clear",
                 PreconditionType.None       => "none",
                 _                           => throw new NotImplementedException($"Unknown precondition type '{value}'")
             };

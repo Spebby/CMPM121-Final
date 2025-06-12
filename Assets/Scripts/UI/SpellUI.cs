@@ -1,4 +1,3 @@
-using System;
 using CMPM.Core;
 using CMPM.Spells;
 using CMPM.UI.Tooltips;
@@ -18,7 +17,8 @@ namespace CMPM.UI {
         float _lastTextUpdate;
         const float UPDATE_DELAY = 1;
         public Button dropButton;
-
+        [HideInInspector] public int spellIndex = -1;
+        
         Tooltip _internalTooltip;
 
         void OnDestroy() {
@@ -35,7 +35,7 @@ namespace CMPM.UI {
             manacost.text = "";
             damage.text   = "";
             dropButton?.onClick.AddListener(() => {
-                GameManager.Instance.PlayerController.DropSpell(transform.GetSiblingIndex());
+                GameManager.Instance.PlayerController.DropSpell(spellIndex);
             });
         }
 

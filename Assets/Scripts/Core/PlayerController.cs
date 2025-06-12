@@ -126,6 +126,8 @@ namespace CMPM.Core {
 
         public void AddSpell(in Spell spell, int replaceIndex = 0) {
             if (replaceIndex < 0) throw new ArgumentOutOfRangeException(nameof(replaceIndex));
+            
+            spell.AddModifiers(_baseSpellModifiers.ToArray());
             for (int i = 0; i < _spells.Length; ++i) {
                 if (_spells[i] != null) continue;
                 _spells[i] = spell;
@@ -133,7 +135,6 @@ namespace CMPM.Core {
                 return;
             }
 
-            spell.AddModifiers(_baseSpellModifiers.ToArray());
             _spells[replaceIndex] = spell;
             spellUI.AddSpell(_spells[replaceIndex], replaceIndex);
         }
@@ -153,6 +154,7 @@ namespace CMPM.Core {
             }
 
             foreach (Spell spell in _spells) {
+                if (spell == null) continue;
                 spell.RemoveModifiers(modifiers);
             } 
         }
@@ -166,7 +168,7 @@ namespace CMPM.Core {
 
         public void SwitchSpell(int i) {
             _caster.Spell = _spells[i];
-            _spellIndex        = i;
+            _spellIndex   = i;
             spellUI.SetSpellAsActive(_spellIndex);
         }
 

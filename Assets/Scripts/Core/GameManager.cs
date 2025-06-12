@@ -4,6 +4,7 @@ using System.Linq;
 using CMPM.Level;
 using CMPM.Spells;
 using CMPM.Sprites;
+using CMPM.UI;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -22,7 +23,8 @@ namespace CMPM.Core {
             PREGAME   = 1 << 0,
             INGAME    = 1 << 1,
             INCOMBAT  = 1 << 2,
-            GAMEOVER  = 1 << 3,
+            FLOOREND  = 1 << 3,
+            GAMEOVER  = 1 << 4,
         }
 
         public GameState State { get; private set; }
@@ -44,7 +46,8 @@ namespace CMPM.Core {
         public EnemySpriteManager EnemySpriteManager;
         public PlayerSpriteManager PlayerSpriteManager;
         public RelicIconManager RelicIconManager;
-
+        public MapGenerator.MapGenerator MapGenerator;
+        
         readonly List<GameObject> _enemies;
         public int EnemiesLeft;
 
@@ -127,6 +130,9 @@ namespace CMPM.Core {
         GameManager() {
             _enemies = new List<GameObject>();
             State    = GameState.PREGAME;
+            EventBus.Instance.OnFloorClear += () => {
+                CurrentFloor++;
+            };
         }
     }
 }

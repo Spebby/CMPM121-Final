@@ -9,7 +9,6 @@ namespace CMPM.Relics.Expires {
         protected Coroutine Runner;
 
         protected RelicCoroutineExpire(in Relic parent) : base(parent) { }
-        ~RelicCoroutineExpire() => OnCancel();
         
         public override void OnTrigger(Action callback) {
             OnCancel();

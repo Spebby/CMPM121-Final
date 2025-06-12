@@ -21,7 +21,7 @@ namespace CMPM.Level {
         public RPNString SpeedFormula;
         public RPNString DamageFormula;
 
-        public int Weight;
+        public RPNString Weight;
 
         [FormerlySerializedAs("Location")] public SpawnPoint.SpawnName[] Locations;
     }

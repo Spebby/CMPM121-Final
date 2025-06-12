@@ -84,13 +84,13 @@ namespace CMPM.Relics {
         #region Privates
         readonly RelicData _data;
         readonly IRelicEffect[] _effects;
+        event Action ActivateCallback;
         public bool IsActive { get; private set; }
         #endregion
 
         public Relic(in PlayerController player, in RelicData data) {
             SpellCaster caster = player;
             _data  = data;
-
 
             RelicData.RelicPreconditionData precondition = _data.Precondition;
             RelicTrigger trigger = precondition.Type switch {
@@ -104,7 +104,7 @@ namespace CMPM.Relics {
                 PreconditionType.OnHit     => null,
                 PreconditionType.None      => null,
                 PreconditionType.WaveStart => null,
-                PreconditionType.WaveEnd   => null,
+                PreconditionType.RoomClear => null,
                 _                          => throw new NotImplementedException($"Precondition type {precondition.Type} is not implemented")
             };
             
@@ -149,12 +149,12 @@ namespace CMPM.Relics {
                     // handled at end of function
                     ShouldHighlight = false;
                     break;
-                case PreconditionType.WaveEnd:
-                    EventBus.Instance.OnWaveEnd += OnActivate;
+                case PreconditionType.RoomClear:
+                    EventBus.Instance.OnRoomClear += OnActivate;
                     ShouldHighlight             =  false;
                     break;
                 case PreconditionType.WaveStart:
-                    EventBus.Instance.OnWaveStart += OnActivate;
+                    EventBus.Instance.OnRoomStart += OnActivate;
                     ShouldHighlight               =  false;
                     break;
                 default:
@@ -167,7 +167,7 @@ namespace CMPM.Relics {
                 int[] modifiers = null;
                 switch (effect.Type) {
                     case EffectType.ModifySpellCooldownP: {
-                        SpellStatModifier m    = new(null, null, null, new RPNString($"value {effect.Amount.ToString()} *"));
+                        SpellStatModifier m    = new(null, null, null, null, new RPNString($"value {effect.Amount.ToString()} *"));
                         int               hash = m.GetHashCode();
                         SpellModifierRegistry.Register(hash, m);
                         modifiers = new[] { hash };
@@ -231,8 +231,9 @@ namespace CMPM.Relics {
                             break;
                         }
 
-                        expire.OnTrigger();
+                        ActivateCallback += () => expire.OnTrigger();
                         break;
+                    case EffectExpiration.StatusExpire:
                     case EffectExpiration.Overwrite:
                         ShouldHighlight = false;
                         break;
@@ -271,6 +272,8 @@ namespace CMPM.Relics {
                 }
                 e.ApplyEffect();
             }
+
+            ActivateCallback?.Invoke();
             IsActive = true;
         }
 
@@ -291,7 +294,7 @@ namespace CMPM.Relics {
         OnHit,
         Timer,
         WaveStart,
-        WaveEnd,
+        RoomClear,
 		None
     }
 
@@ -313,6 +316,7 @@ namespace CMPM.Relics {
         None,
         Move,
         Timer,
+        StatusExpire,
         Overwrite,
         CastSpell
     }

@@ -4,9 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Pathfinding;
+using CMPM.Core;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 using Exception = System.Exception;
 
@@ -14,6 +13,7 @@ using Exception = System.Exception;
 namespace CMPM.MapGenerator {
     [SuppressMessage("ReSharper", "ReplaceSliceWithRangeIndexer")]
     public sealed class MapGenerator : MonoBehaviour {
+        public const int NEW_ROOMS_PER_FLOOR = 3;
         [Header("Archetypes")] 
         [SerializeField] string ResourceDirectory = "Rooms";
         [SerializeField, Tooltip("Do not manually assign!")] RoomArchetype[] archetypes;
@@ -23,6 +23,12 @@ namespace CMPM.MapGenerator {
         [SerializeField] RoomCollection target;
         [SerializeField] RoomCollection treasureRooms;
 
+        // This isn't ideal. It would be nice if we could simply define rules in some sort of config file or
+        // a SO and then the map would evaluate the rules there--we could simply just plug in new rules as we like.
+        // For endrooms a priority system would be needed.
+        [SerializeField, Range(0, 1f)] float TargetRoomDistance   = 1f;
+        [SerializeField, Range(0, 1f)] float TreasureRoomDistance = 0.5f;
+        
         public int MIN_SIZE = 5;
         public int MAX_SIZE = 15;
 
@@ -44,7 +50,7 @@ namespace CMPM.MapGenerator {
         System.Random _rng = new();
         
         // keep the instantiated rooms and hallways here
-        readonly List<GameObject> _generatedObjects = new();
+        public static readonly List<GameObject> GENERATED_OBJECTS = new();
         readonly Dictionary<Vector2Int, RoomNode> _roomGraph = new();
         int _iterations;
 
@@ -61,6 +67,17 @@ namespace CMPM.MapGenerator {
             foreach (Door.Direction dir in Door.Cardinals) {
                 _roomsByDir[dir] = archetypes.Where(archetype => archetype.HasDoorOnSide(dir)).ToArray();
             }
+            
+            EventBus.Instance.OnFloorClear += () => {
+                MAX_SIZE += NEW_ROOMS_PER_FLOOR;
+                MIN_SIZE += NEW_ROOMS_PER_FLOOR;
+                Generate();
+            };
+        }
+
+        void Start() {
+            GameManager.Instance.MapGenerator = this;
+            Generate();
         }
 
         public void Generate() {
@@ -71,11 +88,11 @@ namespace CMPM.MapGenerator {
             _rng = new System.Random(newSeed);
             
             // dispose of game objects from previous generation process
-            foreach (GameObject go in _generatedObjects) {
+            foreach (GameObject go in GENERATED_OBJECTS) {
                 go.SetActive(false);
                 Destroy(go);
             }
-            _generatedObjects.Clear();
+            GENERATED_OBJECTS.Clear();
             _roomGraph.Clear();
 
             RoomArchetype start = startRooms.GetRandomRoom(_rng);
@@ -117,8 +134,8 @@ namespace CMPM.MapGenerator {
         
         IEnumerator RegenerateGraphNextFrame() {
             yield return null; // wait a frame
-            List<Tilemap> t      = new(_generatedObjects.Count * 2);
-            foreach (GameObject g in _generatedObjects) {
+            List<Tilemap> t      = new(GENERATED_OBJECTS.Count * 2);
+            foreach (GameObject g in GENERATED_OBJECTS) {
                 t.AddRange(g.GetComponentsInChildren<Tilemap>());
             }
             Bounds    bounds = GetCombinedBounds(t);
@@ -175,11 +192,12 @@ namespace CMPM.MapGenerator {
                 int write = baseCount;
                 // This code is intended to remove doors who match the new room's doors.
                 // If we don't do this filter step, then all paths that branch out will never reconnect.
-                // Currently this isn't working as intended. Investigate at some point.
+                // Currently, this isn't working as intended. Investigate at some point.
                 ReadOnlySpan<Door> plusDoors = hopeful.GetDoors(offset);
                 for (int i = 0; i < plusCount; i++) {
                     Door plus = plusDoors[i];
                     if (plus == match) continue;
+                    /* // This block doesn't currently work correctly, it's just wasted compute.
                     Door mirror = plus.GetMatching();
                     bool replaced = false;
                     for (int j = 0; j < baseCount; ++j) {
@@ -189,7 +207,8 @@ namespace CMPM.MapGenerator {
                         break;
                     }
 
-                    if (!replaced) frontierBuf[write++] = plus;
+                    if (!replaced) */
+                    frontierBuf[write++] = plus;
                 }
                 
                 using RentBuffer<Door> frontier = new(frontierBuf, write);
@@ -248,7 +267,7 @@ namespace CMPM.MapGenerator {
 
             // There is a visual bug here, where if Target replaces a 2x1 hallway, then it looks like
             // this check failed, even though it did succeed.
-            // NOTE: I need to double check if this actually fixed it, but I made the BFS take into account the
+            // NOTE: I need to double-check if this actually fixed it, but I made the BFS take into account the
             // "desired size" of the room when trying to find the farthest. Should leave non-1x1s alone.
             return true;
         }
@@ -260,12 +279,14 @@ namespace CMPM.MapGenerator {
             // Run BFS and find the longest path to a deadened from start, and the node w/ appropriate target.
             List<RoomNode> endrooms = RoomNode.GetEndRooms(_roomGraph[STARTING_POS]);
 
-            ReplaceRoom(endrooms[^1], target);
-            if (SpawnTreasureRoom() && endrooms.Count > 1) ReplaceRoom(endrooms[^2], treasureRooms);
+            ReplaceRoom(endrooms[Mathf.RoundToInt(TargetRoomDistance * (endrooms.Count - 1))], target);
+            if (CanSpawnTreasureRoom() && endrooms.Count > 1) {
+                ReplaceRoom(endrooms[Mathf.RoundToInt(TreasureRoomDistance * (endrooms.Count - 1))], treasureRooms);
+            }
             
             // Instantiate everything
             foreach (RoomNode node in nodes) {
-                _generatedObjects.Add(node.Archetype.GetRandomRoom(_rng).Place(node.Coordinates));
+                GENERATED_OBJECTS.Add(node.Archetype.GetRandomRoom(_rng).Place(node.Coordinates));
                 ReadOnlySpan<Door> doorSpan = node.Archetype.GetHallwaySideDoors(node.Coordinates);
                 doors.Capacity = doors.Count + doorSpan.Length;
                 foreach (Door door in doorSpan) {
@@ -299,10 +320,6 @@ namespace CMPM.MapGenerator {
             }
 
             return true;
-        }
-
-        void Start() {
-            Generate();
         }
 
         static Bounds GetCombinedBounds(List<Tilemap> tilemaps) {
@@ -339,7 +356,7 @@ namespace CMPM.MapGenerator {
             return bounds;
         }
 
-        bool SpawnTreasureRoom() {
+        bool CanSpawnTreasureRoom() {
             return true;
         }
     }
@@ -348,15 +365,14 @@ namespace CMPM.MapGenerator {
     sealed class RoomNode : IEquatable<RoomNode> {
         public RoomArchetype Archetype { get; set; }
         public readonly Vector2Int Coordinates;
-        public HashSet<RoomNode> Neighbours { get; }
-
-        public readonly int Size;
+        HashSet<RoomNode> Neighbours { get; }
+        readonly int _size;
         
         public RoomNode(in RoomArchetype archetype, in Vector2Int coordinates) {
             Archetype   = archetype;
             Coordinates = coordinates;
             Neighbours  = new HashSet<RoomNode>();
-            Size        = Archetype.GetOccupancy(Vector2Int.zero).Length;
+            _size        = Archetype.GetOccupancy(Vector2Int.zero).Length;
         }
 
 		public void Connect(in RoomNode other) {
@@ -412,7 +428,7 @@ namespace CMPM.MapGenerator {
             while (queue.Count > 0) {
                 (RoomNode current, int dist) = queue.Dequeue();
 
-                bool isSizeMatch = desiredSize < 0 || current.Size == desiredSize;
+                bool isSizeMatch = desiredSize < 0 || current._size == desiredSize;
 
                 if (isSizeMatch && dist > maxDist) {
                     maxDist  = dist;
@@ -443,7 +459,7 @@ namespace CMPM.MapGenerator {
             while (queue.Count > 0) {
                 RoomNode current = queue.Dequeue();
 
-                if (current.Neighbours.Count == 1 && current.Size == 1) {
+                if (current.Neighbours.Count == 1 && current._size == 1) {
                     endRooms.Add(current);
                 }
 

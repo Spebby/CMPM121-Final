@@ -9,9 +9,6 @@ namespace CMPM.Relics.Triggers {
         protected Coroutine Runner;
 
         protected RelicCoroutineTrigger(in Relic parent) : base(parent) { }
-        ~RelicCoroutineTrigger() {
-            OnCancel();
-        }
         
         public override void OnTrigger(Action callback = null) {
             OnCancel();

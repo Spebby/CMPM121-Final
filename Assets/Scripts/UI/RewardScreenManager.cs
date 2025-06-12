@@ -10,7 +10,7 @@ using static CMPM.Core.GameManager.GameState;
 using CMPM.Spells;
 using CMPM.Utils;
 using Newtonsoft.Json;
-using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 
@@ -60,11 +60,6 @@ namespace CMPM.UI {
         [SerializeField] public AudioSource uiRewardAudioSource;
         [SerializeField] public AudioClip gameOverScreenClip;
         [SerializeField] public AudioSource gameOverScreenSource;
-
-        [FormerlySerializedAs("OnPanelClose")]
-        [Header("Unity Events")] // I don't like Unity Events that much, but they are convenient from time to time.
-        [SerializeField]
-        UnityEvent onPanelClose;
 
         // Temporary stat collectors
         double _timeSpent;
@@ -162,6 +157,10 @@ namespace CMPM.UI {
                     // we continue tracking time in Update()
                     break;
 
+                case FLOOREND:
+                    ShowRewardScreen();
+                    break;
+                
                 case GAMEOVER:
                     ShowLossScreen();
                     break;
@@ -201,11 +200,16 @@ namespace CMPM.UI {
             panel.SetActive(true);
             classSelector.SetActive(false);
             endUI.SetActive(true);
-            nextButton.gameObject.SetActive(false);
+            nextButton.gameObject.SetActive(true);
             acceptButton.gameObject.SetActive(false);
             spellUI.SetActive(false);
             discardSpellUI.SetActive(false);
 
+            nextButton.onClick.RemoveAllListeners();
+            nextButton.onClick.AddListener(() => {
+                SceneManager.LoadScene(0);
+            });
+            
             statsText.text = $"Time Spent: {_timeSpent:F2}\t" +
                              $"Damage Done: {_damageDone}\t" +
                              $"Damage Taken: {_damageTaken}";
@@ -329,7 +333,7 @@ namespace CMPM.UI {
             nextButton.gameObject.SetActive(false);
             acceptButton.onClick.RemoveAllListeners();
             _rewardSpell = null;
-            onPanelClose?.Invoke();
+            GameManager.Instance.SetState(INGAME);
         }
 
         void UpdateStatsText() {

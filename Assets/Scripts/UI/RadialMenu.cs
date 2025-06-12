@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.UI;
 using DG.Tweening;
 using CMPM.Spells;
 using CMPM.Core;
@@ -96,7 +95,7 @@ namespace CMPM.UI {
                     // if (iconImage) {
                     //     GameManager.Instance.SpellIconManager.PlaceSprite(spell.GetIcon(), iconImage);
                     // }
-                    menuEntry._SpellUI.GetComponent<SpellUI>().SetSpell(spell);
+                    menuEntry.spellUI.GetComponent<SpellUI>().SetSpell(spell);
                 }
             }
 

@@ -22,6 +22,10 @@ namespace CMPM.Utils {
             return entry.String;
         }
 
+        public override string ToString() {
+            return String;
+        }
+
         public static bool operator !=(RPNString a, RPNString b) {
             return a.String != b.String;
         }

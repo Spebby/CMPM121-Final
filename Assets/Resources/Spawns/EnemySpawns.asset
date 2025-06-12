@@ -16,50 +16,55 @@ MonoBehaviour:
   - EnemyName: zombie
     MinFloor: 1
     HPFormula:
-      String: 25 wave *
+      String: base floor base 1.2 * * +
     SpeedFormula:
       String: base
     DamageFormula:
       String: base
-    Weight: 5
+    Weight:
+      String: 8
     Locations: 03000000
   - EnemyName: skeleton
     MinFloor: 1
     HPFormula:
-      String: base floor 1.1 * +
+      String: base floor base 1.1 * * +
     SpeedFormula:
       String: base
     DamageFormula:
       String: base floor 2 * +
-    Weight: 3
+    Weight:
+      String: 5
     Locations: 0300000000000000
   - EnemyName: warlock
     MinFloor: 2
     HPFormula:
-      String: 75 50 wavve * +
+      String: base 50 floor * +
     SpeedFormula:
       String: base
     DamageFormula:
       String: base floor 2 * +
-    Weight: 1
+    Weight:
+      String: 2
     Locations: 02000000
   - EnemyName: dryad
     MinFloor: 2
     HPFormula:
-      String: 25 wave * base +
+      String: 25 floor * base +
     SpeedFormula:
       String: base
     DamageFormula:
       String: base floor 2 * +
-    Weight: 1
+    Weight:
+      String: 2
     Locations: 01000000
   - EnemyName: goat
     MinFloor: 3
     HPFormula:
-      String: 30 10 wave 3 / *
+      String: base 10 floor * +
     SpeedFormula:
       String: base
     DamageFormula:
       String: base
-    Weight: 2
+    Weight:
+      String: 1
     Locations: 03000000

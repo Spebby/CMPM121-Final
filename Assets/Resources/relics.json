@@ -154,18 +154,18 @@
 		"sprite": 8,
         "rarity": "common",
 		"precondition": {
-			"description": "At the start of every wave...",
-			"type": "wave-start"
+			"description": "On every kill...",
+			"type": "on-kill"
 		},
 		"effect": [
 			{
-				"description": "Gain a 10 second boost to your speed.",
+				"description": "Gain a 3 second boost to your speed.",
 				"type": "gain-speed",
-				"amount": "3",
+				"amount": "2",
 				"until": "timer",
 				"range": {
-					"min": "10",
-					"max": "10"
+					"min": "3",
+					"max": "3"
 				}
 			}
 		]
@@ -176,8 +176,8 @@
 		"sprite": 7,
         "rarity": "uncommon",
 		"precondition": {
-			"description": "At the end of a wave...",
-			"type": "wave-end"
+			"description": "When a room is cleared...",
+			"type": "room-clear"
 		},
 		"effect": [
 			{
@@ -201,7 +201,7 @@
 				"description": "Inflict a short burn, dealing 15 damage",
 				"type": "status-burn",
 				"amount": "15",
-				"until": "timer",
+				"until": "status-expire",
 				"range": {
 					"min": "3",
 					"max": "3"

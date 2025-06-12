@@ -66,9 +66,8 @@ namespace CMPM.UI {
 
         public void AddSpell(Spell spell, int i) {
             spellUIs[i].SetSpell(spell);
-            // if (i == 0) {
-            //     spellUIs[0].highlight.SetActive(true);
-            // }
+            spellUIs[i].spellIndex = i;
+            // ^^ this is a terrible solution but i have 3 minutes to fix it
         }
     }
 }
