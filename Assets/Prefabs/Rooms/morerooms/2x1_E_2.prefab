@@ -9562,8 +9562,8 @@ Tilemap:
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Origin: {x: -4, y: -1, z: 0}
-  m_Size: {x: 53, y: 23, z: 1}
+  m_Origin: {x: 0, y: 0, z: 0}
+  m_Size: {x: 42, y: 22, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
@@ -11313,8 +11313,8 @@ Tilemap:
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Origin: {x: -1, y: 0, z: 0}
-  m_Size: {x: 43, y: 22, z: 1}
+  m_Origin: {x: 0, y: 0, z: 0}
+  m_Size: {x: 42, y: 22, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
@@ -11547,7 +11547,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28737951a2732ea49a70f5bb422f790f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tiles: {fileID: 0}
+  tiles: {fileID: 6467519232191827459}
   Weight: 5
   spawns: {fileID: 11400000, guid: aec379ffe0524cffca70ddff45f0d2a5, type: 2}
   spawnpoints: []

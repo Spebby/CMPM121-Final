@@ -11575,7 +11575,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28737951a2732ea49a70f5bb422f790f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tiles: {fileID: 0}
+  tiles: {fileID: 9221151574300867433}
   Weight: 5
   spawns: {fileID: 11400000, guid: aec379ffe0524cffca70ddff45f0d2a5, type: 2}
   spawnpoints: []

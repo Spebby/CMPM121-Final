@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6806927996439494283}
   - component: {fileID: 8867206137846459912}
   m_Layer: 3
-  m_Name: Grid (1)
+  m_Name: Grid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11123,7 +11123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28737951a2732ea49a70f5bb422f790f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tiles: {fileID: 0}
+  tiles: {fileID: 671387176500695100}
   Weight: 5
   spawns: {fileID: 11400000, guid: aec379ffe0524cffca70ddff45f0d2a5, type: 2}
   spawnpoints: []
