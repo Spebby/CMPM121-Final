@@ -53,7 +53,7 @@ namespace CMPM.MapGenerator {
         static readonly Vector2Int STARTING_POS = Vector2Int.zero;
         
         void Awake() {
-            archetypes                = Resources.LoadAll<RoomArchetype>(ResourceDirectory);
+            archetypes            = Resources.LoadAll<RoomArchetype>(ResourceDirectory);
             List<RoomArchetype> a = archetypes.ToList();
             archetypes = a.ToArray();
             // ^ this is a silly way of doing it, but I don't really care
